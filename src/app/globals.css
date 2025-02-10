@@ -1,0 +1,120 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;700&family=Crimson+Text:wght@400;600&display=swap");
+
+/* Define custom fonts using @font-face */
+@font-face {
+  font-family: "Empira Light";
+  src: url("/fonts/Empira-Light.woff2") format("woff2"),
+    url("/fonts/Empira-Light.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geller";
+  src: url("/fonts/Geller-Regular.woff2") format("woff2"),
+    url("/fonts/Geller-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* CSS Variables */
+:root {
+  /* Color Variables */
+  --primary-background: #fffefa;
+  --secondary-color: #0d0b00;
+  --foreground: var(--secondary-color);
+
+  /* Font Variables */
+  --header-font: "Empira Light", "Libre Franklin", sans-serif;
+  --text-font: "Geller", "Crimson Text", serif;
+
+  /* Breakpoints */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 768px;
+  --breakpoint-md: 1024px;
+  --breakpoint-lg: 1280px;
+}
+
+/* Global Box Sizing */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* Base Styles */
+body {
+  color: var(--foreground);
+  background: var(--primary-background);
+  font-family: var(--text-font);
+  margin: 0;
+  padding: 0;
+}
+
+/* Typography Defaults */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--header-font);
+  margin: 0;
+  line-height: 1.2;
+}
+
+p,
+a,
+li,
+span,
+div {
+  font-family: var(--text-font);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/* Responsive Typography */
+
+/* Small Devices */
+@media (max-width: var(--breakpoint-sm)) {
+  h1 {
+    font-size: 2rem;
+  }
+  p {
+    font-size: 1rem;
+  }
+}
+
+/* Medium Devices */
+@media (min-width: var(--breakpoint-sm)) and (max-width: var(--breakpoint-md)) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  p {
+    font-size: 1.1rem;
+  }
+}
+
+/* Large Devices */
+@media (min-width: var(--breakpoint-md)) {
+  h1 {
+    font-size: 3rem;
+  }
+  p {
+    font-size: 1.2rem;
+  }
+}
