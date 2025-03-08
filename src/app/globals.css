@@ -1,35 +1,50 @@
-/* Import Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;700&family=Crimson+Text:wght@400;600&display=swap");
+/* 
+  1. Font-face definitions (if self-hosting):
+     • Download the necessary font files (e.g. .woff2, .woff) and place them in the public/fonts folder.
+     • The design slides list primary typefaces (available on Adobe) and backup fonts (available on Google Fonts).
+     • In this example, we define “Nicholas” (for headings) and “FreightText Pro” (for body) as primary.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;700&display=swap");
 
-/* Define custom fonts using @font-face */
+/* Example for self-hosting primary fonts */
 @font-face {
-  font-family: "Empira Light";
-  src: url("/fonts/Empira-Light.woff2") format("woff2"),
-    url("/fonts/Empira-Light.woff") format("woff");
+  font-family: "Nicholas";
+  src: url("/fonts/Nicholas-Regular.woff2") format("woff2"),
+    url("/fonts/Nicholas-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Geller";
-  src: url("/fonts/Geller-Regular.woff2") format("woff2"),
-    url("/fonts/Geller-Regular.woff") format("woff");
+  font-family: "FreightText Pro";
+  src: url("/fonts/FreightTextPro-Regular.woff2") format("woff2"),
+    url("/fonts/FreightTextPro-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 /* CSS Variables */
 :root {
-  /* Color Variables */
-  --primary-background: #fffefa;
-  --secondary-color: #0d0b00;
+  /* Color Variables (from slides) */
+  --primary-background: #fffefa; /* White */
+  --secondary-color: #0d0b00; /* Black */
   --foreground: var(--secondary-color);
+  --color-light-gray: #f0efea;
+  --color-dark-gray: #3f3f3c;
+  --color-medium-gray: #b7b7b1;
+  --color-extra-gray: #6d6d68;
 
-  /* Font Variables */
-  --header-font: "Empira Light", "Libre Franklin", sans-serif;
-  --text-font: "Geller", "Crimson Text", serif;
+  /* Font Variables 
+     Primary typefaces per slides:
+       • Headings: Nicholas (primary), fallback to Franklin Gothic or Playfair Display
+       • Body: FreightText Pro (primary), fallback to Crimson Text or Libre Franklin
+  */
+  --header-font: "Nicholas", "Franklin Gothic", "Playfair Display", sans-serif;
+  --text-font: "FreightText Pro", "Crimson Text", "Libre Franklin", serif;
 
-  /* Breakpoints */
+  /* Breakpoints (as provided) */
   --breakpoint-xs: 480px;
   --breakpoint-sm: 768px;
   --breakpoint-md: 1024px;
