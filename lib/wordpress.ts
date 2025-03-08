@@ -19,7 +19,7 @@ const baseUrl =
   process.env.WORDPRESS_URL || "https://brownpoliticalreview.org/";
 
 // Create axios instance with default config
-const api = axios.create({
+export const api = axios.create({
   baseURL: baseUrl,
 });
 
