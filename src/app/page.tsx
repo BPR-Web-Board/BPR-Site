@@ -1,8 +1,19 @@
 import Image from "next/image";
+import Hero from './components/magazine-hero';
 
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <Hero 
+        issueNumber="02"
+        issueSeason="Fall"
+        issueYear="2024"
+        title="Silence"
+        releaseDate="December 01, 2024"
+        paragraph="Your paragraph text here..."
+        linkUrl="/issues/02"
+        imageSrc="/path/to/your-image.jpg"
+      />
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
