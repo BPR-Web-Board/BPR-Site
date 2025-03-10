@@ -1,671 +1,519 @@
-# WordPress API Integration Guide
+# WordPress API Developer Guide
 
-This document provides a detailed breakdown of the TypeScript types and functions used to interact with the WordPress REST API. It covers the types defined in `wordpress.d.ts` and the functions in `wordpress.ts`, explaining the purpose of each and how to use them effectively for the Brown Poltical Review.
-
----
+This guide provides a comprehensive overview of the WordPress API functions library. It's designed to help developers quickly understand and use the WordPress API wrapper without having to read through all the function implementations and type definitions.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Type Definitions (`wordpress.d.ts`)](#type-definitions-wordpressdts)
-  - [Post](#post)
-  - [Category](#category)
-  - [Tag](#tag)
-  - [Page](#page)
-  - [Author](#author)
-  - [FeaturedMedia](#featuredmedia)
-  - [Additional Types](#additional-types)
-- [WordPress API Functions (`wordpress.ts`)](#wordpress-api-functions-wordpressts)
-  - [Configuration](#configuration)
-  - [Utility Functions](#utility-functions)
-  - [Fetching Posts](#fetching-posts)
-  - [Fetching Categories](#fetching-categories)
-  - [Fetching Tags](#fetching-tags)
-  - [Fetching Pages](#fetching-pages)
-  - [Fetching Authors](#fetching-authors)
-  - [Fetching Featured Media](#fetching-featured-media)
-- [Using the API Functions](#using-the-api-functions)
-  - [Example: Fetching and Displaying a Post](#example-fetching-and-displaying-a-post)
-- [Conclusion](#conclusion)
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Core WordPress Objects](#core-wordpress-objects)
+- [Posts API](#posts-api)
+- [Categories API](#categories-api)
+- [Tags API](#tags-api)
+- [Pages API](#pages-api)
+- [Authors API](#authors-api)
+- [Media API](#media-api)
+- [Composite Functions](#composite-functions)
+- [Common Use Cases](#common-use-cases)
+- [Error Handling](#error-handling)
+- [Testing](#testing)
 
----
+## Overview
 
-## Introduction
+This library provides a TypeScript wrapper around the WordPress REST API, making it easy to fetch and interact with WordPress content. It handles the API requests and response parsing, and provides strongly-typed objects for WordPress content types like posts, categories, tags, and authors.
 
-The WordPress REST API allows developers to interact with WordPress content programmatically. This guide explains the TypeScript types that define the structure of WordPress data and the functions that fetch this data using the REST API. Understanding these will help you integrate WordPress content seamlessly into your applications.
+## Getting Started
 
----
+### Installation
 
-## Type Definitions (`wordpress.d.ts`)
+Make sure you have axios installed in your project:
 
-TypeScript declaration files (`.d.ts`) define the shapes of data objects, enabling type checking and IntelliSense in your code editor. Below are the key types and their attributes.
-
-### Post
-
-Represents a blog post in WordPress.
-
-```typescript
-export type Post = {
-  id: number;
-  date: string;
-  date_gmt: string;
-  guid: { rendered: string };
-  modified: string;
-  modified_gmt: string;
-  slug: string;
-  status: "publish" | "future" | "draft" | "pending" | "private";
-  type: string;
-  link: string;
-  title: { rendered: string };
-  content: { rendered: string; protected: boolean };
-  excerpt: { rendered: string; protected: boolean };
-  author: number;
-  featured_media: number;
-  comment_status: "open" | "closed";
-  ping_status: "open" | "closed";
-  sticky: boolean;
-  template: string;
-  format:
-    | "standard"
-    | "aside"
-    | "chat"
-    | "gallery"
-    | "link"
-    | "image"
-    | "quote"
-    | "status"
-    | "video"
-    | "audio";
-  meta: any[];
-  categories: number[];
-  tags: number[];
-};
+```bash
+npm install axios
 ```
-
-**Attributes Explained:**
-
-- `id`: Unique identifier for the post.
-- `date`: The date the post was published (local time).
-- `date_gmt`: The date the post was published (GMT).
-- `guid`: Globally unique identifier.
-  - `rendered`: The GUID value.
-- `modified`: The date the post was last modified (local time).
-- `modified_gmt`: The date the post was last modified (GMT).
-- `slug`: URL-friendly name of the post.
-- `status`: Publication status (e.g., "publish", "draft").
-- `type`: Post type (usually "post").
-- `link`: URL to the post on the website.
-- `title`: The title of the post.
-  - `rendered`: HTML-rendered title.
-- `content`: The content body of the post.
-  - `rendered`: HTML-rendered content.
-  - `protected`: Indicates if the content is password-protected.
-- `excerpt`: A summary or excerpt of the post.
-  - `rendered`: HTML-rendered excerpt.
-  - `protected`: Indicates if the excerpt is password-protected.
-- `author`: ID of the author who wrote the post.
-- `featured_media`: ID of the featured image/media.
-- `comment_status`: Commenting status ("open" or "closed").
-- `ping_status`: Pingback status ("open" or "closed").
-- `sticky`: Indicates if the post is sticky (pinned).
-- `template`: The theme template file used.
-- `format`: The format of the post (e.g., "standard", "gallery").
-- `meta`: Meta fields attached to the post.
-- `categories`: Array of category IDs.
-- `tags`: Array of tag IDs.
-
-### Category
-
-Represents a category assigned to posts.
-
-```typescript
-export type Category = {
-  id: number;
-  count: number;
-  description: string;
-  link: string;
-  name: string;
-  slug: string;
-  taxonomy: "category";
-  parent: number;
-  meta: any[];
-};
-```
-
-**Attributes Explained:**
-
-- `id`: Unique identifier for the category.
-- `count`: Number of posts in the category.
-- `description`: Description of the category.
-- `link`: URL to the category page.
-- `name`: Display name of the category.
-- `slug`: URL-friendly name.
-- `taxonomy`: Type of taxonomy (always "category" for categories).
-- `parent`: ID of the parent category (if any).
-- `meta`: Meta fields associated with the category.
-
-### Tag
-
-Represents a tag assigned to posts.
-
-```typescript
-export type Tag = {
-  id: number;
-  count: number;
-  description: string;
-  link: string;
-  name: string;
-  slug: string;
-  taxonomy: "post_tag";
-  meta: any[];
-};
-```
-
-**Attributes Explained:**
-
-- Similar to `Category`, but `taxonomy` is "post_tag".
-
-### Page
-
-Represents a static page in WordPress.
-
-```typescript
-export type Page = {
-  id: number;
-  date: string;
-  date_gmt: string;
-  guid: { rendered: string };
-  modified: string;
-  modified_gmt: string;
-  slug: string;
-  status: "publish" | "future" | "draft" | "pending" | "private";
-  type: string;
-  link: string;
-  title: { rendered: string };
-  content: { rendered: string; protected: boolean };
-  excerpt: { rendered: string; protected: boolean };
-  author: number;
-  featured_media: number;
-  parent: number;
-  menu_order: number;
-  comment_status: "open" | "closed";
-  ping_status: "open" | "closed";
-  template: string;
-  meta: any[];
-};
-```
-
-**Attributes Explained:**
-
-- Similar to `Post`, with additional fields:
-  - `parent`: ID of the parent page.
-  - `menu_order`: Order of the page in menus.
-
-### Author
-
-Represents a user who authors content.
-
-```typescript
-export type Author = {
-  id: number;
-  name: string;
-  url: string;
-  description: string;
-  link: string;
-  slug: string;
-  avatar_urls: { [key: string]: string };
-  meta: any[];
-};
-```
-
-**Attributes Explained:**
-
-- `id`: Unique identifier for the author.
-- `name`: Display name of the author.
-- `url`: URL of the author's website or profile.
-- `description`: Biographical information.
-- `link`: URL to the author's page.
-- `slug`: URL-friendly name.
-- `avatar_urls`: Object containing avatar images of various sizes.
-- `meta`: Meta fields associated with the author.
-
-### FeaturedMedia
-
-Represents media items, such as images.
-
-```typescript
-export type FeaturedMedia = {
-  id: number;
-  date: string;
-  slug: string;
-  type: string;
-  link: string;
-  title: { rendered: string };
-  author: number;
-  caption: { rendered: string };
-  alt_text: string;
-  media_type: string;
-  mime_type: string;
-  media_details: {
-    width: number;
-    height: number;
-    file: string;
-    sizes: {
-      [key: string]: {
-        file: string;
-        width: number;
-        height: number;
-        mime_type: string;
-        source_url: string;
-      };
-    };
-  };
-  source_url: string;
-};
-```
-
-**Attributes Explained:**
-
-- `id`, `date`, `slug`, `link`, `title`, `author`: Standard attributes.
-- `caption`: Caption for the media.
-  - `rendered`: HTML-rendered caption.
-- `alt_text`: Alternative text for the media.
-- `media_type`: Type of media (e.g., "image").
-- `mime_type`: MIME type (e.g., "image/jpeg").
-- `media_details`: Details about the media.
-  - `width`, `height`: Dimensions.
-  - `file`: File name.
-  - `sizes`: Various sizes of the media.
-- `source_url`: Direct URL to the media file.
-
-### Additional Types
-
-- **BlockType**, **EditorBlock**, **TemplatePart**, **SearchResult**: These types are used for more advanced features like block editing, templates, and search results. They are defined similarly, with attributes pertinent to their functionality.
-
----
-
-## WordPress API Functions (`wordpress.ts`)
-
-These functions fetch data from a WordPress site using the REST API. They use the types defined in `wordpress.d.ts` for strong typing.
 
 ### Configuration
 
-```typescript
-const baseUrl = process.env.WORDPRESS_URL;
+The API is configured to use a WordPress site URL, which can be set via environment variable or defaults to "https://brownpoliticalreview.org/":
 
-function getUrl(path: string, query?: Record<string, any>) {
-  const params = query ? querystring.stringify(query) : null;
-  const baseUrl = "https://brownpoliticalreview.org/";
-  return `${baseUrl}${path}${params ? `?${params}` : ""}`;
-}
+```typescript
+// Set WordPress URL in .env file
+WORDPRESS_URL=https://your-wordpress-site.com
+
+// Or set it programmatically before importing the API
+process.env.WORDPRESS_URL = "https://your-wordpress-site.com";
+import * as wpApi from "./lib/wordpress";
 ```
 
-- **`baseUrl`**: The base URL of the WordPress site.
-- **`getUrl`**: Constructs the full API endpoint URL with query parameters.
+## Core WordPress Objects
 
-### Utility Functions
+The API works with the following WordPress objects:
 
-- **Importing Modules**:
+### Post
 
-  ```typescript
-  import querystring from "query-string";
-  import {
-    Post,
-    Category,
-    Tag,
-    Page,
-    Author,
-    FeaturedMedia,
-  } from "./wordpress.d";
-  ```
+Represents a WordPress post or article.
 
-### Fetching Posts
+Key properties:
 
-- **Get All Posts**:
+- `id`: Unique identifier for the post
+- `title.rendered`: The post title
+- `content.rendered`: The post content in HTML
+- `excerpt.rendered`: Short excerpt of the post
+- `slug`: URL-friendly name of the post
+- `date`: Publication date
+- `author`: ID of the post author
+- `featured_media`: ID of the featured image
+- `categories`: Array of category IDs
+- `tags`: Array of tag IDs
 
-  ```typescript
-  export async function getAllPosts(filterParams?: {
-    author?: string;
-    tag?: string;
-    category?: string;
-  }): Promise<Post[]> {
-    const url = getUrl("/wp-json/wp/v2/posts", {
-      per_page: 30,
-      author: filterParams?.author,
-      tags: filterParams?.tag,
-      categories: filterParams?.category,
-    });
-    const response = await fetch(url);
-    const posts: Post[] = await response.json();
-    return posts;
-  }
-  ```
+### Category
 
-  - **Purpose**: Fetches all posts, optionally filtering by author, tag, or category.
-  - **Parameters**: `filterParams` may include `author`, `tag`, `category` IDs as strings.
-  - **Returns**: An array of `Post` objects.
+Represents a content category.
 
-- **Get Post by ID**:
+Key properties:
 
-  ```typescript
-  export async function getPostById(id: number): Promise<Post> {
-    const url = getUrl(`/wp-json/wp/v2/posts/${id}`);
-    const response = await fetch(url);
-    const post: Post = await response.json();
-    return post;
-  }
-  ```
+- `id`: Unique identifier
+- `name`: Category name
+- `slug`: URL-friendly name
+- `description`: Category description
+- `count`: Number of posts in this category
 
-  - **Purpose**: Fetches a post by its unique ID.
+### Tag
 
-- **Get Post by Slug**:
+Represents a content tag.
 
-  ```typescript
-  export async function getPostBySlug(slug: string): Promise<Post> {
-    const url = getUrl("/wp-json/wp/v2/posts", { slug });
-    const response = await fetch(url);
-    const post: Post[] = await response.json();
-    return post[0];
-  }
-  ```
+Key properties:
 
-  - **Purpose**: Fetches a post using its slug (URL-friendly name).
+- `id`: Unique identifier
+- `name`: Tag name
+- `slug`: URL-friendly name
+- `description`: Tag description
+- `count`: Number of posts with this tag
 
-- **Get Posts by Category ID**:
+### Author
 
-  ```typescript
-  export async function getPostsByCategory(
-    categoryId: number
-  ): Promise<Post[]> {
-    const url = getUrl("/wp-json/wp/v2/posts", { categories: categoryId });
-    const response = await fetch(url);
-    const posts: Post[] = await response.json();
-    return posts;
-  }
-  ```
+Represents a content author.
 
-  - **Purpose**: Fetches posts belonging to a specific category.
+Key properties:
 
-- **Get Posts by Tag ID**:
+- `id`: Unique identifier
+- `name`: Author's name
+- `slug`: URL-friendly name
+- `description`: Author bio
+- `avatar_urls`: Object containing avatar URLs at different sizes
 
-  ```typescript
-  export async function getPostsByTag(tagId: number): Promise<Post[]> {
-    const url = getUrl("/wp-json/wp/v2/posts", { tags: tagId });
-    const response = await fetch(url);
-    const posts: Post[] = await response.json();
-    return posts;
-  }
-  ```
+### FeaturedMedia
 
-### Fetching Categories
+Represents a media item (usually an image).
 
-- **Get All Categories**:
+Key properties:
 
-  ```typescript
-  export async function getAllCategories(): Promise<Category[]> {
-    const url = getUrl("/wp-json/wp/v2/categories");
-    const response = await fetch(url);
-    const categories: Category[] = await response.json();
-    return categories;
-  }
-  ```
+- `id`: Unique identifier
+- `source_url`: URL to the media file
+- `media_details`: Contains dimensions, file info, and different sizes
+- `alt_text`: Alternative text for the image
 
-- **Get Category by ID**:
+## Posts API
 
-  ```typescript
-  export async function getCategoryById(id: number): Promise<Category> {
-    const url = getUrl(`/wp-json/wp/v2/categories/${id}`);
-    const response = await fetch(url);
-    const category: Category = await response.json();
-    return category;
-  }
-  ```
+### Get All Posts
 
-- **Get Category by Slug**:
-
-  ```typescript
-  export async function getCategoryBySlug(slug: string): Promise<Category> {
-    const url = getUrl("/wp-json/wp/v2/categories", { slug });
-    const response = await fetch(url);
-    const category: Category[] = await response.json();
-    return category[0];
-  }
-  ```
-
-### Fetching Tags
-
-- **Get All Tags**:
-
-  ```typescript
-  export async function getAllTags(): Promise<Tag[]> {
-    const url = getUrl("/wp-json/wp/v2/tags");
-    const response = await fetch(url);
-    const tags: Tag[] = await response.json();
-    return tags;
-  }
-  ```
-
-- **Get Tag by ID**:
-
-  ```typescript
-  export async function getTagById(id: number): Promise<Tag> {
-    const url = getUrl(`/wp-json/wp/v2/tags/${id}`);
-    const response = await fetch(url);
-    const tag: Tag = await response.json();
-    return tag;
-  }
-  ```
-
-- **Get Tag by Slug**:
-
-  ```typescript
-  export async function getTagBySlug(slug: string): Promise<Tag> {
-    const url = getUrl("/wp-json/wp/v2/tags", { slug });
-    const response = await fetch(url);
-    const tag: Tag[] = await response.json();
-    return tag[0];
-  }
-  ```
-
-### Fetching Pages
-
-- **Get All Pages**:
-
-  ```typescript
-  export async function getAllPages(): Promise<Page[]> {
-    const url = getUrl("/wp-json/wp/v2/pages");
-    const response = await fetch(url);
-    const pages: Page[] = await response.json();
-    return pages;
-  }
-  ```
-
-- **Get Page by ID**:
-
-  ```typescript
-  export async function getPageById(id: number): Promise<Page> {
-    const url = getUrl(`/wp-json/wp/v2/pages/${id}`);
-    const response = await fetch(url);
-    const page: Page = await response.json();
-    return page;
-  }
-  ```
-
-- **Get Page by Slug**:
-
-  ```typescript
-  export async function getPageBySlug(slug: string): Promise<Page> {
-    const url = getUrl("/wp-json/wp/v2/pages", { slug });
-    const response = await fetch(url);
-    const page: Page[] = await response.json();
-    return page[0];
-  }
-  ```
-
-### Fetching Authors
-
-- **Get All Authors**:
-
-  ```typescript
-  export async function getAllAuthors(): Promise<Author[]> {
-    const url = getUrl("/wp-json/wp/v2/users");
-    const response = await fetch(url);
-    const authors: Author[] = await response.json();
-    return authors;
-  }
-  ```
-
-- **Get Author by ID**:
-
-  ```typescript
-  export async function getAuthorById(id: number): Promise<Author> {
-    const url = getUrl(`/wp-json/wp/v2/users/${id}`);
-    const response = await fetch(url);
-    const author: Author = await response.json();
-    return author;
-  }
-  ```
-
-- **Get Author by Slug**:
-
-  ```typescript
-  export async function getAuthorBySlug(slug: string): Promise<Author> {
-    const url = getUrl("/wp-json/wp/v2/users", { slug });
-    const response = await fetch(url);
-    const author: Author[] = await response.json();
-    return author[0];
-  }
-  ```
-
-### Fetching Featured Media
-
-- **Get Featured Media by ID**:
-
-  ```typescript
-  export async function getFeaturedMediaById(
-    id: number
-  ): Promise<FeaturedMedia> {
-    const url = getUrl(`/wp-json/wp/v2/media/${id}`);
-    const response = await fetch(url);
-    const featuredMedia: FeaturedMedia = await response.json();
-    return featuredMedia;
-  }
-  ```
-
----
-
-## Using the API Functions
-
-Below is an example of how to use these functions in your application.
-
-### Example: Fetching and Displaying a Post
-
-**Objective**: Fetch a post by its slug and display its title, content, and author name.
+Retrieves a list of posts.
 
 ```typescript
-import { getPostBySlug, getAuthorById } from "./wordpress";
+import { getAllPosts } from "./lib/wordpress";
 
-// Function to display a post
-async function displayPost(slug: string) {
-  try {
-    // Fetch the post by slug
-    const post = await getPostBySlug(slug);
+// Get all posts (limited to 30 by default)
+const posts = await getAllPosts();
 
-    // Extract post details
-    const { title, content, author: authorId } = post;
+// Get posts with filters
+const filteredPosts = await getAllPosts({
+  author: "5", // Filter by author ID
+  tag: "3", // Filter by tag ID
+  category: "1", // Filter by category ID
+});
+```
 
-    // Fetch the author's details
-    const author = await getAuthorById(authorId);
+### Get Post by ID
 
-    // Display the post
-    console.log("Title:", title.rendered);
-    console.log("Author:", author.name);
-    console.log("Content:", content.rendered);
-  } catch (error) {
-    console.error("Error fetching post:", error);
+Retrieves a single post by its ID.
+
+```typescript
+import { getPostById } from "./lib/wordpress";
+
+const post = await getPostById(123);
+console.log(post.title.rendered); // "Post Title"
+```
+
+### Get Post by Slug
+
+Retrieves a single post by its slug.
+
+```typescript
+import { getPostBySlug } from "./lib/wordpress";
+
+const post = await getPostBySlug("hello-world");
+console.log(post.id); // 123
+```
+
+## Categories API
+
+### Get All Categories
+
+Retrieves a list of all categories.
+
+```typescript
+import { getAllCategories } from "./lib/wordpress";
+
+const categories = await getAllCategories();
+// categories is an array of Category objects
+```
+
+### Get Category by ID
+
+Retrieves a single category by its ID.
+
+```typescript
+import { getCategoryById } from "./lib/wordpress";
+
+const category = await getCategoryById(5);
+console.log(category.name); // "News"
+```
+
+### Get Category by Slug
+
+Retrieves a single category by its slug.
+
+```typescript
+import { getCategoryBySlug } from "./lib/wordpress";
+
+const category = await getCategoryBySlug("news");
+console.log(category.id); // 5
+```
+
+### Get Posts by Category
+
+Retrieves all posts in a specific category.
+
+```typescript
+import { getPostsByCategory } from "./lib/wordpress";
+
+const posts = await getPostsByCategory(5); // Get posts from category with ID 5
+// posts is an array of Post objects
+```
+
+## Tags API
+
+### Get All Tags
+
+Retrieves a list of all tags.
+
+```typescript
+import { getAllTags } from "./lib/wordpress";
+
+const tags = await getAllTags();
+// tags is an array of Tag objects
+```
+
+### Get Tag by ID
+
+Retrieves a single tag by its ID.
+
+```typescript
+import { getTagById } from "./lib/wordpress";
+
+const tag = await getTagById(3);
+console.log(tag.name); // "Politics"
+```
+
+### Get Tag by Slug
+
+Retrieves a single tag by its slug.
+
+```typescript
+import { getTagBySlug } from "./lib/wordpress";
+
+const tag = await getTagBySlug("politics");
+console.log(tag.id); // 3
+```
+
+### Get Posts by Tag
+
+Retrieves all posts with a specific tag.
+
+```typescript
+import { getPostsByTag } from "./lib/wordpress";
+
+const posts = await getPostsByTag(3); // Get posts with tag ID 3
+// posts is an array of Post objects
+```
+
+### Get Tags by Post
+
+Retrieves all tags associated with a specific post.
+
+```typescript
+import { getTagsByPost } from "./lib/wordpress";
+
+const tags = await getTagsByPost(123); // Get tags for post with ID 123
+// tags is an array of Tag objects
+```
+
+## Pages API
+
+### Get All Pages
+
+Retrieves a list of all pages.
+
+```typescript
+import { getAllPages } from "./lib/wordpress";
+
+const pages = await getAllPages();
+// pages is an array of Page objects
+```
+
+### Get Page by ID
+
+Retrieves a single page by its ID.
+
+```typescript
+import { getPageById } from "./lib/wordpress";
+
+const page = await getPageById(10);
+console.log(page.title.rendered); // "About Us"
+```
+
+### Get Page by Slug
+
+Retrieves a single page by its slug.
+
+```typescript
+import { getPageBySlug } from "./lib/wordpress";
+
+const page = await getPageBySlug("about-us");
+console.log(page.id); // 10
+```
+
+## Authors API
+
+### Get All Authors
+
+Retrieves a list of all authors.
+
+```typescript
+import { getAllAuthors } from "./lib/wordpress";
+
+const authors = await getAllAuthors();
+// authors is an array of Author objects
+```
+
+### Get Author by ID
+
+Retrieves a single author by ID.
+
+```typescript
+import { getAuthorById } from "./lib/wordpress";
+
+const author = await getAuthorById(5);
+console.log(author.name); // "Jane Doe"
+```
+
+### Get Author by Slug
+
+Retrieves a single author by slug.
+
+```typescript
+import { getAuthorBySlug } from "./lib/wordpress";
+
+const author = await getAuthorBySlug("jane-doe");
+console.log(author.id); // 5
+```
+
+### Get Posts by Author
+
+Retrieves all posts by a specific author.
+
+```typescript
+import { getPostsByAuthor } from "./lib/wordpress";
+
+const posts = await getPostsByAuthor(5); // Get posts by author with ID 5
+// posts is an array of Post objects
+```
+
+## Media API
+
+### Get Featured Media by ID
+
+Retrieves a media item by ID (usually used for featured images).
+
+```typescript
+import { getFeaturedMediaById } from "./lib/wordpress";
+
+const media = await getFeaturedMediaById(10);
+console.log(media.source_url); // URL to the image
+console.log(media.alt_text); // Alt text for the image
+```
+
+## Composite Functions
+
+These functions combine multiple API calls for convenience.
+
+### Get Posts by Author Slug
+
+Retrieves all posts by an author, using the author's slug instead of ID.
+
+```typescript
+import { getPostsByAuthorSlug } from "./lib/wordpress";
+
+const posts = await getPostsByAuthorSlug("jane-doe");
+// posts is an array of Post objects
+```
+
+### Get Posts by Category Slug
+
+Retrieves all posts in a category, using the category's slug instead of ID.
+
+```typescript
+import { getPostsByCategorySlug } from "./lib/wordpress";
+
+const posts = await getPostsByCategorySlug("news");
+// posts is an array of Post objects
+```
+
+### Get Posts by Tag Slug
+
+Retrieves all posts with a tag, using the tag's slug instead of ID.
+
+```typescript
+import { getPostsByTagSlug } from "./lib/wordpress";
+
+const posts = await getPostsByTagSlug("politics");
+// posts is an array of Post objects
+```
+
+## Common Use Cases
+
+### Fetching a Post with Author, Categories, and Featured Image
+
+```typescript
+import {
+  getPostById,
+  getAuthorById,
+  getCategoryById,
+  getFeaturedMediaById,
+} from "./lib/wordpress";
+
+async function getCompletePost(postId) {
+  // Fetch the post
+  const post = await getPostById(postId);
+
+  // Fetch the author
+  const author = await getAuthorById(post.author);
+
+  // Fetch categories
+  const categories = await Promise.all(
+    post.categories.map((categoryId) => getCategoryById(categoryId))
+  );
+
+  // Fetch featured image if it exists
+  let featuredImage = null;
+  if (post.featured_media > 0) {
+    featuredImage = await getFeaturedMediaById(post.featured_media);
   }
+
+  // Return complete post object
+  return {
+    ...post,
+    authorData: author,
+    categoriesData: categories,
+    featuredImageData: featuredImage,
+  };
 }
 
 // Usage
-displayPost("example-post-slug");
+const completePost = await getCompletePost(123);
 ```
 
-**Explanation**:
+```typescript
+import { getAllPosts, getAuthorById, getCategoryById } from "./lib/wordpress";
 
-1. **Import Necessary Functions**: Import `getPostBySlug` and `getAuthorById` from the API functions.
+async function getBlogHomepage() {
+  // Get latest posts
+  const posts = await getAllPosts();
 
-2. **Fetch the Post**:
+  // Get author and primary category for each post
+  const postsWithMeta = await Promise.all(
+    posts.map(async (post) => {
+      const author = await getAuthorById(post.author);
 
-   - Call `getPostBySlug(slug)` to fetch the post data.
-   - Destructure the `title`, `content`, and `author` ID from the post.
-
-3. **Fetch the Author**:
-
-   - Use `getAuthorById(authorId)` to get the author's details.
-
-4. **Display the Post**:
-
-   - Use `console.log` to print the post's title, author's name, and content.
-   - Note that `title.rendered` and `content.rendered` contain the HTML-rendered strings.
-
-**Handling HTML Content**:
-
-- The `rendered` fields contain HTML content. When displaying this content in a web page, ensure you handle it safely to avoid XSS vulnerabilities.
-- In frameworks like React, use `dangerouslySetInnerHTML` cautiously.
-
-**Example in React**:
-
-```jsx
-import React, { useEffect, useState } from "react";
-import { getPostBySlug, getAuthorById, Post } from "./wordpress";
-
-function PostComponent({ slug }) {
-  const [post, setPost] = (useState < Post) | (null > null);
-  const [authorName, setAuthorName] = useState("");
-
-  useEffect(() => {
-    async function fetchPost() {
-      try {
-        const postData = await getPostBySlug(slug);
-        setPost(postData);
-
-        const authorData = await getAuthorById(postData.author);
-        setAuthorName(authorData.name);
-      } catch (error) {
-        console.error("Error fetching post:", error);
+      // Get the first category (primary)
+      let primaryCategory = null;
+      if (post.categories.length > 0) {
+        primaryCategory = await getCategoryById(post.categories[0]);
       }
-    }
 
-    fetchPost();
-  }, [slug]);
-
-  if (!post) return <div>Loading...</div>;
-
-  return (
-    <div>
-      <h1>{post.title.rendered}</h1>
-      <p>By {authorName}</p>
-      <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
-    </div>
+      return {
+        ...post,
+        authorData: author,
+        primaryCategory,
+      };
+    })
   );
+
+  return postsWithMeta;
 }
 
-export default PostComponent;
+// Usage
+const blogPosts = await getBlogHomepage();
+```
+
+## Error Handling
+
+All API functions use async/await and return promises, so you can use standard JavaScript error handling:
+
+```typescript
+import { getPostById } from "./lib/wordpress";
+
+try {
+  const post = await getPostById(123);
+  // Process post
+} catch (error) {
+  if (error.response && error.response.status === 404) {
+    console.error("Post not found");
+  } else {
+    console.error("Error fetching post:", error.message);
+  }
+}
+```
+
+## Testing
+
+### Mock Tests
+
+This library comes with comprehensive mock tests to validate API functionality without making actual API requests.
+
+To run the mock tests:
+
+```bash
+npm test
+```
+
+### Integration Tests
+
+Integration tests are available to test against a real WordPress site.
+
+To run integration tests:
+
+```bash
+# Set WordPress URL if needed
+export WORDPRESS_URL="https://your-wordpress-site.com"
+
+# Enable integration tests
+export INTEGRATION_TESTS=true
+
+# Run tests
+npm test
 ```
 
 ---
 
-## Conclusion
-
-This guide provides an overview of how to work with the WordPress REST API using TypeScript. By understanding the data types and functions provided, you can efficiently fetch and display WordPress content within your applications.
-
-**Tips**:
-
-- **Error Handling**: Always include error handling when working with asynchronous functions.
-- **Pagination**: The WordPress REST API supports pagination. Adjust your queries accordingly if you need to handle large datasets.
-- **Caching**: Consider caching responses to improve performance and reduce API calls.
-- **Security**: Be mindful of security, especially when rendering HTML content from external sources.
-
----
-
-Happy coding!
+This guide covers the core functionality of the WordPress API wrapper. For more detailed information about the WordPress REST API itself, refer to the [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/).
