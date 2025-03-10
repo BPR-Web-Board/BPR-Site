@@ -52,7 +52,7 @@
 }
 
 /* Global Box Sizing */
-html {
+/* html {
   box-sizing: border-box;
 }
 
@@ -60,7 +60,7 @@ html {
 *::before,
 *::after {
   box-sizing: inherit;
-}
+} */
 
 /* Base Styles */
 body {
