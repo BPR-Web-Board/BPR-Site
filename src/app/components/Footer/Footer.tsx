@@ -21,8 +21,8 @@ const Footer: React.FC<FooterProps> = ({ className, ...props }) => {
               <Image
                 src="/logo/logo_white.svg"
                 alt="The Brown Political Review Logo"
-                width={150}
-                height={50}
+                width={250}
+                height={75}
                 priority
               />
             </div>

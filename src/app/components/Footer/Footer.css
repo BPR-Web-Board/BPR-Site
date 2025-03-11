@@ -1,7 +1,7 @@
 :root {
-  --site-content-max-width: 1200px;
-  --site-content-padding: 0 1.5rem;
-  --logo-container-padding: 0.5rem;
+  --site-content-max-width: 95%; /* Reduced from 98% to 95% */
+  --site-content-padding: 0 0.75rem;
+  --logo-container-padding: 0.25rem;
 }
 
 .footer {
@@ -14,8 +14,8 @@
 .footer-container {
   width: 100%;
   max-width: var(--site-content-max-width);
-  margin: 0 auto;
-  padding: var(--site-content-padding);
+  margin: 0 auto; /* Changed back to auto for better centering */
+  padding: 0 1.5rem; /* Increased horizontal padding */
 }
 
 .footer-content {
@@ -33,6 +33,7 @@
 .logo-container {
   max-width: 200px;
   margin-left: 0;
+  margin-top: 1.5rem;
 }
 
 /* Middle section */
@@ -108,11 +109,11 @@
 @media (max-width: 1024px) {
   :root {
     --site-content-padding: 0 1rem;
-    --logo-container-padding: 0.5rem;
+    --logo-container-padding: 0.25rem;
   }
 
   .footer-container {
-    padding: var(--site-content-padding);
+    padding: 0 1.25rem;
   }
 }
 
@@ -138,8 +139,8 @@
 
 @media (max-width: 480px) {
   :root {
-    --site-content-padding: 0 0.75rem;
-    --logo-container-padding: 0.25rem;
+    --site-content-padding: 0 0.5rem;
+    --logo-container-padding: 0;
   }
 
   .footer-container {
