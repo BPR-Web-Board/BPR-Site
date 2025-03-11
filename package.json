@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@next/font": "^14.2.15",
-    "lucide-react": "^0.475.0",
+    "lucide-react": "^0.477.0",
     "axios": "^1.8.2",
     "next": "15.1.6",
     "query-string": "^9.1.1",

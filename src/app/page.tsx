@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Footer from "./components/Footer";
 import NavigationBar from "./components/NavigationBar/NavigationBar";
 
 export default function Home() {
@@ -98,6 +99,7 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
+      <Footer logoSrc="/path/to/your-logo.png"/>
     </div>
   );
 }
