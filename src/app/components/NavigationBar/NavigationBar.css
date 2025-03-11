@@ -44,20 +44,26 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem; /* Increased horizontal padding */
+  position: relative; /* Added for better positioning control */
 }
 
+/* Adjusted logo container */
 .logo-container {
-  width: 200px;
-  height: 50px;
+  width: 150px; /* Reduced width */
+  height: 100%;
   display: flex;
-  align-items: center;
+  justify-content: flex-start;
   padding-left: var(--logo-container-padding);
 }
 
 .logo {
   width: 100%;
-  height: 100%;
+  /* height: auto; Changed to auto for proper aspect ratio */
   object-fit: contain;
+  /* max-height: 28px; Smaller height for better vertical centering */
+  display: block;
+  position: relative;
+  top: 0; /* Reset any vertical offset */
 }
 
 /* ---------- Desktop Navigation ---------- */
@@ -254,6 +260,8 @@
 
 .mobile-logo {
   height: auto;
+  max-height: 40px;
+  width: auto;
   object-fit: contain;
 }
 
@@ -396,7 +404,7 @@
   }
 
   .logo-container {
-    width: 160px;
+    width: 140px;
   }
 }
 
@@ -411,7 +419,7 @@
   }
 
   .logo-container {
-    width: 140px;
+    width: 130px;
   }
 
   .mobile-section-header {

@@ -205,8 +205,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                   src="/logo/logo.svg"
                   alt="The Brown Political Review Logo"
                   width={150}
-                  height={50}
+                  height={40}
                   priority
+                  className="logo"
                 />
               </Link>
             </div>
@@ -288,11 +289,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
           <div className="mobile-menu-header">
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <Image
-                src="/logo.svg"
+                src="/logo/logo.svg"
                 alt="The Brown Political Review Logo"
                 width={100}
-                height={50}
+                height={35}
                 className="mobile-logo"
+                style={{ objectFit: "contain", maxHeight: "35px" }}
               />
             </Link>
             <button

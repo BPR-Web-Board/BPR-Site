@@ -53,8 +53,9 @@
 }
 
 .column-title {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-weight: 600;
+  text-transform: uppercase;
   margin-bottom: 0.7rem;
 }
 
