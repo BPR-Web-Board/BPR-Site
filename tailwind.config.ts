@@ -12,13 +12,16 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        inter: ["Inter", "sans-serif"],
+      },
     },
     screens: {
-      sm: "640px", // Tablet
-      md: "768px", // Large Tablet
-      lg: "1024px", // Desktop
-      xl: "1280px", // Large Desktop
-      "2xl": "1536px", // Extra Large Desktop
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
     },
   },
   plugins: [],
