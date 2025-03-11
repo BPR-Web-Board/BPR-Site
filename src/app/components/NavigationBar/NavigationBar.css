@@ -9,8 +9,12 @@
   --mobile-menu-width: 85%;
   --mobile-text-color: #1f2937;
   --mobile-border-color: #e5e7eb;
-}
 
+  /* Add these new variables */
+  --site-content-max-width: 1200px;
+  --site-content-padding: 0 1.5rem; /* Reduced from 2rem */
+  --logo-container-padding: 0.5rem; /* Significantly reduced from 2rem */
+}
 /* ---------- Main Navigation ---------- */
 .nav-container {
   width: 100%;
@@ -33,13 +37,13 @@
 }
 
 .nav-content {
-  max-width: 1440px;
+  max-width: var(--site-content-max-width);
   margin: 0 auto;
   height: var(--nav-height);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem;
+  padding: var(--site-content-padding);
 }
 
 .logo-container {
@@ -47,6 +51,7 @@
   height: 50px;
   display: flex;
   align-items: center;
+  padding-left: var(--logo-container-padding);
 }
 
 .logo {
@@ -359,8 +364,13 @@
 }
 
 @media (max-width: 1024px) {
+  :root {
+    --site-content-padding: 0 1rem;
+    --logo-container-padding: 0.5rem;
+  }
+
   .nav-content {
-    padding: 0 1rem;
+    padding: var(--site-content-padding);
   }
 
   .nav-links {
@@ -391,8 +401,13 @@
 }
 
 @media (max-width: 480px) {
+  :root {
+    --site-content-padding: 0 0.75rem;
+    --logo-container-padding: 0.25rem;
+  }
+
   .nav-content {
-    padding: 0 0.75rem;
+    padding: var(--site-content-padding);
   }
 
   .logo-container {

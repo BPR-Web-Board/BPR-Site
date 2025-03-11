@@ -99,7 +99,7 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
-      <Footer logoSrc="/path/to/your-logo.png" />
+      <Footer />
     </div>
   );
 }

@@ -204,8 +204,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 <Image
                   src="/logo/logo.svg"
                   alt="The Brown Political Review Logo"
-                  width={100}
-                  height={100}
+                  width={150}
+                  height={50}
+                  priority
                 />
               </Link>
             </div>
