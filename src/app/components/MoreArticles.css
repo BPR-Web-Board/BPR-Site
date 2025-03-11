@@ -1,0 +1,145 @@
+/************************************************
+  CONTAINER
+*************************************************/
+.keep-reading {
+    /* Match or approximate Figma’s total width. */
+    max-width: 1314px;
+    margin: 0 auto;
+    padding: 40px 0; /* Top/bottom spacing */
+  
+    /* No border or background so it blends into white page. */
+    background: none;
+    border: none;
+  }
+  
+  /************************************************
+    "KEEP READING" TITLE
+    (Playfair Display, semibold, 48px)
+  *************************************************/
+  .keep-reading__title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;   /* Semibold */
+    font-size: 48px;    /* Exact size per your specs */
+    line-height: 1.2;
+    color: #000;
+    margin: 0 0 32px;   /* Spacing below title */
+  }
+  
+  /************************************************
+    MAIN LAYOUT
+    Left (main article) + Right (side articles)
+  *************************************************/
+  .keep-reading__content {
+    display: flex;
+    gap: 40px; /* Space between left and right columns */
+  }
+  
+  /* MAIN ARTICLE (Left) */
+  .keep-reading__main-article {
+    flex: 2; /* Wider than side column */
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Space between image and text block */
+  }
+  
+  /* Placeholder for main article image */
+  .keep-reading__main-image {
+    background-color: #d9d9d9;
+    width: 639px;
+    height: 353px; /* Adjust to match your Figma ratio */
+  }
+  
+  /* Main article text container */
+  .keep-reading__main-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* If you need the byline pinned to the bottom 
+       at a larger container height, set a min-height: */
+    /* min-height: 120px; */
+  }
+  
+  /* Main article headline 
+     (Libre Franklin, semibold, 24px) */
+  .keep-reading__main-headline {
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 1.3;
+    height: 131px;
+    width: 638px;
+    color: #000;
+    text-decoration: none;
+    margin: 0;
+  }
+  .keep-reading__main-headline:hover {
+    text-decoration: underline;
+  }
+  
+  /************************************************
+    SIDE ARTICLES (Right)
+  *************************************************/
+  .keep-reading__side-articles {
+    flex: 1; /* Narrower column */
+    display: flex;
+    flex-direction: column;
+    gap: 38px; /* Vertical space between each side article */
+  }
+  
+  /* Each side article in a row: text on left, image on right */
+  .keep-reading__side-article {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; 
+    gap: 16px;
+    min-height: 100px; 
+  }
+  
+  .keep-reading__side-text {
+    width: 300px;            
+    min-height: 145px;       
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+  }
+  
+  /* Side article headline 
+     (Libre Franklin, semibold, 24px) */
+  .keep-reading__side-headline {
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.3;
+    color: #000;
+    text-decoration: none;
+    margin: 0;
+    margin-bottom: 0;
+  }
+  .keep-reading__side-headline:hover {
+    text-decoration: underline;
+  }
+  
+  /* Placeholder for side article image */
+  .keep-reading__side-image {
+    background-color: #d9d9d9;
+    width: 301px;  /* Adjust to match your Figma ratio */
+    height: 144px; /* Adjust to match your Figma ratio */
+    flex-shrink: 0;
+  }
+  
+  /************************************************
+    BYLINE
+    (Libre Franklin, regular, 16px, 70% black)
+  *************************************************/
+  .keep-reading__byline {
+    width: 260;
+    height: 16.16;
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 400;               /* Regular */
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.7);      /* 70% black */
+    margin-bottom: 0;
+    margin: 0;
+    margin-top: auto; /* Pins byline at the bottom if there's vertical space */
+  }
+  

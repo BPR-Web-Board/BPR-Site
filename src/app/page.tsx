@@ -1,10 +1,12 @@
 import Image from "next/image";
 import NavigationBar from "./components/NavigationBar";
+import MoreArticles from "./components/MoreArticles";
 
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <NavigationBar />
+
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
@@ -24,6 +26,7 @@ export default function Home() {
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
+        
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
@@ -97,6 +100,12 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <MoreArticles />
+        <link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Libre+Franklin:wght@400;600&display=swap"
+  rel="stylesheet"
+/>
+
       </footer>
     </div>
   );
