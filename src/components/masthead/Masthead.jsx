@@ -18,7 +18,9 @@ const Masthead = () => {
           <h2 className="section-title">{section.sectionTitle}</h2>
           {section.roles.map((role, roleIndex) => (
             <div key={roleIndex} className="masthead-role">
-              <h3 className="role-title">{role.roleTitle}:</h3>
+              <h3 className="role-title">
+                <em>{role.roleTitle}</em>:
+              </h3>
               <p className="role-names">{role.names.join(", ")}</p>
             </div>
           ))}
