@@ -1,37 +1,22 @@
 import React from 'react';
 import './MoreArticles.css';
+import { Post } from '../../../lib/wordpress.d'; 
 
-interface ArticleProps {
-  title: string;
-  link: string;
-  author: string;
+
+interface MoreArticlesProps {
+  mainArticle?: Post; 
+  sideArticles?: Post[]; 
+  authorMap: Map<number, string>;
 }
 
-const mainArticle: ArticleProps = {
-  title: "Digital Disaster: Crypto And America’s Financial Future",
-  link: "/articles/digital-disaster",
-  author: "BY DAVID PINTO",
-};
+export default function MoreArticles({ mainArticle, sideArticles, authorMap }: MoreArticlesProps) {
+  // If mainArticle or sideArticles are undefined, show a loading state
+  if (!mainArticle || !sideArticles) {
+    return <div>Loading...</div>;
+  }
 
-const sideArticles: ArticleProps[] = [
-  {
-    title: "Gorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit.",
-    link: "/articles/gorem-ipsum",
-    author: "BY DAVID PINTO",
-  },
-  {
-    title: "Sed Do Eiusmod Tempor Incididunt Ut Labore Et Dolore Magna Aliqua",
-    link: "/articles/sed-do-eiusmod",
-    author: "BY DAVID PINTO",
-  },
-  {
-    title: "Ut Enim Ad Minim Veniam, Quis Nostrud Exercitation Ullamco",
-    link: "/articles/ut-enim",
-    author: "BY DAVID PINTO",
-  },
-];
+  const getAuthorName = (authorId: number) => authorMap.get(authorId) || 'Unknown Author';
 
-export default function MoreArticles() {
   return (
     <section className="keep-reading">
       <h2 className="keep-reading__title">Keep Reading</h2>
@@ -42,21 +27,21 @@ export default function MoreArticles() {
           <div className="keep-reading__main-image" />
           <div className="keep-reading__main-text">
             <a href={mainArticle.link} className="keep-reading__main-headline">
-              {mainArticle.title}
+              {mainArticle.title.rendered}
             </a>
-            <p className="keep-reading__byline">{mainArticle.author}</p>
+            <p className="keep-reading__byline">BY {getAuthorName(mainArticle.author)}</p>
           </div>
         </div>
 
-        {/* Right Column: 3 Smaller Articles */}
+        {/* Right Column: Side Articles */}
         <div className="keep-reading__side-articles">
           {sideArticles.map((article, idx) => (
             <div className="keep-reading__side-article" key={idx}>
               <div className="keep-reading__side-text">
                 <a href={article.link} className="keep-reading__side-headline">
-                  {article.title}
+                  {article.title.rendered}
                 </a>
-                <p className="keep-reading__byline">{article.author}</p>
+                <p className="keep-reading__byline">BY {getAuthorName(article.author)}</p>
               </div>
               <div className="keep-reading__side-image" />
             </div>

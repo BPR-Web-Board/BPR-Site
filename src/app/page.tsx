@@ -100,11 +100,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
-        <MoreArticles />
-        <link
-  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Libre+Franklin:wght@400;600&display=swap"
-  rel="stylesheet"
-/>
+
 
       </footer>
     </div>
