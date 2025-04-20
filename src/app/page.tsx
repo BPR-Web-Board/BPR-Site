@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Footer from "./components/Footer/Footer";
 import NavigationBar from "./components/NavigationBar/NavigationBar";
+import ArticleHero from "./components/ArticleHero/ArticleHero";
 
 export default function Home() {
   return (
