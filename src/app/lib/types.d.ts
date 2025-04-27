@@ -1,3 +1,9 @@
+type NavProps = {
+  className?: string;
+  children?: React.ReactNode;
+  id?: string;
+};
+
 export type Post = {
   id: number;
   date: string;
@@ -39,11 +45,16 @@ export type Post = {
     | "status"
     | "video"
     | "audio";
-  meta: any[];
+  meta: any; // Changed from any[] to any to support both array and object forms
   categories: number[];
   tags: number[];
+
+  // Add new properties as optional to avoid TypeScript errors
+  class_list?: string[] | string; // Updated to support both array and string formats
+  coauthors?: number[] | number; // Updated to support both array and single number
 };
 
+// Keep the rest of your types as they are
 export type Category = {
   id: number;
   count: number;
