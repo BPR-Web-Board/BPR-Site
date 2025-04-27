@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }: ArticleParams) {
         <div className="container mt-7 mb-7">
           <h1>Article Not Found</h1>
           <p>
-            The article you're looking for does not exist or has been removed.
+            The article youre looking for does not exist or has been removed.
           </p>
         </div>
         <Footer />
