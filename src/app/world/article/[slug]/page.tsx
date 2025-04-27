@@ -64,7 +64,7 @@ export default async function ArticlePage({ params }: ArticleParams) {
   }
 
   // Fetch the category info
-  const category = await getCategoryBySlug(params.category);
+  // const category = await getCategoryBySlug(params.category);
 
   return (
     <div>
