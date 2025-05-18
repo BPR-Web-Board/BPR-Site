@@ -1,9 +1,12 @@
 /* Import Google Fonts for backup typefaces */
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Libre+Franklin:wght@300;400;500;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap");
 
+/* Adobe Fonts Integration - Add this after setting up your Adobe Fonts project */
+@import url("https://use.typekit.net/oxs2lss.css"); /* Replace 'xyz' with your Adobe Fonts project ID */
+
 /* CSS Variables */
 :root {
-  /* Color Variables - from colors slide */
+  /* Color Variables - updated to match style guide */
   --color-white: #fffefa;
   --color-black: #0d0b00;
   --color-light-gray: #f0efea;
@@ -11,12 +14,12 @@
   --color-gray: #b7b7b1;
   --color-medium-gray: #6d6d68;
 
-  /* Supplementary colors temporarily set to gray (#B7B7B1) as per design */
-  --color-red: #b7b7b1;
-  --color-orange: #b7b7b1;
-  --color-yellow: #b7b7b1;
-  --color-green: #b7b7b1;
-  --color-blue: #b7b7b1;
+  /* Supplementary colors - updated to match style guide images */
+  --color-red: #e05d50; /* Updated from placeholder gray */
+  --color-orange: #ea8021; /* Updated from placeholder gray */
+  --color-yellow: #efd144; /* Updated from placeholder gray */
+  --color-green: #5eaa7f; /* Updated from placeholder gray */
+  --color-blue: #6d81ca; /* Updated from placeholder gray */
 
   /* Font Variables - primary and backup */
   --font-primary-serif: "Nicholas", "Playfair Display", serif;
@@ -77,23 +80,23 @@ body {
   padding: 0;
 }
 
-/* Typography Styles - mobile first */
+/* Typography Styles - mobile first - updated to match style guide */
 
 /* Headings */
 h1,
 .h1 {
   font-family: var(--font-primary-serif);
-  font-weight: 600; /* Semibold as shown in slides */
+  font-weight: 600; /* Semibold as shown in style guide */
   font-size: var(--font-size-lg); /* Mobile size */
-  line-height: var(--line-height-md);
+  line-height: var(--line-height-sm); /* Updated to 120% per style guide */
   letter-spacing: 0.05em; /* 5% tracking */
   margin-bottom: var(--space-3);
 }
 
 h2,
 .h2 {
-  font-family: var(--font-primary-text);
-  font-weight: 400; /* Regular as shown in slides */
+  font-family: var(--font-primary-text); /* Updated to match style guide */
+  font-weight: 400; /* Regular as shown in style guide */
   font-size: var(--font-size-sm); /* Mobile size */
   line-height: var(--line-height-md);
   margin-bottom: var(--space-2);
@@ -108,10 +111,10 @@ p,
   margin-bottom: var(--space-4); /* Reduced for mobile */
 }
 
-/* Byline */
+/* Byline - updated to match style guide */
 .byline {
   font-family: var(--font-primary-sans);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs); /* Updated per style guide (smaller) */
   line-height: var(--line-height-sm);
   text-transform: uppercase;
   letter-spacing: 0.06em; /* 6% tracking */
@@ -121,16 +124,16 @@ p,
 /* Attribution */
 .attribution {
   font-family: var(--font-primary-sans);
-  font-weight: 300; /* Light italic as shown in slides */
+  font-weight: 300; /* Light italic as shown in style guide */
   font-style: italic;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs); /* Updated per style guide */
   line-height: var(--line-height-sm);
 }
 
 /* Pull Quote */
 .pull-quote {
   font-family: var(--font-primary-sans);
-  font-weight: 500; /* Medium as shown in slides */
+  font-weight: 500; /* Medium as shown in style guide */
   font-size: var(--font-size-sm); /* Mobile size */
   line-height: var(--line-height-lg);
   margin: var(--space-4) 0;
@@ -139,8 +142,8 @@ p,
 /* Caption */
 .caption {
   font-family: var(--font-primary-sans);
-  font-weight: 500; /* Medium as shown in slides */
-  font-size: var(--font-size-sm);
+  font-weight: 500; /* Medium as shown in style guide */
+  font-size: var(--font-size-xs); /* Updated per style guide */
   line-height: var(--line-height-sm);
   margin-top: var(--space-2);
 }
@@ -159,7 +162,7 @@ a:hover {
 /* Media queries for responsive typography - mobile first */
 
 /* Tablet styles */
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 768px) {
   h1,
   .h1 {
     font-size: var(--font-size-xl); /* 56px for tablet H1 */
@@ -184,7 +187,7 @@ a:hover {
 }
 
 /* Desktop styles */
-@media (min-width: var(--breakpoint-md)) {
+@media (min-width: 1024px) {
   h1,
   .h1 {
     font-size: var(--font-size-xxl); /* 64px for desktop H1 */
@@ -208,19 +211,19 @@ a:hover {
   margin: 0 auto;
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 768px) {
   .container {
     padding: 0 var(--space-4);
   }
 }
 
-@media (min-width: var(--breakpoint-md)) {
+@media (min-width: 1024px) {
   .container {
     max-width: 1024px;
   }
 }
 
-@media (min-width: var(--breakpoint-lg)) {
+@media (min-width: 1280px) {
   .container {
     max-width: 1280px;
   }
@@ -232,7 +235,7 @@ a:hover {
   gap: var(--space-3); /* 16px gap for mobile */
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 768px) {
   .grid {
     gap: var(--space-4); /* 24px gap for larger screens */
   }
@@ -246,7 +249,7 @@ a:hover {
   grid-column: span 1;
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 768px) {
   .col-1 {
     grid-column: span 1;
   }
@@ -256,7 +259,7 @@ a:hover {
   }
 }
 
-@media (min-width: var(--breakpoint-md)) {
+@media (min-width: 1024px) {
   .col-3 {
     grid-column: span 3;
   }
@@ -398,7 +401,7 @@ a:hover {
   display: none;
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 768px) {
   .hide-on-mobile {
     display: block;
   }
@@ -408,7 +411,7 @@ a:hover {
   }
 }
 
-@media (min-width: var(--breakpoint-md)) {
+@media (min-width: 1024px) {
   .hide-on-tablet {
     display: block;
   }
