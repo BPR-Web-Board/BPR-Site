@@ -34,6 +34,7 @@ export async function getAllPosts(filterParams?: {
   tag?: string;
   category?: string;
 }): Promise<Post[]> {
+  console.log("filterParams", filterParams);
   const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
     params: {
       per_page: 30,

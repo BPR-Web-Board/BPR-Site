@@ -1,5 +1,6 @@
 import { Post, Author, Category, FeaturedMedia } from "./types";
 import {
+  api, // Import the configured API instance
   getAllPosts,
   getAuthorById,
   getFeaturedMediaById,
@@ -37,8 +38,16 @@ export async function getEnhancedPosts(
   limit: number = 10
 ): Promise<EnhancedPost[]> {
   try {
-    // Get basic posts
+    console.log("Fetching enhanced posts with params:", filterParams);
+
+    // Use the existing WordPress functions that are working
     const posts = await getAllPosts(filterParams);
+    console.log(`Retrieved ${posts?.length || 0} basic posts from WordPress`);
+
+    if (!posts || posts.length === 0) {
+      console.log("No posts returned from WordPress API");
+      return [];
+    }
 
     // Limit to requested number
     const limitedPosts = posts.slice(0, limit);
@@ -126,7 +135,12 @@ export async function getEnhancedPosts(
 
     return enhancedPosts;
   } catch (error) {
+    // More detailed error logging
     console.error("Error in getEnhancedPosts:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return [];
   }
 }
