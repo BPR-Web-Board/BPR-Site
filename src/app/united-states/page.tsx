@@ -1,76 +1,54 @@
 import React from "react";
 import { Metadata } from "next";
-import { getPostBySlug, getCategoryBySlug } from "@/app/lib/wordpress";
+import { getAllCategories } from "@/app/lib/wordpress";
+import { getEnhancedPosts, EnhancedPost } from "@/app/lib/enhanced-wordpress"; // Corrected the import path
 import NavigationBar from "@/app/components/NavigationBar/NavigationBar";
 import Footer from "@/app/components/Footer/Footer";
-import ArticleRenderer from "@/app/components/ArticleRenderer/ArticleRenderer";
+import SectionPage from "@/app/components/SectionPage/SectionPage";
 
-// This type helps TypeScript understand the params structure
-type ArticleParams = {
-  params: {
-    category: string;
-    slug: string;
-  };
+export const metadata: Metadata = {
+  title: "United States - Brown Political Review",
+  description:
+    "Explore political analysis and commentary on US politics, law, economy, public policy, and more from Brown Political Review.",
 };
 
-// Generate metadata for the page
-export async function generateMetadata({
-  params,
-}: ArticleParams): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+export default async function UnitedStatesPage() {
+  // Fetch US section categories
+  const allCategories = await getAllCategories();
+  const usCategories = allCategories.filter(
+    (cat) =>
+      cat.slug.includes("united-states") ||
+      [
+        "law",
+        "economy",
+        "science",
+        "local",
+        "public-policy",
+        "culture",
+        "foreign-policy",
+      ].includes(cat.slug)
+  );
 
-  if (!post) {
-    return {
-      title: "Article Not Found - Brown Political Review",
-    };
-  }
+  // Fetch enhanced posts with author and media information
+  const enhancedPosts = await getEnhancedPosts(
+    { category: "united-states" },
+    20
+  );
 
-  // Strip HTML tags from excerpt for meta description
-  const excerptText = post.excerpt?.rendered
-    ? post.excerpt.rendered.replace(/<\/?[^>]+(>|$)/g, "")
-    : "";
-
-  return {
-    title: `${post.title.rendered} - Brown Political Review`,
-    description:
-      excerptText || `Read "${post.title.rendered}" on Brown Political Review`,
-    openGraph: {
-      title: post.title.rendered,
-      description: excerptText,
-      type: "article",
-      publishedTime: post.date,
-      modifiedTime: post.modified,
-    },
-  };
-}
-
-// Main page component
-export default async function ArticlePage({ params }: ArticleParams) {
-  const post = await getPostBySlug(params.slug);
-
-  if (!post) {
-    return (
-      <div>
-        <NavigationBar />
-        <div className="container mt-7 mb-7">
-          <h1>Article Not Found</h1>
-          <p>
-            The article you're looking for does not exist or has been removed.
-          </p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // Fetch the category info
-  const category = await getCategoryBySlug(params.category);
+  // For demo purposes, let's assume the first post is the featured one
+  const featuredPost = enhancedPosts.length > 0 ? enhancedPosts[0] : undefined;
 
   return (
-    <div>
+    <div className="page-container">
       <NavigationBar />
-      <main className="pt-7">
-        <ArticleRenderer post={post} />
+      <main className="main-content">
+        <SectionPage
+          title="United States"
+          featuredPost={featuredPost}
+          posts={enhancedPosts.slice(1)}
+          categories={usCategories}
+          className="united-states-section"
+        />
       </main>
       <Footer />
     </div>

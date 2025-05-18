@@ -159,6 +159,79 @@ a:hover {
   color: var(--color-medium-gray);
 }
 
+/* Page container for consistent page structure */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-white);
+}
+
+/* Main content area to ensure proper spacing between nav and footer */
+.main-content {
+  flex: 1;
+  padding-top: var(--nav-height);
+  width: 100%;
+  background-color: var(--color-white);
+}
+
+/* Fix for inconsistent background color */
+html,
+body {
+  background-color: var(--color-white);
+}
+
+/* Additional font loading helpers */
+@font-face {
+  font-family: "Nicholas";
+  src: url("/fonts/Nicholas-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nicholas";
+  src: url("/fonts/Nicholas-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FranklinGothic URW";
+  src: url("/fonts/FranklinGothicURW-Boo.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FranklinGothic URW";
+  src: url("/fonts/FranklinGothicURW-Med.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "FreightText Pro";
+  src: url("/fonts/FreightTextPro-Book.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Ensure image placeholders look good */
+.image-placeholder {
+  background-color: var(--color-light-gray);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Media queries for responsive typography - mobile first */
 
 /* Tablet styles */
