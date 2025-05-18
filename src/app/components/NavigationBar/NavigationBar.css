@@ -1,6 +1,6 @@
 :root {
   --nav-height: 64px;
-  --nav-bg-color: white;
+  --nav-bg-color: var(--color-white);
   --nav-text-color: #374151;
   --nav-hover-color: #111827;
   --dropdown-bg-color: #f9fafb;
@@ -32,8 +32,11 @@
 }
 
 .nav-main {
-  background-color: var(--nav-bg-color);
+  background-color: var(
+    --color-white
+  ); /* Ensure this uses the correct variable */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--color-black); /* Add this line for the separator */
 }
 
 .nav-content {

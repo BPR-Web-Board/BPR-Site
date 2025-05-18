@@ -152,16 +152,16 @@ export const ArticleMeta: React.FC<ArticleMetaProps> = ({
       </time>
 
       {categories.length > 0 && (
-        <div className="article-categories">
+        <div className="article-section-indicator">
           {categories.map((category, index) => (
             <React.Fragment key={`category-${category}`}>
               <Link
                 href={`/category/${category.toLowerCase()}`}
-                className="category-link"
+                className="section-link"
               >
-                {category}
+                {category.toUpperCase()}
               </Link>
-              {index < categories.length - 1 && ", "}
+              {index < categories.length - 1 && " / "}
             </React.Fragment>
           ))}
         </div>
