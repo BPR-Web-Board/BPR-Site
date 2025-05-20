@@ -397,7 +397,6 @@ const ArticleRenderer: React.FC<ArticleRendererProps> = ({
               className="sidebar-meta"
             />
           )}
-
           {parsedContent.pullQuotes.length > 0 && (
             <div className="pull-quotes-container">
               {parsedContent.pullQuotes.map((quote, index) => (

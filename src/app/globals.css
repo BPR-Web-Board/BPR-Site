@@ -27,12 +27,12 @@
   --font-primary-text: "FreightText Pro", "Crimson Text", serif;
 
   /* Font sizes based on the 8pt grid - mobile first */
-  --font-size-xs: 12px; /* 1.5 * 8pt */
-  --font-size-sm: 16px; /* 2 * 8pt */
-  --font-size-md: 24px; /* 3 * 8pt */
-  --font-size-lg: 32px; /* 4 * 8pt */
-  --font-size-xl: 56px; /* 7 * 8pt */
-  --font-size-xxl: 64px; /* 8 * 8pt */
+  --font-size-xs: 14px; /* Previously 12px */
+  --font-size-sm: 18px; /* Previously 16px */
+  --font-size-md: 26px; /* Previously 24px - adjust as needed */
+  --font-size-lg: 36px; /* Previously 32px - adjust as needed */
+  --font-size-xl: 60px; /* Previously 56px - adjust as needed */
+  --font-size-xxl: 72px; /* Previously 64px - adjust as needed */
 
   /* Spacing based on 8pt grid */
   --space-1: 4px; /* 0.5 * 8pt */

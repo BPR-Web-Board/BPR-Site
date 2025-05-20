@@ -17,10 +17,11 @@
 
 .article-title {
   font-family: var(--font-primary-serif);
-  font-size: var(--font-size-lg);
+  /* Ensure this uses a larger font size variable from globals.css */
+  font-size: var(--font-size-lg); /* Mobile first */
   font-weight: 600;
-  line-height: 1.1;
-  margin-bottom: var(--space-3);
+  line-height: 1.1; /* Adjust for larger font */
+  margin-bottom: var(--space-4); /* Increased from --space-3 */
   letter-spacing: 0.02em;
 }
 
@@ -31,11 +32,15 @@
 
 .article-excerpt {
   font-family: var(--font-primary-text);
-  font-size: var(--font-size-md); /* Increased from var(--font-size-sm) */
-  line-height: var(--line-height-md);
-  margin-bottom: var(--space-3);
+  font-size: var(
+    --font-size-md
+  ); /* Check if this is adequate after global changes */
+  line-height: var(
+    --line-height-lg
+  ); /* Ensure this is appropriate for the font size */
+  margin-bottom: var(--space-4); /* Increased from --space-3 */
   color: var(--color-dark-gray);
-  max-width: 700px;
+  max-width: 800px; /* Adjust to fill screen appropriately like in Figma */
 }
 
 /* Featured image container styling */
@@ -73,8 +78,8 @@
 /* Article layout styling */
 .article-content-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  flex-direction: column; /* Mobile first */
+  gap: var(--space-4); /* Default gap */
 }
 
 .article-sidebar {
@@ -184,6 +189,8 @@
   margin: var(--space-4) 0;
   /* Make sure no stickiness is inherited */
   position: relative;
+  /* Adjust margins as needed if it's now in the main content flow */
+  margin: var(--space-5) 0; /* Example margin */
 }
 
 .article-title-container {
@@ -219,6 +226,10 @@
 
 .article-pull-quote-left {
   text-align: left;
+  float: left; /* Example: for flowing text around it */
+  width: 30%; /* Example: adjust width */
+  margin-right: var(--space-4); /* Space between quote and text */
+  margin-bottom: var(--space-3); /* Space below the quote */
 }
 
 .article-pull-quote-center {
@@ -262,7 +273,7 @@
 
 .main-article-content {
   font-family: var(--font-primary-text);
-  font-size: var(--font-size-md); /* Increased from var(--font-size-sm) */
+  font-size: var(--font-size-xxl); /* Increased from var(--font-size-sm) */
   line-height: var(
     --line-height-lg
   ); /* Also increased line height for better readability */
@@ -419,8 +430,8 @@
   }
 
   .article-title {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--space-4);
+    font-size: var(--font-size-xl); /* Larger for tablet */
+    margin-bottom: var(--space-5); /* Increased from --space-4 */
   }
 
   .article-title.large-title {
@@ -429,7 +440,7 @@
 
   .article-content-wrapper {
     flex-direction: row;
-    gap: var(--space-5);
+    gap: var(--space-6); /* Increased gap from --space-5 for more spacing */
   }
 
   .article-sidebar {
@@ -464,31 +475,32 @@
   /* Two-column header layout for large screens */
   .article-header {
     flex-direction: row;
-    align-items: center; /* Vertically center items */
-    justify-content: center; /* Horizontally center the overall layout */
-    gap: var(--space-5);
+    align-items: flex-start; /* Align to top if excerpt is shorter */
+    justify-content: space-between; /* Distribute space */
+    gap: var(--space-6); /* Increase gap for more visual separation */
     margin-bottom: var(--space-6);
   }
 
   /* Default two-column layout for title and excerpt */
   .article-title-container {
-    flex: 1;
-    max-width: 65%;
-    text-align: left; /* Right-align title in desktop layout */
-    padding-right: var(--space-3);
+    flex: 0 0 60%; /* Example: Title takes ~60% width */
+    max-width: 60%;
+    text-align: left; /* Keep left aligned as is common */
+    padding-right: 0; /* Remove padding if using gap */
   }
 
   .article-excerpt-container {
-    flex: 1;
+    flex: 0 0 35%; /* Example: Excerpt takes ~35% width */
     max-width: 35%;
-    text-align: left; /* Left-align excerpt in desktop layout */
-    margin-top: 0;
-    padding-left: var(--space-3);
+    text-align: left;
+    margin-top: 0; /* Reset mobile margin */
+    padding-left: 0; /* Remove padding if using gap */
   }
 
   /* Full-width title when too long or no excerpt */
   .article-header.full-width-title .article-title-container {
     max-width: 100%;
+    flex-basis: 100%;
   }
 
   .article-header.full-width-title .article-excerpt-container {
@@ -501,12 +513,12 @@
   }
 
   .article-title {
-    font-size: var(--font-size-xxl);
-    margin-bottom: var(--space-3);
+    font-size: var(--font-size-xxl); /* Largest for desktop */
+    /* Example: If title is very long, you might want a slightly smaller size for it too */
   }
-
   .article-title.large-title {
-    font-size: calc(var(--font-size-xxl) * 9.1);
+    /* This class seems to be for when no excerpt exists */
+    font-size: calc(var(--font-size-xxl) * 1.1); /* Or adjust as per Figma */
   }
 
   .article-excerpt {
@@ -532,6 +544,6 @@
   }
 
   .main-article-content {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-xxl);
   }
 }
