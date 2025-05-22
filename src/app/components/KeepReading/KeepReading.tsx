@@ -83,4 +83,8 @@ export const KeepReading: React.FC<KeepReadingProps> = ({
   );
 };
 
+// Add exports for new ArticlePreview components
+export { default as LargeArticlePreview } from "../ArticlePreviews/LargeArticlePreview";
+export { default as SmallArticlePreview } from "../ArticlePreviews/SmallArticlePreview";
+
 export default KeepReading;
