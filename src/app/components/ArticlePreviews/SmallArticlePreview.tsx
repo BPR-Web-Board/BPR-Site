@@ -22,12 +22,9 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
 }) => {
   let section = "world";
   if (Array.isArray(post.categories) && post.categories.length > 0) {
-    if (
-      typeof post.categories[0] === "object" &&
-      post.categories[0] !== null &&
-      "slug" in post.categories[0]
-    ) {
-      section = (post.categories[0] as any).slug || "world";
+    const cat = post.categories[0];
+    if (typeof cat === "object" && cat !== null && "slug" in cat) {
+      section = (cat as { slug: string }).slug || "world";
     }
   }
   const href = `/${section}/article/${post.slug}`;

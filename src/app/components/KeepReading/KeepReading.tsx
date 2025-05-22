@@ -23,7 +23,7 @@ const KeepReadingArticlePreview: React.FC<{
   if (Array.isArray(post.categories) && post.categories.length > 0) {
     // If categories is array of objects with slug
     if (typeof post.categories[0] === "object" && post.categories[0] !== null && "slug" in post.categories[0]) {
-      section = (post.categories[0] as any).slug || "world";
+      section = (post.categories[0] as { slug: string }).slug || "world";
     }
   }
   // Fallback to 'world' if not found

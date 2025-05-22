@@ -3,6 +3,7 @@ import Footer from "./components/Footer/Footer";
 import NavigationBar from "./components/NavigationBar/NavigationBar";
 import KeepReading from "./components/KeepReading";
 import KeepReadingMockDemo from "./components/KeepReading/KeepReadingMockDemo";
+import LatestIssueGrid from "./components/LatestIssueGrid/LatestIssueGrid";
 import { getAllPosts, getFeaturedMediaById } from "./lib/wordpress";
 import type { Post, EnhancedPost } from "./lib/types";
 
@@ -38,6 +39,11 @@ export default async function Home() {
           height={70}
           priority
         />
+        {/* Latest Issue Grid Demo */}
+        <div style={{ margin: "48px 0" }}>
+          <h2 style={{ fontSize: 24, fontWeight: 600 }}>Latest Issue (Real Data)</h2>
+          <LatestIssueGrid posts={enhancedPosts} title="Latest Issue" />
+        </div>
         {/* Real data demo */}
         <div style={{ margin: "48px 0" }}>
           <h2 style={{ fontSize: 24, fontWeight: 600 }}>Keep Reading (Real Data)</h2>
