@@ -7,7 +7,7 @@ import {
   ImageWithCaptionProps,
   PullQuoteProps,
   ArticleMetaProps,
-} from "@/app/types/article";
+} from "@/app/lib/types";
 
 /**
  * Image component with caption and credit

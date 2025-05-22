@@ -12,7 +12,7 @@ import {
   PullQuote,
   EmbeddedImage,
   ParsedArticleContent,
-} from "@/app/types/article";
+} from "@/app/lib/types";
 import {
   ImageWithCaption,
   PullQuote as PullQuoteComponent,
