@@ -310,3 +310,12 @@ export interface ArticleMetaProps {
   tags?: string[];
   className?: string;
 }
+
+export interface EnhancedPost extends Omit<Post, "meta"> {
+  meta?: PostMeta;
+  author_name?: string;
+  author_obj?: Author | null;
+  illustrator?: string;
+  featured_media_obj?: FeaturedMedia | null;
+  categories_obj?: Category[];
+}
