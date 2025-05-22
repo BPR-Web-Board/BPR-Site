@@ -30,10 +30,6 @@ export type Post = {
   };
   author: number;
   featured_media: number;
-  comment_status: "open" | "closed";
-  ping_status: "open" | "closed";
-  sticky: boolean;
-  template: string;
   format:
     | "standard"
     | "aside"
@@ -48,7 +44,6 @@ export type Post = {
   meta: any; // Changed from any[] to any to support both array and object forms
   categories: number[];
   tags: number[];
-
   // Add new properties as optional to avoid TypeScript errors
   class_list?: string[] | string; // Updated to support both array and string formats
   coauthors?: number[] | number; // Updated to support both array and single number

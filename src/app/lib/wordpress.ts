@@ -4,14 +4,7 @@
 
 import axios from "axios";
 
-import {
-  Post,
-  Category,
-  Tag,
-  Page,
-  Author,
-  FeaturedMedia,
-} from "./wordpress.d";
+import { Post, Category, Tag, Page, Author, FeaturedMedia } from "./types";
 
 // WordPress Config
 
