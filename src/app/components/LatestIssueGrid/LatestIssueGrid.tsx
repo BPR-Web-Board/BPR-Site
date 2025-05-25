@@ -26,13 +26,15 @@ const LatestIssueGrid: React.FC<LatestIssueGridProps> = ({
 
   return (
     <section className={classNames("latest-issue-grid-section", className)}>
-      {title && (
-        <h2 className="latest-issue-title">{title}</h2>
-      )}
+      {title && <h2 className="latest-issue-title">{title}</h2>}
       <div className="latest-issue-grid">
         <div className="latest-issue-featured">
           {featured && (
-            <LargeArticlePreview post={featured} showExcerpt imageAspectRatio="1/1" />
+            <LargeArticlePreview
+              post={featured}
+              showExcerpt
+              imageAspectRatio="1/1"
+            />
           )}
         </div>
         <div className="latest-issue-smalls">
@@ -46,6 +48,9 @@ const LatestIssueGrid: React.FC<LatestIssueGridProps> = ({
               className="latest-issue-small"
             />
           ))}
+          <button className="latest-issue-readmore" type="button">
+            Read more
+          </button>
         </div>
       </div>
     </section>
