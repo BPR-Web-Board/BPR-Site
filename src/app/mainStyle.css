@@ -1,0 +1,50 @@
+/* Component Isolation Styles */
+.article-layout-wrapper {
+  /* Isolate ArticleLayout component to prevent grid conflicts */
+  contain: layout style;
+  display: block;
+  width: 100%;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.two-column-layout-wrapper {
+  /* Isolate TwoColumnArticleLayout component */
+  contain: layout style;
+  display: block;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Page Layout Container */
+.page-container {
+  width: 100%;
+  background-color: var(--color-white);
+  scroll-behavior: smooth;
+}
+
+.featured-content,
+.main-content {
+  width: 100%;
+  margin: 0 auto;
+  /* Ensure consistent section spacing */
+  display: block;
+}
+
+/* Consistent section spacing */
+.main-content {
+  margin-top: 2rem;
+}
+
+/* Responsive section spacing */
+@media (min-width: 768px) {
+  .main-content {
+    margin-top: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    margin-top: 4rem;
+  }
+}

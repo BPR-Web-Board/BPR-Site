@@ -24,7 +24,7 @@
   /* Font Variables - primary and backup */
   --font-primary-serif: "Nicholas", "Playfair Display", serif;
   --font-primary-sans: "FranklinGothic URW", "Libre Franklin", sans-serif;
-  --font-primary-text: "FreightText Pro", "Crimson Text", serif;
+  --font-primary-text: "FreightText Pro", "Crimson Text", serif
 
   /* Font sizes based on the 8pt grid - mobile first */
   --font-size-xs: 14px; /* Previously 12px */
@@ -69,116 +69,22 @@ html {
   box-sizing: inherit;
 }
 
-/* Base Styles - mobile first */
-body {
-  color: var(--color-black);
-  background: var(--color-white);
-  font-family: var(--font-primary-text);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-md);
-  margin: 0;
-  padding: 0;
-}
 
-/* Typography Styles - mobile first - updated to match style guide */
-
-/* Headings */
-h1,
-.h1 {
-  font-family: var(--font-primary-serif);
-  font-weight: 600; /* Semibold as shown in style guide */
-  font-size: var(--font-size-lg); /* Mobile size */
-  line-height: var(--line-height-sm); /* Updated to 120% per style guide */
-  letter-spacing: 0.05em; /* 5% tracking */
-  margin-bottom: var(--space-3);
-}
-
-h2,
-.h2 {
-  font-family: var(--font-primary-text); /* Updated to match style guide */
-  font-weight: 400; /* Regular as shown in style guide */
-  font-size: var(--font-size-sm); /* Mobile size */
-  line-height: var(--line-height-md);
-  margin-bottom: var(--space-2);
-}
-
-/* Body text */
-p,
-.body {
-  font-family: var(--font-primary-text);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-md);
-  margin-bottom: var(--space-4); /* Reduced for mobile */
-}
-
-/* Byline - updated to match style guide */
-.byline {
-  font-family: var(--font-primary-sans);
-  font-size: var(--font-size-xs); /* Updated per style guide (smaller) */
-  line-height: var(--line-height-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.06em; /* 6% tracking */
-  margin-bottom: var(--space-2);
-}
-
-/* Attribution */
-.attribution {
-  font-family: var(--font-primary-sans);
-  font-weight: 300; /* Light italic as shown in style guide */
-  font-style: italic;
-  font-size: var(--font-size-xs); /* Updated per style guide */
-  line-height: var(--line-height-sm);
-}
-
-/* Pull Quote */
-.pull-quote {
-  font-family: var(--font-primary-sans);
-  font-weight: 500; /* Medium as shown in style guide */
-  font-size: var(--font-size-sm); /* Mobile size */
-  line-height: var(--line-height-lg);
-  margin: var(--space-4) 0;
-}
-
-/* Caption */
-.caption {
-  font-family: var(--font-primary-sans);
-  font-weight: 500; /* Medium as shown in style guide */
-  font-size: var(--font-size-xs); /* Updated per style guide */
-  line-height: var(--line-height-sm);
-  margin-top: var(--space-2);
-}
-
-/* Links */
-a {
-  color: var(--color-black);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:hover {
-  color: var(--color-medium-gray);
-}
-
-/* Page container for consistent page structure */
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--color-white);
-}
-
-/* Main content area to ensure proper spacing between nav and footer */
-.main-content {
-  flex: 1;
-  padding-top: var(--nav-height);
-  width: 100%;
-  background-color: var(--color-white);
-}
 
 /* Fix for inconsistent background color */
 html,
 body {
   background-color: var(--color-white);
+}
+
+/* Navigation bar spacing */
+body {
+  padding-top: 15vh;
+  transition: padding-top 0.3s ease-in-out;
+}
+
+body.scrolled {
+  padding-top: 5vh;
 }
 
 /* Additional font loading helpers */

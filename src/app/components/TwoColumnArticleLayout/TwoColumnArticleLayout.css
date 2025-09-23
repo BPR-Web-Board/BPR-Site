@@ -1,0 +1,431 @@
+/* TwoColumnArticleLayout.css */
+
+.two-column-layout {
+  width: 85vw;
+  /* max-width: 100rem; 1600px max - matches ArticleLayout */
+  margin: 0 auto;
+  padding: 2rem 1rem; /* Start with same base padding as ArticleLayout */
+  background: #fff;
+  color: var(--black, rgba(13, 11, 0, 1));
+  /* Ensure proper containment and prevent overflow */
+  contain: layout style;
+  overflow-x: hidden;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 60px;
+  gap: 12px;
+}
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: #000;
+}
+
+.section-title {
+  font-family: var(--font-primary-serif);
+  font-size: clamp(1.75rem, 2.5vw, 3.5rem);
+  font-weight: 600;
+  color: var(--color-black);
+  line-height: 1.1;
+}
+
+/* Columns Container */
+.columns-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 8vw, 7.5rem); /* Responsive gap: 32px to 120px */
+  align-items: start;
+  /* Prevent overflow */
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Left Column */
+.left-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Featured Article */
+.featured-article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.featured-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 142/99; /* Based on the Figma design aspect ratio */
+  overflow: hidden;
+}
+
+.featured-image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.featured-image:hover {
+  transform: scale(1.02);
+}
+
+.featured-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.featured-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.featured-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.featured-title {
+  font-family: "Playfair Display", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 120%;
+  color: var(--black, rgba(13, 11, 0, 1));
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.featured-title-link:hover .featured-title {
+  color: rgba(13, 11, 0, 0.8);
+}
+
+.featured-meta {
+  display: flex;
+  align-items: center;
+}
+
+.featured-author {
+  font-family: "Libre Franklin", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--black, rgba(13, 11, 0, 1));
+}
+
+.featured-excerpt {
+  font-family: "Crimson Text", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 130%;
+  color: var(--black, rgba(13, 11, 0, 1));
+}
+
+/* Small Articles in Left Column */
+.left-small-articles {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  height: 100%;
+}
+
+/* Right Column */
+.right-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Small Articles */
+.small-article {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.small-image-container {
+  position: relative;
+  width: 216px;
+  height: 216px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.small-image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.small-image:hover {
+  transform: scale(1.02);
+}
+
+.small-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.small-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.small-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.small-title {
+  font-family: "Nicholas", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 130%;
+  letter-spacing: 1.6px;
+  color: var(--black, rgba(13, 11, 0, 1));
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.small-title-link:hover .small-title {
+  color: rgba(13, 11, 0, 0.8);
+}
+
+.small-meta {
+  display: flex;
+  align-items: center;
+}
+
+.small-author {
+  font-family: "Libre Franklin", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--black, rgba(13, 11, 0, 1));
+}
+
+.small-excerpt {
+  font-family: "Crimson Text", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 130%;
+  color: var(--black, rgba(13, 11, 0, 1));
+  margin-top: 8px;
+}
+
+/* Left Column Small Articles - Image on Left */
+.left-column-small .small-image-container {
+  order: 1;
+}
+
+.left-column-small .small-content {
+  order: 2;
+}
+
+/* Loading and Error States */
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  font-family: "Libre Franklin", -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  color: #666;
+}
+
+.error-message {
+  color: #dc3545;
+}
+
+/* Responsive Design */
+
+/* Large screens - 1024px and up - matches ArticleLayout pattern */
+@media (min-width: 1024px) {
+  .two-column-layout {
+    padding: 3rem 2rem;
+  }
+}
+
+/* Extra large screens - 1280px and up - matches ArticleLayout */
+@media (min-width: 1280px) {
+  .two-column-layout {
+    padding: 3rem 2.5rem;
+  }
+}
+
+/* Mobile - Base styles are already defined above */
+
+/* Tablet - 768px and up */
+@media (min-width: 768px) {
+  .two-column-layout {
+    padding: 2.5rem 1.5rem;
+  }
+
+  /* Gap is now responsive via clamp(), no need to override */
+
+  .featured-title {
+    font-size: 48px;
+  }
+
+  .featured-excerpt {
+    font-size: 20px;
+  }
+
+  .small-title {
+    font-size: 28px;
+  }
+
+  .small-image-container {
+    width: 180px;
+    height: 180px;
+  }
+
+  .small-excerpt {
+    font-size: 16px;
+  }
+}
+
+/* Mobile - max-width styles for specific overrides */
+@media (max-width: 768px) {
+  .two-column-layout {
+    padding: 2rem 1rem;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .columns-container {
+    grid-template-columns: 1fr;
+    gap: 60px; /* Override clamp for mobile single column layout */
+  }
+
+  .featured-title {
+    font-size: 36px;
+  }
+
+  .featured-excerpt {
+    font-size: 18px;
+  }
+
+  .small-article {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .small-image-container {
+    width: 100%;
+    height: 240px;
+    order: 1 !important;
+  }
+
+  .small-content {
+    order: 2 !important;
+    padding-top: 0;
+  }
+
+  .small-title {
+    font-size: 24px;
+  }
+
+  .small-excerpt {
+    font-size: 16px;
+  }
+
+  .left-small-articles {
+    gap: 40px;
+  }
+
+  .right-column {
+    gap: 40px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .two-column-layout {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .featured-title {
+    font-size: 28px;
+  }
+
+  .featured-excerpt {
+    font-size: 16px;
+  }
+
+  .small-title {
+    font-size: 20px;
+  }
+
+  .featured-author,
+  .small-author {
+    font-size: 13px;
+  }
+
+  .small-excerpt {
+    font-size: 14px;
+  }
+
+  .small-image-container {
+    height: 200px;
+  }
+}
+
+/* Hover Effects */
+@media (hover: hover) {
+  .featured-title-link:hover .featured-title,
+  .small-title-link:hover .small-title {
+    text-decoration: underline;
+  }
+}
+
+/* Focus States for Accessibility */
+.featured-title-link:focus,
+.small-title-link:focus {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .two-column-layout {
+    padding: 0;
+  }
+
+  .featured-image,
+  .small-image {
+    print-color-adjust: exact;
+  }
+}

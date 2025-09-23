@@ -65,6 +65,9 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
   const { data } = await api.get<Category[]>("/wp-json/wp/v2/categories", {
     params: { slug },
   });
+  if (!data || data.length === 0) {
+    throw new Error(`Category with slug "${slug}" not found`);
+  }
   return data[0];
 }
 
@@ -158,13 +161,25 @@ export async function getPostsByAuthorSlug(
 }
 
 export async function getPostsByCategorySlug(
-  categorySlug: string
+  categorySlug: string,
+  perPage: number = 20
 ): Promise<Post[]> {
-  const category = await getCategoryBySlug(categorySlug);
-  const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
-    params: { categories: category.id },
-  });
-  return data;
+  try {
+    const category = await getCategoryBySlug(categorySlug);
+    const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
+      params: {
+        categories: category.id,
+        per_page: perPage,
+      },
+    });
+    return data || [];
+  } catch (error) {
+    console.warn(
+      `Failed to fetch posts for category "${categorySlug}":`,
+      error
+    );
+    return [];
+  }
 }
 
 export async function getPostsByTagSlug(tagSlug: string): Promise<Post[]> {

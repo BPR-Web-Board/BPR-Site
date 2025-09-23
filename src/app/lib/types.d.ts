@@ -311,6 +311,11 @@ export interface ArticleMetaProps {
   className?: string;
 }
 
+// Post meta data type
+export interface PostMeta {
+  [key: string]: any;
+}
+
 export interface EnhancedPost extends Omit<Post, "meta"> {
   meta?: PostMeta;
   author_name?: string;

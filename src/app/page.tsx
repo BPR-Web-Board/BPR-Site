@@ -1,61 +1,82 @@
-import Image from "next/image";
-import Footer from "./components/Footer/Footer";
-import NavigationBar from "./components/NavigationBar/NavigationBar";
-import KeepReading from "./components/KeepReading";
-import KeepReadingMockDemo from "./components/KeepReading/KeepReadingMockDemo";
-import LatestIssueGrid from "./components/LatestIssueGrid/LatestIssueGrid";
-import { getAllPosts, getFeaturedMediaById } from "./lib/wordpress";
-import type { Post, EnhancedPost } from "./lib/types";
+import React from "react";
+import Hero from "./components/Hero";
+import "./mainStyle.css";
+import ArticleLayout from "./components/ArticleLayout/ArticleLayout";
+import TwoColumnArticleLayout from "./components/TwoColumnArticleLayout";
+import { enhancePosts } from "./lib/enhancePost";
+import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
+import { getAllCategories } from "./lib/wordpress";
+import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
+import FourArticleGrid from "./components/FourArticleGrid";
+import Footer from "./components/Footer";
 
-export default async function Home() {
-  // Try to fetch real posts from WordPress
-  let posts: Post[] = [];
-  let enhancedPosts: EnhancedPost[] = [];
-  try {
-    posts = await getAllPosts();
-    // Hydrate posts with featured_media_obj
-    enhancedPosts = await Promise.all(
-      posts.map(async (post) => {
-        let featured_media_obj = null;
-        if (post.featured_media && typeof post.featured_media === "number") {
-          try {
-            featured_media_obj = await getFeaturedMediaById(post.featured_media);
-          } catch {}
-        }
-        return { ...post, featured_media_obj };
-      })
-    );
-  } catch (e) {
-    // Ignore error, fallback to mock
-  }
+const posts = await getAllPosts();
+const categories = await getAllCategories();
+
+// Enhance posts with additional data
+const enhancedPosts = await enhancePosts(posts.slice(0, 20), categories);
+
+// Get category-specific posts
+const usaPosts = await getPostsByCategorySlug("usa", 10);
+const enhancedUsaPosts = await enhancePosts(usaPosts, categories);
+
+export default function HomePage() {
   return (
-    <div className="">
-      <NavigationBar />
-      <main className="">
-        <Image
-          src="/logo/logo.svg"
-          alt="The Brown Political Review Logo"
-          width={280}
-          height={70}
-          priority
-        />
-        {/* Latest Issue Grid Demo */}
-        <div style={{ margin: "48px 0" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 600 }}>Latest Issue (Real Data)</h2>
-          <LatestIssueGrid posts={enhancedPosts} title="Latest Issue" />
+    <div className="page-container">
+      <div className="featured-content">
+        <Hero posts={enhancedPosts} />
+        <div className="article-layout-wrapper">
+          <ArticlePreviewGrid articles={enhancedPosts.slice(0, 10)} />
+          <FourArticleGrid
+            posts={enhancedUsaPosts}
+            categoryName="USA"
+            showCategoryTitle={false}
+            numberOfRows={2}
+            showBoundingLines={true}
+          />
         </div>
-        {/* Real data demo */}
-        <div style={{ margin: "48px 0" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 600 }}>Keep Reading (Real Data)</h2>
-          <KeepReading posts={enhancedPosts} title="Keep Reading" />
+      </div>
+      <div className="main-content">
+        <Hero posts={enhancedPosts} preferredCategory="usa" />
+        <div className="two-column-layout-wrapper">
+          <TwoColumnArticleLayout
+            posts={enhancedUsaPosts}
+            sectionTitle="USA"
+            leftColumnArticles={3}
+            rightColumnArticles={5}
+          />
+          <FourArticleGrid
+            posts={enhancedUsaPosts}
+            categoryName="USA"
+            showCategoryTitle={false}
+            numberOfRows={1}
+            showBoundingLines={true}
+          />
         </div>
-        {/* Mock data demo */}
-        <div style={{ margin: "48px 0" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 600 }}>Keep Reading (Mock Data)</h2>
-          <KeepReadingMockDemo />
+        <Hero posts={enhancedPosts} />
+        <div className="two-column-layout-wrapper">
+          <ArticleLayout
+            posts={enhancedUsaPosts.slice(0, 5)}
+            categoryName="USA"
+          />
+          <FourArticleGrid
+            posts={enhancedUsaPosts}
+            categoryName="USA"
+            showCategoryTitle={false}
+            numberOfRows={1}
+            showBoundingLines={true}
+          />
         </div>
-      </main>
-      <Footer />
+        <Hero posts={enhancedPosts} />
+        <div className="two-column-layout-wrapper">
+          <TwoColumnArticleLayout
+            posts={enhancedUsaPosts}
+            sectionTitle="USA"
+            leftColumnArticles={3}
+            rightColumnArticles={5}
+          />
+        </div>
+      </div>
     </div>
   );
 }

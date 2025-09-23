@@ -1,10 +1,7 @@
-:root {
+.footer {
   --site-content-max-width: 95%; /* Reduced from 98% to 95% */
   --site-content-padding: 0 0.75rem;
   --logo-container-padding: 0.25rem;
-}
-
-.footer {
   background-color: black;
   color: white;
   width: 100%;
@@ -108,7 +105,7 @@
 /* Responsive styles */
 
 @media (max-width: 1024px) {
-  :root {
+  .footer {
     --site-content-padding: 0 1rem;
     --logo-container-padding: 0.25rem;
   }
@@ -139,7 +136,7 @@
 }
 
 @media (max-width: 480px) {
-  :root {
+  .footer {
     --site-content-padding: 0 0.5rem;
     --logo-container-padding: 0;
   }

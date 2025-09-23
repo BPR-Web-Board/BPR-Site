@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["brownpoliticalreview.org"],
+    domains: ["brownpoliticalreview.org", "api.builder.io"],
   },
 };
 

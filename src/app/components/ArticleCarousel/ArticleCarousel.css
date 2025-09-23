@@ -1,0 +1,468 @@
+/* ArticleCarousel Component - Matching Figma Design */
+.article-carousel {
+  width: 85vw;
+  /* max-width: min(100%, 1600px); */
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+  /* Component-level design tokens for easy theming/tuning */
+  --ac-max-width: 1440px;
+  --ac-section-padding-x: clamp(12px, 4vw, 32px);
+  --ac-section-padding-y: clamp(32px, 6vw, 80px);
+  --ac-grid-gap: clamp(24px, 10vw, 183px);
+  --ac-col1-min: 320px;
+  --ac-col2-min: 420px;
+  --ac-title-fs: clamp(24px, 2.4vw, 32px);
+  --ac-body-fs: 2rem;
+  --ac-meta-fs: clamp(11px, 0.9vw, 12px);
+  --ac-image-aspect: 714 / 586; /* preserves the intended ratio without hard heights */
+}
+
+/* Top divider line */
+.carousel-top-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #c4c4c4;
+  margin-bottom: clamp(24px, 4vw, 59px);
+}
+
+/* Header */
+.carousel-header {
+  margin-bottom: clamp(32px, 5vw, 72px);
+}
+
+.carousel-title {
+  font-family: var(--font-primary-serif);
+  font-size: var(--ac-title-fs);
+  font-weight: 700;
+  line-height: normal;
+  color: #000;
+  margin: 0;
+  /* Avoid fixed width; allow natural wrapping with a readable line length */
+  max-width: 30ch;
+}
+
+/* Main content layout */
+.carousel-content {
+  display: grid;
+  grid-template-columns: minmax(var(--ac-col1-min), 2fr) minmax(
+      var(--ac-col2-min),
+      3fr
+    );
+  gap: clamp(24px, 10vw, 183px);
+  /* align-items: center; */
+  padding: 0 4vw;
+  margin-bottom: clamp(32px, 5vw, 76px);
+  justify-content: flex-start;
+  max-width: fit-content;
+  min-height: fit-content;
+}
+
+/* Article text content */
+.article-text-content {
+  grid-column: 1;
+}
+
+.article-link-carousel {
+  text-decoration: none;
+  color: inherit;
+}
+
+.article-link-carousel:hover .article-title-carousel {
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.article-title-carousel {
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 3.25rem;
+  font-weight: 700;
+  line-height: 135%; /* 40px */
+  text-transform: capitalize;
+  color: #000;
+  margin: 0 0 24px 0;
+  max-width: 42ch;
+  /* Ensure proper text wrapping */
+  height: fit-content;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-meta-carousel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: clamp(12px, 2vw, 24px);
+  height: 11px;
+}
+
+.article-author-carousel {
+  font-family: "Libre Franklin", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.meta-divider {
+  width: 1px;
+  height: 11px;
+  background-color: rgba(0, 0, 0, 0.63);
+  flex-shrink: 0;
+}
+
+.article-date-carousel {
+  font-family: "Libre Franklin", sans-serif;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: normal;
+  letter-spacing: 1.02px;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.article-excerpt-carousel {
+  font-family: "FreightText Pro", "Crimson Text", serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 130%;
+  color: #000;
+  /* Avoid hard width/height; clamp lines for consistent rhythm */
+  max-width: 60ch;
+  overflow: hidden;
+  display: -webkit-box;
+  line-clamp: 10;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+}
+
+.article-image-container-carousel {
+  grid-column: 2;
+  align-self: right;
+  min-height: fit-content;
+  width: 100%;
+  position: relative;
+  flex-shrink: 0;
+  container-type: inline-size; /* Enable container queries */
+}
+
+.article-image-carousel {
+  width: 100%;
+  aspect-ratio: var(--ac-image-aspect);
+  height: auto;
+  object-fit: cover;
+  display: block;
+  border-radius: 4px; /* Optional: adds visual polish */
+}
+
+.article-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Libre Franklin", sans-serif;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Navigation and Progress */
+.carousel-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: clamp(24px, 4vw, 45px);
+}
+
+.nav-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Progress container */
+.progress-container {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  flex: 1;
+  margin: 0 clamp(12px, 3vw, 32px);
+}
+
+.progress-bar {
+  flex: 1 1 auto;
+  min-width: clamp(40px, 10vw, 140px);
+  max-width: 100%;
+  height: 4px;
+  background-color: #e6e6e6;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.progress-bar.active {
+  background-color: #afafaf;
+}
+
+.progress-bar:hover:not(.active) {
+  background-color: #d0d0d0;
+}
+
+/* Bottom divider line */
+.carousel-bottom-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #c4c4c4;
+}
+
+/* Loading and Error States */
+.carousel-loading,
+.carousel-error {
+  padding: 40px;
+  text-align: center;
+  font-family: "Libre Franklin", sans-serif;
+  font-size: 16px;
+  color: #666;
+}
+
+.carousel-error {
+  color: #d32f2f;
+}
+
+/* Responsive Styles */
+
+/* Large tablet/small desktop (1025px - 1400px) */
+@media (max-width: 1400px) {
+  .carousel-content {
+    grid-template-columns: minmax(var(--ac-col1-min), 1.8fr) minmax(
+        var(--ac-col2-min),
+        2.5fr
+      );
+    align-items: center;
+    gap: clamp(24px, 5vw, 120px);
+  }
+
+  .article-title-carousel {
+    max-width: 38ch;
+    min-height: fit-content;
+  }
+
+  .article-excerpt-carousel {
+    max-width: 56ch;
+  }
+
+  .article-image-container-carousel {
+    aspect-ratio: var(--ac-image-aspect);
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .article-carousel {
+    padding: 0 var(--ac-section-padding-x);
+  }
+
+  .carousel-content {
+    grid-template-columns: 1fr;
+    gap: clamp(24px, 6vw, 48px);
+    justify-items: left;
+  }
+
+  .article-text-content {
+    text-align: left;
+    max-width: 65ch;
+  }
+
+  .article-title-carousel {
+    font-size: 2.5rem;
+    max-width: 100%;
+  }
+
+  .article-excerpt-carousel {
+    max-width: 100%;
+    font-size: 1.5rem;
+    height: auto;
+  }
+
+  .article-image-container-carousel {
+    aspect-ratio: var(--ac-image-aspect);
+    justify-self: center;
+    padding: 5vh 0;
+  }
+
+  .carousel-navigation {
+    margin-bottom: clamp(16px, 4vw, 32px);
+  }
+
+  .progress-container {
+    margin: 0 clamp(8px, 3vw, 16px);
+  }
+
+  .progress-bar {
+    min-width: clamp(40px, 12vw, 120px);
+  }
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  .article-carousel {
+    padding: 0 var(--ac-section-padding-x);
+  }
+
+  .carousel-top-divider {
+    margin-bottom: clamp(16px, 4vw, 32px);
+  }
+
+  .carousel-header {
+    margin-bottom: clamp(24px, 6vw, 48px);
+  }
+
+  .carousel-title {
+    font-size: clamp(22px, 6vw, 28px);
+    width: 100%;
+  }
+
+  .carousel-content {
+    /* Use grid-template-rows instead of columns for vertical stacking */
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: clamp(16px, 6vw, 32px);
+    margin-bottom: clamp(24px, 6vw, 48px);
+    padding: 0; /* Remove horizontal padding for full-width image */
+  }
+
+  /* Image appears first in mobile layout */
+  .article-image-container-carousel {
+    grid-row: 1;
+    grid-column: 1;
+    padding: 0 0;
+    aspect-ratio: var(--ac-image-aspect);
+    width: 100%; /* Full viewport width */
+    margin-left: calc(
+      -1 * var(--ac-section-padding-x)
+    ); /* Counteract parent padding */
+    margin-right: calc(
+      -1 * var(--ac-section-padding-x)
+    ); /* Counteract parent padding */
+    max-width: none; /* Remove any max-width constraints */
+  }
+
+  /* Text content appears second and is left-aligned */
+  .article-text-content {
+    grid-row: 2;
+    grid-column: 1;
+    text-align: left;
+    padding: 0 var(--ac-section-padding-x); /* Restore padding for text content */
+    width: 100%;
+    max-width: none;
+  }
+
+  .article-title-carousel {
+    font-size: clamp(20px, 5vw, 24px);
+    line-height: 130%;
+    text-align: left;
+    margin-bottom: 16px;
+  }
+
+  .article-meta-carousel {
+    justify-content: flex-start;
+    text-align: left;
+    height: fit-content;
+  }
+
+  .article-author-carousel,
+  .article-date-carousel {
+    font-size: 0.875rem;
+  }
+
+  .article-excerpt-carousel {
+    font-size: clamp(14px, 4.5vw, 16px);
+    line-height: 140%;
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .carousel-navigation {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .progress-container {
+    order: -1;
+    margin: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .progress-bar {
+    min-width: clamp(32px, 10vw, 60px);
+    margin: 0 2px;
+  }
+
+  .nav-button {
+    padding: 12px;
+  }
+}
+
+/* Small mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .article-carousel {
+    padding: 0 var(--ac-section-padding-x);
+  }
+
+  .carousel-content {
+    gap: clamp(12px, 4vw, 24px);
+  }
+
+  .carousel-title {
+    font-size: clamp(20px, 6vw, 24px);
+  }
+
+  /* Image remains full-width and first */
+  .article-image-container-carousel {
+    aspect-ratio: var(--ac-image-aspect);
+    width: 100%;
+    margin-left: calc(-1 * var(--ac-section-padding-x));
+    margin-right: calc(-1 * var(--ac-section-padding-x));
+  }
+
+  /* Text content styling for small mobile */
+  .article-text-content {
+    padding: 0 var(--ac-section-padding-x);
+  }
+
+  .article-title-carousel {
+    font-size: clamp(18px, 5.5vw, 20px);
+    text-align: left;
+  }
+
+  .article-excerpt-carousel {
+    font-size: clamp(14px, 4.5vw, 15px);
+    text-align: left;
+  }
+
+  .progress-bar {
+    min-width: 40px;
+    height: 3px;
+  }
+}
