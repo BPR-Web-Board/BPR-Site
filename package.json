@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:cache": "node scripts/test-cache.js"
   },
   "dependencies": {
     "@next/font": "^14.2.15",
@@ -21,7 +22,8 @@
     "next": "15.1.6",
     "query-string": "^9.1.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "redis": "^5.8.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

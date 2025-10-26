@@ -8,7 +8,7 @@ import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
 import { getAllCategories } from "./lib/wordpress";
 import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 
 const posts = await getAllPosts();
 const categories = await getAllCategories();
@@ -40,10 +40,11 @@ export default function HomePage() {
         <Hero posts={enhancedPosts} preferredCategory="usa" />
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
-            posts={enhancedUsaPosts}
-            sectionTitle="USA"
-            leftColumnArticles={3}
-            rightColumnArticles={5}
+            // posts={enhancedUsaPosts}
+            leftColumnTitle="USA"
+            rightColumnTitle="USA"
+            leftColumnArticles={enhancedUsaPosts.slice(0, 3)}
+            rightColumnArticles={enhancedUsaPosts.slice(0, 5)}
           />
           <FourArticleGrid
             posts={enhancedUsaPosts}
@@ -70,10 +71,11 @@ export default function HomePage() {
         <Hero posts={enhancedPosts} />
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
-            posts={enhancedUsaPosts}
-            sectionTitle="USA"
-            leftColumnArticles={3}
-            rightColumnArticles={5}
+            // posts={enhancedUsaPosts}
+            leftColumnTitle="USA"
+            rightColumnTitle="USA"
+            leftColumnArticles={enhancedUsaPosts.slice(0, 3)}
+            rightColumnArticles={enhancedUsaPosts.slice(0, 5)}
           />
         </div>
       </div>

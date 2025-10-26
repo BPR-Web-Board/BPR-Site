@@ -1,12 +1,12 @@
 /* Article Preview Grid Styles */
 .article-preview-grid {
   display: grid;
-  grid-template-columns: 2.25fr 4fr 2fr;
+  grid-template-columns: 2fr 4.25fr 2fr;
   grid-template-rows: 1fr;
   gap: 2.5rem;
   background: white;
   width: 85vw;
-  /* max-width: 100rem; 1600px max */
+  max-width: 2600px;
   margin: 0 auto;
   padding: 2rem 1rem;
   height: clamp(500px, 80vh, 1000px);
@@ -33,7 +33,7 @@
 
 /* Vertical line between left and center columns - positioned in the gap */
 .article-preview-grid::before {
-  left: calc(27.27% + 0.5rem);
+  left: calc(24.25% + 0.5rem);
 }
 
 /* Vertical line between center and right columns - positioned in the gap */
@@ -167,11 +167,11 @@
 }
 
 .apg-sidebar-article:first-child {
-  border-top: 2px solid #374151;
+  border-top: 1px solid #374151;
 }
 
 .apg-sidebar-article {
-  border-bottom: 2px solid #374151;
+  border-bottom: 1px solid #374151;
 }
 
 .apg-sidebar-preview {

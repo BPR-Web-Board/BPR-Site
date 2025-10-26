@@ -35,26 +35,32 @@ const ArticleLayout: React.FC<ArticleLayoutProps> = ({
       </div>
 
       <div className="articles-container">
-        {/* Featured Article */}
-        <FeaturedArticle
-          article={featuredArticle}
-          excerptLength={200}
-          imagePosition="top"
-          variant="default"
-          className="article-layout-featured"
-        />
+        {/* Featured Article - LEFT SIDE */}
+        <div className="featured-article-wrapper">
+          <FeaturedArticle
+            article={featuredArticle}
+            excerptLength={200}
+            imagePosition="top"
+            variant="default"
+            className="article-layout-featured"
+          />
+        </div>
 
-        {/* Side Articles */}
+        {/* Side Articles - RIGHT SIDE */}
         <div className="side-articles">
-          {sideArticles.map((article) => (
-            <SmallArticlePreview
-              key={article.id}
-              article={article}
-              excerptLength={120}
-              imagePosition="right"
-              variant="default"
-              className="article-layout-side"
-            />
+          {sideArticles.map((article, index) => (
+            <React.Fragment key={article.id}>
+              {index > 0 && <div className="side-article-divider"></div>}
+              <div className="side-article-item">
+                <SmallArticlePreview
+                  article={article}
+                  excerptLength={80}
+                  imagePosition="right"
+                  variant="default"
+                  className="article-layout-side"
+                />
+              </div>
+            </React.Fragment>
           ))}
         </div>
       </div>

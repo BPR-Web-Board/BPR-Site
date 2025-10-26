@@ -1,8 +1,7 @@
 /* FourArticleGrid Component Styles - Supports multiple rows of 4 articles each */
 .four-article-grid {
-  width: 100%;
-  max-width: 87vw;
-  /* max-width: min(100%, 85vw); */
+  width: 85vw;
+  max-width: 2600px;
   margin: 0 auto;
   padding: 2rem 1rem;
   overflow-x: hidden; /* Prevent horizontal overflow */
@@ -11,7 +10,7 @@
 /* Category Title */
 .category-title {
   font-family: var(--font-primary-serif);
-  font-size: clamp(1.75rem, 2.5vw, 8rem); /* 28px - 32px responsive */
+  font-size: clamp(1.75rem, 2.5vw, 2.5rem); /* 28px - 40px responsive, capped */
   font-weight: 700;
   color: var(--color-black);
   margin: 0 0 2rem 0;
@@ -95,21 +94,6 @@
 
   .four-article-grid {
     padding: 3rem 2rem;
-  }
-}
-
-/* Specific fix for screens > 1380px to prevent overflow */
-@media (min-width: 1380px) {
-  .articles-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    max-width: calc(100vw - 4rem); /* Account for padding */
-    box-sizing: border-box;
-  }
-
-  .four-article-grid {
-    box-sizing: border-box;
-    width: 100%;
-    overflow-x: hidden;
   }
 }
 

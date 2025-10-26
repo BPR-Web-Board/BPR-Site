@@ -1,0 +1,317 @@
+.article-split-showcase {
+  width: 85vw;
+  max-width: 2600px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  padding-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.article-split-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.article-split-section-title {
+  font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
+  font-size: clamp(1.5rem, 2.5vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: capitalize;
+  margin: 0;
+  color: var(--color-black, #0d0b00);
+}
+
+.article-split-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 55%) minmax(0, 45%);
+  gap: clamp(1.5rem, 2.5vw, 3rem);
+  align-items: stretch;
+}
+
+.placement-right .article-split-grid {
+  grid-template-columns: minmax(0, 45%) minmax(0, 55%);
+}
+
+.article-split-main,
+.article-split-secondary {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-split-main-article {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-white, #ffffff);
+  /* border: 1px solid rgba(13, 11, 0, 0.1); */
+  height: 100%;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+.article-split-main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 0.9rem;
+  padding: 0.25rem;
+  padding-bottom: 0.5rem;
+}
+
+.article-split-main-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.article-split-main-title {
+  margin: 0;
+  font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-black, #0d0b00);
+  letter-spacing: 0.05em;
+}
+
+.article-split-main-title-link:hover .article-split-main-title {
+  color: rgba(13, 11, 0, 0.75);
+}
+
+.article-split-main-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(13, 11, 0, 0.7);
+  margin-top: 0.5rem;
+}
+
+.article-split-main-author,
+.article-split-main-date {
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.article-split-main-date {
+  font-weight: 400;
+  color: rgba(13, 11, 0, 0.55);
+}
+
+.article-split-meta-divider {
+  width: 1px;
+  height: 0.75rem;
+  background-color: rgba(13, 11, 0, 0.35);
+}
+
+.article-split-main-excerpt {
+  margin: 0;
+  font-family: var(
+    --font-primary-text,
+    "FreightText Pro",
+    "Crimson Text",
+    serif
+  );
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  line-height: 1.55;
+  color: rgba(13, 11, 0, 0.85);
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.article-split-main-image-wrapper {
+  position: relative;
+  flex: 1 1 0%;
+  min-height: clamp(260px, 35vw, 420px);
+  background-color: var(--color-light-gray, #d9d9d9);
+}
+
+.article-split-main-image {
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.article-split-main-article:hover .article-split-main-image {
+  transform: scale(1.02);
+}
+
+.article-split-main-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-size: 0.875rem;
+  color: rgba(13, 11, 0, 0.5);
+}
+
+.article-split-secondary {
+  background-color: transparent;
+  flex: 1 1 auto;
+}
+
+.article-split-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 2.5vw, 2.5rem);
+  flex: 1 1 auto;
+  grid-auto-rows: 1fr;
+  height: 100%;
+  align-content: stretch;
+  align-items: stretch;
+}
+
+.article-split-secondary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 0.45rem;
+  height: 100%;
+}
+
+.article-split-secondary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.article-split-secondary-date {
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(13, 11, 0, 0.65);
+}
+
+.article-split-secondary-divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(13, 11, 0, 0.25);
+}
+
+.article-split-secondary-title-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.article-split-secondary-title {
+  margin: 0;
+  font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-black, #0d0b00);
+}
+
+.article-split-secondary-title-link:hover .article-split-secondary-title {
+  color: rgba(13, 11, 0, 0.75);
+}
+
+.article-split-secondary-author {
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: rgba(13, 11, 0, 0.7);
+  margin-top: auto;
+}
+
+.article-split-empty,
+.article-split-secondary-empty {
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-size: 0.875rem;
+  color: rgba(13, 11, 0, 0.6);
+}
+
+@media (max-width: 1200px) {
+  .article-split-showcase {
+    padding: 0 1.5rem;
+  }
+
+  .article-split-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-split-secondary-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .article-split-main-article {
+    min-height: unset;
+  }
+}
+
+@media (max-width: 768px) {
+  .article-split-showcase {
+    padding: 0 1.25rem;
+    gap: 1.75rem;
+  }
+
+  .article-split-main-content {
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .article-split-main-image-wrapper {
+    min-height: 240px;
+  }
+
+  .article-split-secondary-item {
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-split-showcase {
+    padding: 0 1rem;
+  }
+
+  .article-split-main-excerpt {
+    font-size: 0.9rem;
+  }
+
+  .article-split-secondary-title {
+    font-size: 1rem;
+  }
+}

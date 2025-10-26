@@ -1,100 +1,161 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { EnhancedPost } from "../../lib/types";
-import { FeaturedArticle, SmallArticlePreview } from "../shared";
+import {
+  stripHtml,
+  truncateText,
+  getArticleTitle,
+  getArticleLink,
+} from "../../lib/utils";
 import "./TwoColumnArticleLayout.css";
 
 export interface TwoColumnArticleLayoutProps {
-  posts: EnhancedPost[];
-  sectionTitle?: string;
-  leftColumnArticles?: number;
-  rightColumnArticles?: number;
+  leftColumnTitle?: string;
+  leftColumnArticles: EnhancedPost[];
+  rightColumnTitle?: string;
+  rightColumnArticles: EnhancedPost[];
   className?: string;
 }
 
 const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
-  posts,
-  sectionTitle = "United States",
-  leftColumnArticles = 3,
-  rightColumnArticles = 5,
+  leftColumnTitle,
+  leftColumnArticles,
+  rightColumnTitle,
+  rightColumnArticles,
   className = "",
 }) => {
-  if (!posts || posts.length === 0) {
+  const renderArticle = (article: EnhancedPost, isMainArticle: boolean = false) => {
+    const articleLink = getArticleLink(article);
+    const title = getArticleTitle(article);
+    const plainTitle = stripHtml(title);
+    const excerpt = truncateText(
+      stripHtml(article?.excerpt?.rendered || ""),
+      isMainArticle ? 200 : 100
+    );
+
+    if (isMainArticle) {
+      return (
+        <article key={article.id} className="tcal-main-article">
+          <div className="tcal-main-image-container">
+            {article?.featured_media_obj?.source_url ? (
+              <Image
+                src={article.featured_media_obj.source_url}
+                alt={stripHtml(title)}
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="tcal-main-image"
+              />
+            ) : (
+              <div className="tcal-main-image-placeholder"></div>
+            )}
+          </div>
+          <div className="tcal-main-content">
+            <Link href={articleLink} className="tcal-main-title-link">
+              <h2
+                className="tcal-main-title"
+                dangerouslySetInnerHTML={{ __html: title }}
+              ></h2>
+            </Link>
+            <div
+              className="tcal-main-excerpt"
+              dangerouslySetInnerHTML={{ __html: excerpt }}
+            ></div>
+            <div className="tcal-main-meta">
+              <span className="tcal-main-author">
+                {(article?.author_name || "LASTNAME").toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </article>
+      );
+    }
+
+    const secondaryTitle = truncateText(plainTitle, 90);
+
     return (
-      <div className={`two-column-layout ${className}`}>
-        <div className="section-header">
-          <h2 className="section-title">{sectionTitle}</h2>
+      <article key={article.id} className="tcal-secondary-article">
+        <Link href={articleLink} className="tcal-secondary-title-link">
+          <h3 className="tcal-secondary-title">{secondaryTitle}</h3>
+        </Link>
+        <div
+          className="tcal-secondary-excerpt"
+          dangerouslySetInnerHTML={{ __html: excerpt }}
+        ></div>
+        <div className="tcal-secondary-meta">
+          <span className="tcal-secondary-author">
+            {(article?.author_name || "LASTNAME").toUpperCase()}
+          </span>
         </div>
-        <div className="error-message">No articles available</div>
-      </div>
+        {article?.featured_media_obj?.source_url && (
+          <div className="tcal-secondary-image-container">
+            <Image
+              src={article.featured_media_obj.source_url}
+              alt={stripHtml(title)}
+              fill
+              sizes="(max-width: 768px) 100vw, 20vw"
+              className="tcal-secondary-image"
+            />
+          </div>
+        )}
+      </article>
+    );
+  };
+
+  if (
+    (!leftColumnArticles || leftColumnArticles.length === 0) &&
+    (!rightColumnArticles || rightColumnArticles.length === 0)
+  ) {
+    return (
+      <div className="tcal-empty">No articles available</div>
     );
   }
 
-  // Split articles into left and right columns
-  const totalArticles = leftColumnArticles + rightColumnArticles;
-  const articles = posts.slice(0, totalArticles);
-  const leftColumnPosts = articles.slice(0, leftColumnArticles);
-  const rightColumnPosts = articles.slice(
-    leftColumnArticles,
-    leftColumnArticles + rightColumnArticles
-  );
-
   return (
-    <div className={`two-column-layout ${className}`}>
-      {/* Section Header with Title and Divider */}
-      <div className="section-header">
-        <h2
-          className="section-title"
-          dangerouslySetInnerHTML={{ __html: sectionTitle }}
-        />
-        <div className="section-divider"></div>
+    <div className={`two-column-article-layout ${className}`}>
+      {/* Left Column */}
+      <div className="tcal-column tcal-left-column">
+        {leftColumnTitle && (
+          <h1 className="tcal-column-title">{leftColumnTitle}</h1>
+        )}
+        <div className="tcal-column-content">
+          {leftColumnArticles && leftColumnArticles.length > 0 && (
+            <>
+              {renderArticle(leftColumnArticles[0], true)}
+              {leftColumnArticles.length > 1 && (
+                <div className="tcal-article-divider" aria-hidden="true"></div>
+              )}
+              <div className="tcal-secondary-articles">
+                {leftColumnArticles.slice(1, 4).map((article) =>
+                  renderArticle(article, false)
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Two Column Content */}
-      <div className="columns-container">
-        {/* Left Column */}
-        <div className="left-column">
-          {/* Featured Article */}
-          {leftColumnPosts.length > 0 && (
-            <FeaturedArticle
-              article={leftColumnPosts[0]}
-              excerptLength={300}
-              imagePosition="top"
-              variant="default"
-              className="two-column-featured"
-            />
-          )}
-
-          {/* Small Articles in Left Column */}
-          <div className="left-small-articles">
-            {leftColumnPosts.slice(1).map((article, index) => (
-              <div key={article.id} className="small-article-wrapper">
-                <SmallArticlePreview
-                  article={article}
-                  excerptLength={150}
-                  imagePosition="left"
-                  variant="default"
-                  className="two-column-small left-column-small"
-                />
+      {/* Right Column */}
+      <div className="tcal-column tcal-right-column">
+        {rightColumnTitle && (
+          <h1 className="tcal-column-title">{rightColumnTitle}</h1>
+        )}
+        <div className="tcal-column-content">
+          {rightColumnArticles && rightColumnArticles.length > 0 && (
+            <>
+              {renderArticle(rightColumnArticles[0], true)}
+              {rightColumnArticles.length > 1 && (
+                <div className="tcal-article-divider" aria-hidden="true"></div>
+              )}
+              <div className="tcal-secondary-articles">
+                {rightColumnArticles.slice(1, 4).map((article) =>
+                  renderArticle(article, false)
+                )}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="right-column">
-          {rightColumnPosts.map((article, index) => (
-            <div key={article.id} className="small-article-wrapper">
-              <SmallArticlePreview
-                article={article}
-                excerptLength={150}
-                imagePosition="left"
-                variant="default"
-                className="two-column-small right-column-small"
-              />
-            </div>
-          ))}
+            </>
+          )}
         </div>
       </div>
     </div>

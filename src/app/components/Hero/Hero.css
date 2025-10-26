@@ -47,8 +47,8 @@
 .hero-content {
   position: relative;
   z-index: 3;
-  width: 100%;
-  max-width: 1519px;
+  width: 90%;
+  max-width: 2600px;
   margin: 0 auto;
   padding: 0 4.375rem;
   box-sizing: border-box;
@@ -88,7 +88,7 @@
 
 .hero-title {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 4rem;
+  font-size: clamp(2rem, 3.75rem, 3.75rem);
   font-weight: 700;
   line-height: 130%;
   letter-spacing: 3.2px;
@@ -108,7 +108,7 @@
 
 .hero-excerpt {
   font-family: "FreightText Pro", "Crimson Text", serif;
-  font-size: 2rem;
+  font-size: clamp(1.125rem, 1.5rem, 1.5rem);
   font-weight: 400;
   line-height: 130%;
   color: rgba(13, 11, 0, 1);

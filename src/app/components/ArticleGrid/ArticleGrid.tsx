@@ -2,7 +2,7 @@
 
 import React from "react";
 import { EnhancedPost } from "../../lib/types";
-import { ArticleCard } from "../shared";
+import LargeArticlePreview from "../shared/LargeArticlePreview/LargeArticlePreview";
 import "./ArticleGrid.css";
 
 interface ArticleGridProps {
@@ -77,27 +77,27 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
 
       {/* Articles Grid */}
       <div className="articles-container">
-        {/* Top Row */}
+        {/* Top Row - Images on Left */}
         <div className="top-row">
           {/* Left */}
           <div className="grid-item">
-            <ArticleCard
+            <LargeArticlePreview
               article={displayArticles[0]}
-              variant="standard"
-              excerptLength={300}
-              imagePosition="right"
-              className="article-grid-card"
+              excerptLength={250}
+              variant="default"
+              imagePosition="left"
+              className="article-grid-preview"
             />
           </div>
 
           {/* Right */}
           <div className="grid-item">
-            <ArticleCard
+            <LargeArticlePreview
               article={displayArticles[1]}
-              variant="standard"
-              excerptLength={300}
-              imagePosition="right"
-              className="article-grid-card"
+              excerptLength={250}
+              variant="default"
+              imagePosition="left"
+              className="article-grid-preview"
             />
           </div>
         </div>
@@ -105,27 +105,27 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
         {/* Horizontal Divider */}
         <div className="horizontal-divider"></div>
 
-        {/* Bottom Row */}
+        {/* Bottom Row - Images on Right */}
         <div className="bottom-row">
           {/* Left */}
           <div className="grid-item">
-            <ArticleCard
+            <LargeArticlePreview
               article={displayArticles[2]}
-              variant="standard"
-              excerptLength={300}
-              imagePosition="left"
-              className="article-grid-card"
+              excerptLength={250}
+              variant="default"
+              imagePosition="right"
+              className="article-grid-preview"
             />
           </div>
 
           {/* Right */}
           <div className="grid-item">
-            <ArticleCard
+            <LargeArticlePreview
               article={displayArticles[3]}
-              variant="standard"
-              excerptLength={300}
-              imagePosition="left"
-              className="article-grid-card"
+              excerptLength={250}
+              variant="default"
+              imagePosition="right"
+              className="article-grid-preview"
             />
           </div>
         </div>

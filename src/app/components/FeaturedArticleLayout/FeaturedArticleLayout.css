@@ -1,7 +1,7 @@
 /* FeaturedArticleLayout Component - Matching Figma Design */
 .featured-article-layout {
   width: 85vw;
-  /* max-width: 1600px; */
+  max-width: 2600px;
   margin: 0 auto;
   padding: 0;
   position: relative;
@@ -173,24 +173,13 @@
   transition: color 0.2s ease;
 }
 
-.list-title {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 2rem;
+.sidebar-article-title {
+  font-family: var(--font-primary-serif);
+  font-size: clamp(1.25rem, 2rem, 2rem);
   font-weight: 600;
-  line-height: 125%;
-  text-transform: capitalize;
-  color: #000;
-  margin: 0;
-  width: 100%;
-  max-width: 305px;
-  /* Limit to 3 lines */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: auto;
-  min-height: fit-content;
+  line-height: 1.3;
+  color: var(--color-black);
+  margin-bottom: 0.5rem;
 }
 
 .list-author {

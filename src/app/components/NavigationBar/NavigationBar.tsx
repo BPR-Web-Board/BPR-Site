@@ -197,8 +197,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
             <Image
               src="/logo/logo.svg"
               alt="Brown Political Review"
-              width={isScrolled ? 120 : 250}
-              height={isScrolled ? 40 : 110}
+              width={isScrolled ? 120 : 175}
+              height={isScrolled ? 60 : 78}
               className="logo"
               priority
             />

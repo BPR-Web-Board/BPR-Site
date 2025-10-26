@@ -176,8 +176,8 @@
 }
 
 .navigation-bar.expanded {
-  height: 15vh;
-  min-height: 120px;
+  height: 10vh;
+  min-height: 80px;
 }
 
 .navigation-bar.scrolled {
@@ -237,6 +237,7 @@
   object-fit: contain;
   display: block;
   margin: auto;
+  padding: 0.5rem 0;
 }
 
 /* Logo Dividers - Black lines on sides of logo in expanded view */
@@ -327,10 +328,38 @@
   color: #c41e3a;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (max-width: 1200px) {
   .left-menu,
   .right-menu {
-    gap: 5vw;
+    gap: 2vw;
+  }
+
+  .nav-link {
+    font-size: 0.85rem;
+  }
+
+  .nav-logo-section {
+    min-width: 280px;
+  }
+
+  /* Ensure mobile elements are hidden on larger screens */
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+
+  .mobile-menu {
+    display: none !important;
+  }
+
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1201px) {
+  .left-menu,
+  .right-menu {
+    gap: 3vw;
   }
 
   /* Ensure mobile elements are hidden on larger screens */
@@ -348,9 +377,9 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) and (min-width: 769px) {
+@media (max-width: 1023px) and (min-width: 769px) {
   .nav-container {
-    padding: 0 1.5rem;
+    padding: 0 1rem;
   }
 
   .left-menu,
@@ -358,9 +387,13 @@
     gap: 1.5rem;
   }
 
+  .nav-link {
+    font-size: 0.85rem;
+  }
+
   .nav-logo-section {
     /* padding: 0 50px; Reduced padding for smaller screens */
-    min-width: 280px;
+    min-width: 260px;
   }
 
   /* Ensure mobile elements are hidden in tablet range */
@@ -401,7 +434,7 @@
   /* Adjust nav container for mobile */
   .nav-container {
     padding: 0 1rem;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 60px 1fr 60px;
   }
 
   /* Center logo on mobile */
@@ -417,25 +450,25 @@
   }
 
   .navigation-bar.expanded {
-    height: 12vh;
-    min-height: 80px;
+    height: 10vh;
+    min-height: 70px;
   }
 
   .navigation-bar.scrolled {
     height: 5vh;
-    min-height: 60px;
+    min-height: 55px;
   }
 
   .logo {
     width: auto;
     height: auto;
-    max-width: 180px;
-    max-height: 50px;
+    max-width: 160px;
+    max-height: 45px;
   }
 
   .navigation-bar.scrolled .logo {
-    max-width: 120px;
-    max-height: 35px;
+    max-width: 100px;
+    max-height: 32px;
   }
 }
 
@@ -454,21 +487,21 @@
   }
 
   .logo {
-    max-width: 150px;
-    max-height: 40px;
+    max-width: 140px;
+    max-height: 38px;
   }
 
   .navigation-bar.scrolled .logo {
-    max-width: 100px;
-    max-height: 30px;
+    max-width: 90px;
+    max-height: 28px;
   }
 
   .navigation-bar.expanded {
-    min-height: 70px;
+    min-height: 65px;
   }
 
   .navigation-bar.scrolled {
-    min-height: 55px;
+    min-height: 50px;
   }
 }
 

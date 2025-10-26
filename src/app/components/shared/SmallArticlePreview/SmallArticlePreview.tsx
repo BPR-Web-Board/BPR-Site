@@ -30,7 +30,12 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
   className = "",
 }) => {
   const articleLink = getArticleLink(article);
-  const title = getArticleTitle(article);
+  const rawTitle = getArticleTitle(article);
+  const title = truncateText(stripHtml(rawTitle), 80);
+  const authorName = truncateText(
+    (article?.author_name || "LASTNAME").toUpperCase(),
+    25
+  );
   const excerpt = truncateText(
     stripHtml(article?.excerpt?.rendered || ""),
     excerptLength
@@ -61,9 +66,7 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
         ></h4>
       </Link>
       <div className="small-article-meta">
-        <span className="small-article-author">
-          BY {(article?.author_name || "LASTNAME").toUpperCase()}
-        </span>
+        <span className="small-article-author">BY {authorName}</span>
       </div>
       {variant !== "preview-grid" && (
         <div
