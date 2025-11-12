@@ -87,12 +87,7 @@
 .grid-error {
   padding: 2.5rem;
   text-align: center;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 1rem;
   color: #6b7280;
 }

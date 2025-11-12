@@ -1,7 +1,7 @@
 /* ArticleView Component - Matching Figma Design */
 .article-view {
-  width: 100%;
-  max-width: 1440px;
+  width: 85vw;
+  max-width: 2600px;
   margin: 0 auto;
   padding: 0 64px;
   background-color: #fff;
@@ -40,9 +40,9 @@
   grid-column: 1;
 }
 
-/* Article Excerpt - FreightText Pro, 32px */
+/* Article Excerpt - Nicholas, 32px */
 .article-excerpt-view {
-  font-family: "FreightText Pro", "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 1.35rem;
   font-weight: 400;
   line-height: 130%;
@@ -88,7 +88,7 @@
 
 .author-byline,
 .illustrator-info {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 120%; /* 19.2px */
@@ -126,7 +126,7 @@
 }
 
 .sidebar-pull-quote {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 150%; /* 36px */
@@ -143,7 +143,7 @@
 
 /* Article Content */
 .article-content {
-  font-family: "FreightText Pro", "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 130%; /* 31.2px */
@@ -155,7 +155,7 @@
 }
 
 .article-content h2 {
-  font-family: "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 28px;
   font-weight: 600;
   margin-top: 32px;
@@ -164,7 +164,7 @@
 }
 
 .article-content h3 {
-  font-family: "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 26px;
   font-weight: 600;
   margin-top: 24px;
@@ -212,7 +212,7 @@
 }
 
 .image-caption {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 120%; /* 19.2px */
@@ -221,9 +221,9 @@
 }
 
 .image-credit {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   line-height: 120%;
   color: rgba(0, 0, 0, 0.7);

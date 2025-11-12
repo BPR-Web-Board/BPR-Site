@@ -76,6 +76,7 @@
   align-items: center;
   justify-content: center;
   color: #6b7280;
+  font-family: "Nicholas", "Playfair Display", serif;
 }
 
 /* Dark overlay for text readability */
@@ -141,12 +142,7 @@
 }
 
 .large-article-preview-author {
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1;
@@ -157,14 +153,9 @@
 }
 
 .large-article-preview-date {
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 0.75rem;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0.05em;
   text-transform: uppercase;

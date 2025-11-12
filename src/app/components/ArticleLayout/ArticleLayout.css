@@ -161,7 +161,7 @@
 .error-message {
   padding: 4rem 2rem;
   text-align: center;
-  font-family: var(--font-primary-sans);
+  font-family: "Nicholas", "Playfair Display", serif;
   color: var(--color-medium-gray);
 }
 
