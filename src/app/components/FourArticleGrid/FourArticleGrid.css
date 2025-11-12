@@ -239,7 +239,7 @@
 }
 
 .four-article-grid-card .article-card-author {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: clamp(0.6875rem, 1.5vw, 0.75rem); /* 11px - 12px responsive */
   font-weight: 400;
   color: rgba(0, 0, 0, 0.7);
@@ -248,7 +248,7 @@
 }
 
 .four-article-grid-card .article-card-excerpt {
-  font-family: "FreightText Pro", "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: clamp(0.9375rem, 2vw, 1.125rem); /* 15px - 18px responsive */
   font-weight: 400;
   line-height: 1.28; /* ~23px line height at 18px font size */

@@ -97,7 +97,7 @@
 }
 
 .article-author-carousel {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: normal;
@@ -114,9 +114,9 @@
 }
 
 .article-date-carousel {
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 1rem;
-  font-weight: 300;
+  font-weight: 400;
   line-height: normal;
   letter-spacing: 1.02px;
   text-transform: uppercase;
@@ -124,7 +124,7 @@
 }
 
 .article-excerpt-carousel {
-  font-family: "FreightText Pro", "Crimson Text", serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: clamp(1.125rem, 1.75rem, 1.75rem);
   font-weight: 400;
   line-height: 130%;
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 16px;
   color: #666;
 }
@@ -240,7 +240,7 @@
 .carousel-error {
   padding: 40px;
   text-align: center;
-  font-family: "Libre Franklin", sans-serif;
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 16px;
   color: #666;
 }

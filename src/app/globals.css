@@ -24,7 +24,7 @@
   /* Font Variables - primary and backup */
   --font-primary-serif: "Nicholas", "Playfair Display", serif;
   --font-primary-sans: "FranklinGothic URW", "Libre Franklin", sans-serif;
-  --font-primary-text: "FreightText Pro", "Crimson Text", serif
+  --font-primary-text: "Nicholas", "Playfair Display", serif;
 
   /* Font sizes based on the 8pt grid - mobile first */
   --font-size-xs: 14px; /* Previously 12px */
