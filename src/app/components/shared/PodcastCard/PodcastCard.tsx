@@ -80,11 +80,19 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
       <h3 className={`podcast-card-title variant-${variant}`}>{title}</h3>
 
       <div className="podcast-card-meta">
-        <span className="podcast-card-author">
-          BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
-        </span>
         {podcastDuration && showDuration && (
-          <span className="podcast-card-duration">{podcastDuration}</span>
+          <span className="podcast-card-duration">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              className="clock-icon"
+            >
+              <circle cx="12" cy="12" r="10" strokeWidth="2" />
+              <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            {podcastDuration}
+          </span>
         )}
       </div>
 

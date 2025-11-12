@@ -30,6 +30,37 @@ export async function enhancePost(
     }
   }
 
+  // Handle multiple authors (coauthors field)
+  // Format as "AUTHOR1 AND AUTHOR2 AND AUTHOR3"
+  if (post.coauthors) {
+    try {
+      const coauthorIds = Array.isArray(post.coauthors)
+        ? post.coauthors
+        : [post.coauthors];
+
+      if (coauthorIds.length > 0) {
+        const coauthors = await Promise.all(
+          coauthorIds.map(async (id) => {
+            try {
+              const author = await getAuthorById(id);
+              return author.name;
+            } catch (error) {
+              console.error(`Error fetching coauthor ${id}:`, error);
+              return null;
+            }
+          })
+        );
+
+        const validAuthors = coauthors.filter((name) => name !== null);
+        if (validAuthors.length > 0) {
+          author_name = validAuthors.join(" AND ");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching coauthors:", error);
+    }
+  }
+
   // Match categories
   let categories_obj: Category[] = [];
   if (categories && post.categories && post.categories.length > 0) {

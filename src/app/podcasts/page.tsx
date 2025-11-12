@@ -7,6 +7,7 @@ import {
 import { enhancePosts } from "../lib/enhancePost";
 import FeaturedPodcast from "../components/FeaturedPodcast";
 import PodcastGrid from "../components/PodcastGrid";
+import BeyondTheArticleSection from "../components/BeyondTheArticleSection";
 import "./podcasts.css";
 
 export const metadata: Metadata = {
@@ -31,27 +32,26 @@ export default async function PodcastsPage() {
     const allCategories = await getAllCategories();
 
     // Fetch podcasts from main BPR Radio category and related categories
-    const [bprRadioPosts, worldPodcasts, usPodcasts, magazinePodcasts] =
+    // According to Figma design: Hero, Beyond the Article, Interviews, US
+    const [bprRadioPosts, interviewsPodcasts, usPodcasts] =
       await Promise.all([
-        getPodcastsByCategory("bpradio", 8),
-        getPodcastsByCategory("world", 8),
+        getPodcastsByCategory("bpradio", 12),
+        getPodcastsByCategory("interviews", 8),
         getPodcastsByCategory("united-states", 8),
-        getPodcastsByCategory("magazine", 8),
       ]);
 
     // Enhance all posts with metadata
     const enhancedBprRadio = await enhancePosts(bprRadioPosts, allCategories);
-    const enhancedWorld = await enhancePosts(worldPodcasts, allCategories);
+    const enhancedInterviews = await enhancePosts(interviewsPodcasts, allCategories);
     const enhancedUS = await enhancePosts(usPodcasts, allCategories);
-    const enhancedMagazine = await enhancePosts(magazinePodcasts, allCategories);
 
     // Get featured podcast (latest from BPR Radio)
     const featuredPodcast =
       enhancedBprRadio.length > 0 ? enhancedBprRadio[0] : null;
 
-    // Get related podcasts for "Beyond the Article" section
-    const relatedPodcasts =
-      enhancedBprRadio.length > 1 ? enhancedBprRadio.slice(1, 5) : [];
+    // Get podcasts for "Beyond the Article" section (next 3 from BPR Radio)
+    const beyondTheArticlePodcasts =
+      enhancedBprRadio.length > 1 ? enhancedBprRadio.slice(1, 4) : [];
 
     return (
       <div className="podcasts-page">
@@ -73,16 +73,25 @@ export default async function PodcastsPage() {
           </section>
         )}
 
-        {/* Beyond the Article Section */}
-        {relatedPodcasts.length > 0 && (
-          <section className="podcasts-beyond-section">
+        {/* Beyond the Article Section - 2 column layout */}
+        {beyondTheArticlePodcasts.length > 0 && (
+          <BeyondTheArticleSection
+            podcasts={beyondTheArticlePodcasts}
+            title="Beyond the Article"
+            showMoreButton={true}
+            moreButtonLink="#"
+          />
+        )}
+
+        {/* Interviews Section - 4 column grid */}
+        {enhancedInterviews.length > 0 && (
+          <section className="podcasts-section">
             <div className="section-container">
-              <h2 className="section-title">Beyond the Article</h2>
               <PodcastGrid
-                podcasts={relatedPodcasts}
-                showTitle={false}
+                podcasts={enhancedInterviews}
+                title="Interviews"
                 numberOfRows={1}
-                className="beyond-podcast-grid"
+                className="podcasts-interviews-grid"
               />
               <a href="#" className="more-episodes-link">
                 More episodes
@@ -91,39 +100,17 @@ export default async function PodcastsPage() {
           </section>
         )}
 
-        {/* World Podcasts Section */}
-        {enhancedWorld.length > 0 && (
-          <section className="podcasts-section">
-            <PodcastGrid
-              podcasts={enhancedWorld}
-              title="World"
-              numberOfRows={1}
-              className="podcasts-world-grid"
-            />
-          </section>
-        )}
-
-        {/* US Podcasts Section */}
+        {/* US Section - 4 column grid */}
         {enhancedUS.length > 0 && (
           <section className="podcasts-section">
-            <PodcastGrid
-              podcasts={enhancedUS}
-              title="US"
-              numberOfRows={1}
-              className="podcasts-us-grid"
-            />
-          </section>
-        )}
-
-        {/* Magazine Podcasts Section */}
-        {enhancedMagazine.length > 0 && (
-          <section className="podcasts-section">
-            <PodcastGrid
-              podcasts={enhancedMagazine}
-              title="Magazine"
-              numberOfRows={1}
-              className="podcasts-magazine-grid"
-            />
+            <div className="section-container">
+              <PodcastGrid
+                podcasts={enhancedUS}
+                title="US"
+                numberOfRows={1}
+                className="podcasts-us-grid"
+              />
+            </div>
           </section>
         )}
       </div>

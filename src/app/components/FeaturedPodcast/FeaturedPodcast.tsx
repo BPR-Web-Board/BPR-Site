@@ -58,23 +58,32 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
         <div className="featured-podcast-content">
           <h2 className="featured-podcast-title">{title}</h2>
 
-          <div className="featured-podcast-meta">
-            <span className="featured-podcast-author">
-              BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
-            </span>
-            {podcastDuration && (
-              <span className="featured-podcast-duration">
-                {podcastDuration}
-              </span>
-            )}
-          </div>
-
           <div className="featured-podcast-date">
             {new Date(podcast.date).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
             })}
+          </div>
+
+          <div className="featured-podcast-meta">
+            <span className="featured-podcast-author">
+              BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
+            </span>
+            {podcastDuration && (
+              <span className="featured-podcast-duration">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  className="clock-icon"
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                {podcastDuration}
+              </span>
+            )}
           </div>
 
           <p className="featured-podcast-excerpt">
