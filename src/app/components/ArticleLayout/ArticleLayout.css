@@ -1,7 +1,7 @@
 /* ArticleLayout Component Styles */
 .article-layout {
-  width: 85vw;
-  max-width: 2600px;
+  width: 95vw;
+  /* max-width: 3200px; */
   margin: 0 auto;
   padding: 2rem 1rem;
 }

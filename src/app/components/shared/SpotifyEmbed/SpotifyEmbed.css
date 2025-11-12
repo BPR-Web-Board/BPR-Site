@@ -1,0 +1,73 @@
+.spotify-embed-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-white);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.spotify-embed-container iframe {
+  border-radius: 12px;
+}
+
+.spotify-embed-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--color-light-gray);
+  border-radius: 8px;
+  border-left: 4px solid var(--color-red);
+  margin: 1rem 0;
+}
+
+.spotify-embed-error p {
+  font-family: var(--font-primary-text);
+  font-size: 1rem;
+  color: var(--color-medium-gray);
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .spotify-embed-container {
+    height: 130px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .spotify-embed-container {
+    height: 120px !important;
+    margin: 0.75rem 0;
+  }
+}
+
+/* Loading state animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.spotify-embed-container.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Print styles */
+@media print {
+  .spotify-embed-container {
+    display: none;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .spotify-embed-container.loading {
+    animation: none;
+  }
+}

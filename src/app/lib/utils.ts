@@ -58,3 +58,52 @@ export function getArticleLink(post: any): string {
   if (post.id <= 0) return "#";
   return `/${post.categories_obj?.[0]?.slug || "world"}/article/${post.slug}`;
 }
+
+/**
+ * Deduplicates articles across multiple sections based on category priority
+ * Each article appears only in the first matching section (in priority order)
+ *
+ * @param sectionsData Array of {categorySlug, posts} to deduplicate
+ * @returns Array of deduplicated sections with the same structure
+ *
+ * @example
+ * const sections = [
+ *   { categorySlug: "usa", posts: [...] },
+ *   { categorySlug: "world", posts: [...] }
+ * ];
+ * const deduped = deduplicateArticlesBySections(sections);
+ * // Articles tagged with both "usa" and "world" only appear in "usa" section
+ */
+export function deduplicateArticlesBySections(
+  sectionsData: Array<{ categorySlug: string; posts: any[] }>
+): Array<{ categorySlug: string; posts: any[] }> {
+  const usedPostIds = new Set<number>();
+
+  return sectionsData.map((section) => {
+    const dedupedPosts = section.posts.filter((post) => {
+      if (usedPostIds.has(post.id)) {
+        return false;
+      }
+      usedPostIds.add(post.id);
+      return true;
+    });
+
+    return {
+      categorySlug: section.categorySlug,
+      posts: dedupedPosts,
+    };
+  });
+}
+
+/**
+ * Filters posts by a specific category slug, ensuring the category is in their categories_obj
+ * Useful for enforcing that articles render under a specific category section
+ */
+export function filterPostsByCategory(
+  posts: any[],
+  categorySlug: string
+): any[] {
+  return posts.filter((post) =>
+    post.categories_obj?.some((cat: any) => cat.slug === categorySlug)
+  );
+}

@@ -8,17 +8,49 @@ import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
 import { getAllCategories } from "./lib/wordpress";
 import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
+import { deduplicateArticlesBySections } from "./lib/utils";
 // import Footer from "./components/Footer";
 
 const posts = await getAllPosts();
 const categories = await getAllCategories();
 
+console.log("Categories:", categories);
+
 // Enhance posts with additional data
 const enhancedPosts = await enhancePosts(posts.slice(0, 20), categories);
 
-// Get category-specific posts
-const usaPosts = await getPostsByCategorySlug("usa", 10);
+// Fetch posts from different categories
+// Using priority order to ensure proper deduplication
+const [usaPosts, worldPosts, culturePosts, policyPosts] = await Promise.all([
+  getPostsByCategorySlug("usa", 15),
+  getPostsByCategorySlug("world", 15),
+  getPostsByCategorySlug("culture", 10),
+  getPostsByCategorySlug("law", 8), // Law/Justice for policy content
+]);
+
+// Enhance all category-specific posts
 const enhancedUsaPosts = await enhancePosts(usaPosts, categories);
+const enhancedWorldPosts = await enhancePosts(worldPosts, categories);
+const enhancedCulturePosts = await enhancePosts(culturePosts, categories);
+const enhancedPolicyPosts = await enhancePosts(policyPosts, categories);
+
+// Create sections with category priority (order matters for deduplication)
+const sectionsData = [
+  { categorySlug: "usa", posts: enhancedUsaPosts },
+  { categorySlug: "world", posts: enhancedWorldPosts },
+  { categorySlug: "culture", posts: enhancedCulturePosts },
+  { categorySlug: "law", posts: enhancedPolicyPosts },
+];
+
+// Deduplicate articles across sections
+// This ensures an article tagged with multiple categories only appears once
+const deduplicatedSections = deduplicateArticlesBySections(sectionsData);
+
+// Extract deduplicated posts by category
+const usaPostsDedup = deduplicatedSections[0].posts;
+const worldPostsDedup = deduplicatedSections[1].posts;
+const culturePostsDedup = deduplicatedSections[2].posts;
+const policyPostsDedup = deduplicatedSections[3].posts;
 
 export default function HomePage() {
   return (
@@ -27,8 +59,9 @@ export default function HomePage() {
         <Hero posts={enhancedPosts} />
         <div className="article-layout-wrapper">
           <ArticlePreviewGrid articles={enhancedPosts.slice(0, 10)} />
+          {/* USA Section - 2 rows of 4 articles each */}
           <FourArticleGrid
-            posts={enhancedUsaPosts}
+            posts={usaPostsDedup}
             categoryName="USA"
             showCategoryTitle={false}
             numberOfRows={2}
@@ -38,46 +71,69 @@ export default function HomePage() {
       </div>
       <div className="main-content">
         <Hero posts={enhancedPosts} preferredCategory="usa" />
+
+        {/* Section 1: USA News */}
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
-            // posts={enhancedUsaPosts}
-            leftColumnTitle="USA"
-            rightColumnTitle="USA"
-            leftColumnArticles={enhancedUsaPosts.slice(0, 3)}
-            rightColumnArticles={enhancedUsaPosts.slice(0, 5)}
+            leftColumnTitle="USA News"
+            rightColumnTitle="Latest Updates"
+            leftColumnArticles={usaPostsDedup.slice(0, 3)}
+            rightColumnArticles={usaPostsDedup.slice(3, 8)}
           />
           <FourArticleGrid
-            posts={enhancedUsaPosts}
+            posts={usaPostsDedup}
             categoryName="USA"
             showCategoryTitle={false}
             numberOfRows={1}
             showBoundingLines={true}
           />
         </div>
+
         <Hero posts={enhancedPosts} />
+
+        {/* Section 2: World News */}
         <div className="two-column-layout-wrapper">
           <ArticleLayout
-            posts={enhancedUsaPosts.slice(0, 5)}
-            categoryName="USA"
+            posts={worldPostsDedup.slice(0, 5)}
+            categoryName="World"
           />
           <FourArticleGrid
-            posts={enhancedUsaPosts}
-            categoryName="USA"
+            posts={worldPostsDedup}
+            categoryName="World"
             showCategoryTitle={false}
             numberOfRows={1}
             showBoundingLines={true}
           />
         </div>
+
         <Hero posts={enhancedPosts} />
+
+        {/* Section 3: Culture & Arts */}
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
-            // posts={enhancedUsaPosts}
-            leftColumnTitle="USA"
-            rightColumnTitle="USA"
-            leftColumnArticles={enhancedUsaPosts.slice(0, 3)}
-            rightColumnArticles={enhancedUsaPosts.slice(0, 5)}
+            leftColumnTitle="Culture"
+            rightColumnTitle="Arts & Entertainment"
+            leftColumnArticles={culturePostsDedup.slice(0, 3)}
+            rightColumnArticles={culturePostsDedup.slice(3, 8)}
+          />
+          <FourArticleGrid
+            posts={culturePostsDedup}
+            categoryName="Culture"
+            showCategoryTitle={false}
+            numberOfRows={1}
+            showBoundingLines={true}
           />
         </div>
+
+        <Hero posts={enhancedPosts} />
+
+        {/* Section 4: Policy & Law */}
+        {/* <div className="two-column-layout-wrapper">
+          <ArticleLayout
+            posts={policyPostsDedup.slice(0, 5)}
+            categoryName="Law & Policy"
+          />
+        </div> */}
       </div>
     </div>
   );
