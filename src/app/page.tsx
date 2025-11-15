@@ -11,28 +11,33 @@ import FourArticleGrid from "./components/FourArticleGrid";
 import { deduplicateArticlesBySections } from "./lib/utils";
 // import Footer from "./components/Footer";
 
-const posts = await getAllPosts();
-const categories = await getAllCategories();
+// Fetch all data in parallel for optimal performance
+const [posts, categories, usaPosts, worldPosts, culturePosts, policyPosts] =
+  await Promise.all([
+    getAllPosts(),
+    getAllCategories(),
+    getPostsByCategorySlug("usa", { per_page: 15 }),
+    getPostsByCategorySlug("world", { per_page: 15 }),
+    getPostsByCategorySlug("culture", { per_page: 10 }),
+    getPostsByCategorySlug("law", { per_page: 8 }), // Law/Justice for policy content
+  ]);
 
 console.log("Categories:", categories);
 
-// Enhance posts with additional data
-const enhancedPosts = await enhancePosts(posts.slice(0, 20), categories);
-
-// Fetch posts from different categories
-// Using priority order to ensure proper deduplication
-const [usaPosts, worldPosts, culturePosts, policyPosts] = await Promise.all([
-  getPostsByCategorySlug("usa", 15),
-  getPostsByCategorySlug("world", 15),
-  getPostsByCategorySlug("culture", 10),
-  getPostsByCategorySlug("law", 8), // Law/Justice for policy content
+// Enhance all posts in parallel for optimal performance
+const [
+  enhancedPosts,
+  enhancedUsaPosts,
+  enhancedWorldPosts,
+  enhancedCulturePosts,
+  enhancedPolicyPosts,
+] = await Promise.all([
+  enhancePosts(posts.slice(0, 20), categories),
+  enhancePosts(usaPosts, categories),
+  enhancePosts(worldPosts, categories),
+  enhancePosts(culturePosts, categories),
+  enhancePosts(policyPosts, categories),
 ]);
-
-// Enhance all category-specific posts
-const enhancedUsaPosts = await enhancePosts(usaPosts, categories);
-const enhancedWorldPosts = await enhancePosts(worldPosts, categories);
-const enhancedCulturePosts = await enhancePosts(culturePosts, categories);
-const enhancedPolicyPosts = await enhancePosts(policyPosts, categories);
 
 // Create sections with category priority (order matters for deduplication)
 const sectionsData = [

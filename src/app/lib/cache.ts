@@ -331,7 +331,7 @@ class WordPressCache {
 // Create a singleton instance
 export const cache = new WordPressCache({
   defaultTTL: parseInt(process.env.CACHE_TTL || "300000"), // 5 minutes default
-  maxSize: parseInt(process.env.CACHE_MAX_SIZE || "1000"),
+  maxSize: parseInt(process.env.CACHE_MAX_SIZE || "5000"), // Increased from 1000 to 5000
   enableRedis: typeof window === "undefined" && !!process.env.REDIS_URL,
   redisUrl: process.env.REDIS_URL,
 });
@@ -405,11 +405,13 @@ export const cacheInvalidation = {
     await cache.clear("getAllAuthors");
     await cache.clear("getAuthorById");
     await cache.clear("getAuthorBySlug");
+    await cache.clear("getAuthorsByIds");
   },
 
   // Invalidate media-related caches
   invalidateMedia: async () => {
     await cache.clear("getFeaturedMediaById");
+    await cache.clear("getMediaByIds");
   },
 
   // Invalidate all caches

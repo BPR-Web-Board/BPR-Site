@@ -35,14 +35,21 @@ export const getAllPosts = withCache(
     author?: string;
     tag?: string;
     category?: string;
+    per_page?: number;
+    page?: number;
+    offset?: number;
+    search?: string;
   }): Promise<Post[]> => {
     console.log("filterParams", filterParams);
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
       params: {
-        per_page: 30,
+        per_page: filterParams?.per_page || 30,
+        page: filterParams?.page,
+        offset: filterParams?.offset,
         author: filterParams?.author,
         tags: filterParams?.tag,
         categories: filterParams?.category,
+        search: filterParams?.search,
       },
     });
     return data;
@@ -247,13 +254,22 @@ export const getPostsByAuthorSlug = withCache(
 
 export const getPostsByCategorySlug = withCache(
   "getPostsByCategorySlug",
-  async (categorySlug: string, perPage: number = 20): Promise<Post[]> => {
+  async (
+    categorySlug: string,
+    options?: {
+      per_page?: number;
+      page?: number;
+      offset?: number;
+    }
+  ): Promise<Post[]> => {
     try {
       const category = await getCategoryBySlug(categorySlug);
       const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
         params: {
           categories: category.id,
-          per_page: perPage,
+          per_page: options?.per_page || 20,
+          page: options?.page,
+          offset: options?.offset,
         },
       });
       return data || [];
@@ -287,4 +303,72 @@ export const getFeaturedMediaById = withCache(
     return data;
   },
   CACHE_TTL.MEDIA
+);
+
+// Batch fetch functions for optimization
+
+/**
+ * Batch fetch multiple authors by IDs
+ * More efficient than individual getAuthorById calls
+ */
+export const getAuthorsByIds = withCache(
+  "getAuthorsByIds",
+  async (ids: number[]): Promise<Author[]> => {
+    if (ids.length === 0) return [];
+
+    // WordPress REST API supports 'include' parameter for batch fetching
+    const { data } = await api.get<Author[]>("/wp-json/wp/v2/users", {
+      params: {
+        include: ids.join(","),
+        per_page: 100, // Supports up to 100 items
+      },
+    });
+    return data;
+  },
+  CACHE_TTL.AUTHORS
+);
+
+/**
+ * Batch fetch multiple media items by IDs
+ * More efficient than individual getFeaturedMediaById calls
+ */
+export const getMediaByIds = withCache(
+  "getMediaByIds",
+  async (ids: number[]): Promise<FeaturedMedia[]> => {
+    if (ids.length === 0) return [];
+
+    // WordPress REST API supports 'include' parameter for batch fetching
+    const { data } = await api.get<FeaturedMedia[]>("/wp-json/wp/v2/media", {
+      params: {
+        include: ids.join(","),
+        per_page: 100, // Supports up to 100 items
+      },
+    });
+    return data;
+  },
+  CACHE_TTL.MEDIA
+);
+
+/**
+ * Search posts by keyword
+ */
+export const searchPosts = withCache(
+  "searchPosts",
+  async (
+    searchTerm: string,
+    options?: {
+      per_page?: number;
+      page?: number;
+    }
+  ): Promise<Post[]> => {
+    const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
+      params: {
+        search: searchTerm,
+        per_page: options?.per_page || 20,
+        page: options?.page || 1,
+      },
+    });
+    return data;
+  },
+  CACHE_TTL.POSTS
 );
