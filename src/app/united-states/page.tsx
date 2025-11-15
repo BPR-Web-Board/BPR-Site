@@ -12,13 +12,32 @@ import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import type { EnhancedPost } from "../lib/types";
 
-const categories = await getAllCategories();
+// Fetch all data in parallel for optimal performance
+const [
+  categories,
+  usaPostsRaw,
+  electionsPostsRaw,
+  educationPostsRaw,
+  environmentPostsRaw,
+  healthPostsRaw,
+  lawPostsRaw,
+  housingPostsRaw,
+  foreignPolicyPostsRaw,
+  securityPostsRaw,
+] = await Promise.all([
+  getAllCategories(),
+  getPostsByCategorySlug("usa", { per_page: 24 }),
+  getPostsByCategorySlug("elections", { per_page: 8 }),
+  getPostsByCategorySlug("education", { per_page: 8 }),
+  getPostsByCategorySlug("environment", { per_page: 8 }),
+  getPostsByCategorySlug("health", { per_page: 8 }),
+  getPostsByCategorySlug("law", { per_page: 8 }),
+  getPostsByCategorySlug("housing", { per_page: 8 }),
+  getPostsByCategorySlug("foreign-policy", { per_page: 8 }),
+  getPostsByCategorySlug("security-and-defense-usa", { per_page: 8 }),
+]);
 
-async function fetchEnhancedCategory(slug: string, count: number) {
-  const posts = await getPostsByCategorySlug(slug, count);
-  return enhancePosts(posts, categories);
-}
-
+// Enhance all posts in parallel
 const [
   usaPosts,
   electionsPosts,
@@ -30,15 +49,15 @@ const [
   foreignPolicyPosts,
   securityPosts,
 ] = await Promise.all([
-  fetchEnhancedCategory("usa", 24),
-  fetchEnhancedCategory("elections", 8),
-  fetchEnhancedCategory("education", 8),
-  fetchEnhancedCategory("environment", 8),
-  fetchEnhancedCategory("health", 8),
-  fetchEnhancedCategory("law", 8),
-  fetchEnhancedCategory("housing", 8),
-  fetchEnhancedCategory("foreign-policy", 8),
-  fetchEnhancedCategory("security-and-defense-usa", 8),
+  enhancePosts(usaPostsRaw, categories),
+  enhancePosts(electionsPostsRaw, categories),
+  enhancePosts(educationPostsRaw, categories),
+  enhancePosts(environmentPostsRaw, categories),
+  enhancePosts(healthPostsRaw, categories),
+  enhancePosts(lawPostsRaw, categories),
+  enhancePosts(housingPostsRaw, categories),
+  enhancePosts(foreignPolicyPostsRaw, categories),
+  enhancePosts(securityPostsRaw, categories),
 ]);
 
 const usaCategory = categories.find((cat) => cat.slug === "usa");

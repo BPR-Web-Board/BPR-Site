@@ -11,13 +11,28 @@ import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import type { EnhancedPost } from "../lib/types";
 
-const categories = await getAllCategories();
+// Fetch all data in parallel for optimal performance
+const [
+  categories,
+  worldPostsRaw,
+  europePostsRaw,
+  asiaPacificPostsRaw,
+  middleEastPostsRaw,
+  africaPostsRaw,
+  latinAmericaPostsRaw,
+  southAmericaPostsRaw,
+] = await Promise.all([
+  getAllCategories(),
+  getPostsByCategorySlug("world", { per_page: 24 }),
+  getPostsByCategorySlug("europe", { per_page: 8 }),
+  getPostsByCategorySlug("asia-pacific", { per_page: 8 }),
+  getPostsByCategorySlug("middle-east", { per_page: 8 }),
+  getPostsByCategorySlug("africa", { per_page: 8 }),
+  getPostsByCategorySlug("latin-america", { per_page: 8 }),
+  getPostsByCategorySlug("south-america", { per_page: 8 }),
+]);
 
-async function fetchEnhancedCategory(slug: string, count: number) {
-  const posts = await getPostsByCategorySlug(slug, count);
-  return enhancePosts(posts, categories);
-}
-
+// Enhance all posts in parallel
 const [
   worldPosts,
   europePosts,
@@ -27,13 +42,13 @@ const [
   latinAmericaPosts,
   southAmericaPosts,
 ] = await Promise.all([
-  fetchEnhancedCategory("world", 24),
-  fetchEnhancedCategory("europe", 8),
-  fetchEnhancedCategory("asia-pacific", 8),
-  fetchEnhancedCategory("middle-east", 8),
-  fetchEnhancedCategory("africa", 8),
-  fetchEnhancedCategory("latin-america", 8),
-  fetchEnhancedCategory("south-america", 8),
+  enhancePosts(worldPostsRaw, categories),
+  enhancePosts(europePostsRaw, categories),
+  enhancePosts(asiaPacificPostsRaw, categories),
+  enhancePosts(middleEastPostsRaw, categories),
+  enhancePosts(africaPostsRaw, categories),
+  enhancePosts(latinAmericaPostsRaw, categories),
+  enhancePosts(southAmericaPostsRaw, categories),
 ]);
 
 const worldCategory = categories.find((cat) => cat.slug === "world");
