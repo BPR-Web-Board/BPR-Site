@@ -21,10 +21,9 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-  // Increase timeouts for slow external image sources
-  experimental: {
-    proxyTimeout: 120000, // 2 minutes
+    // Use unoptimized images to avoid timeout issues with slow external sources
+    // Images will be served directly from the source
+    unoptimized: true,
   },
 };
 

@@ -1,8 +1,8 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import classNames from "classnames";
 import { EnhancedPost } from "../../lib/types";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./Hero.css";
 
 export interface HeroProps {
@@ -105,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({
     <section className={classNames("hero-section", className)}>
       <div className="hero-background">
         {hasImage && imageUrl ? (
-          <Image
+          <OptimizedImage
             src={imageUrl}
             alt={imageAlt}
             fill
@@ -113,6 +113,7 @@ const Hero: React.FC<HeroProps> = ({
             style={{ objectFit: "cover" }}
             priority
             className="hero-bg-image"
+            showPlaceholder={true}
           />
         ) : (
           <div className="hero-bg-placeholder" />

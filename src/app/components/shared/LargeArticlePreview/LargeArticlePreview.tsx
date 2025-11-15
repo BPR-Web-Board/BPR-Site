@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
 import {
@@ -10,6 +9,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../../lib/utils";
+import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./LargeArticlePreview.css";
 
 export interface LargeArticlePreviewProps {
@@ -56,13 +56,14 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
         {/* Image Container */}
         <div className="large-article-preview-image-container">
           {article?.featured_media_obj?.source_url ? (
-            <Image
+            <OptimizedImage
               src={article.featured_media_obj.source_url}
               alt={stripHtml(title)}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="large-article-preview-image"
               priority
+              showPlaceholder={true}
             />
           ) : (
             <div className="large-article-preview-image-placeholder"></div>

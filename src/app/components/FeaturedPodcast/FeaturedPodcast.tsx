@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { EnhancedPost } from "../../lib/types";
 import {
   stripHtml,
   getArticleTitle,
 } from "../../lib/utils";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./FeaturedPodcast.css";
 
 interface FeaturedPodcastProps {
@@ -34,13 +34,14 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
       <div className="featured-podcast-container">
         <div className="featured-podcast-image-wrapper">
           {podcast?.featured_media_obj?.source_url ? (
-            <Image
+            <OptimizedImage
               src={podcast.featured_media_obj.source_url}
               alt={stripHtml(title)}
               fill
               className="featured-podcast-image"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
               priority
+              showPlaceholder={true}
             />
           ) : (
             <div className="featured-podcast-image-placeholder">

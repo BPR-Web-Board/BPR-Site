@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
 import {
@@ -10,6 +9,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../../lib/utils";
+import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./ArticleCard.css";
 
 export interface ArticleCardProps {
@@ -41,12 +41,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const imageContent = showImage && (
     <div className={`article-card-image-container image-${imagePosition}`}>
       {article?.featured_media_obj?.source_url ? (
-        <Image
+        <OptimizedImage
           src={article.featured_media_obj.source_url}
           alt={stripHtml(title)}
           fill
           className="article-card-image"
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          showPlaceholder={true}
         />
       ) : (
         <div className="article-card-image-placeholder"></div>

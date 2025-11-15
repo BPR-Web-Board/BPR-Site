@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../lib/types";
 import {
@@ -11,6 +10,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../lib/utils";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./ArticleSplitShowcase.css";
 
 export interface ArticleSplitShowcaseProps {
@@ -106,13 +106,14 @@ const ArticleSplitShowcase: React.FC<ArticleSplitShowcaseProps> = ({
         </div>
         <div className="article-split-main-image-wrapper">
           {mainArticle?.featured_media_obj?.source_url ? (
-            <Image
+            <OptimizedImage
               src={mainArticle.featured_media_obj.source_url}
               alt={stripHtml(mainTitle)}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 45vw"
               className="article-split-main-image"
               priority
+              showPlaceholder={true}
             />
           ) : (
             <div className="article-split-main-image-placeholder">

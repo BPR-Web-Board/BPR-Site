@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
 import {
@@ -10,6 +9,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../../lib/utils";
+import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./SmallArticlePreview.css";
 
 export interface SmallArticlePreviewProps {
@@ -44,12 +44,13 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
   const imageContent = showImage && (
     <div className="small-article-image-container">
       {article?.featured_media_obj?.source_url ? (
-        <Image
+        <OptimizedImage
           src={article.featured_media_obj.source_url}
           alt={stripHtml(title)}
           fill
           sizes="(max-width: 768px) 100vw, 25vw"
           className="small-article-image"
+          showPlaceholder={true}
         />
       ) : (
         <div className="small-article-image-placeholder"></div>

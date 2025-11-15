@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { EnhancedPost } from "../../lib/types";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./ArticleCarousel.css";
 
 interface ArticleCarouselProps {
@@ -141,12 +141,13 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
         {/* Article Image */}
         <div className="article-image-container-carousel">
           {currentArticle.featured_media_obj?.source_url ? (
-            <Image
+            <OptimizedImage
               src={currentArticle.featured_media_obj.source_url}
               alt={stripHtml(titleText)}
               width={714}
               height={586}
               className="article-image-carousel"
+              showPlaceholder={true}
             />
           ) : (
             <div className="article-image-placeholder">

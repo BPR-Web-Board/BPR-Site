@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../lib/types";
 import {
@@ -10,6 +9,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../lib/utils";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./TwoColumnArticleLayout.css";
 
 export interface TwoColumnArticleLayoutProps {
@@ -41,12 +41,13 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
         <article key={article.id} className="tcal-main-article">
           <div className="tcal-main-image-container">
             {article?.featured_media_obj?.source_url ? (
-              <Image
+              <OptimizedImage
                 src={article.featured_media_obj.source_url}
                 alt={stripHtml(title)}
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="tcal-main-image"
+                showPlaceholder={true}
               />
             ) : (
               <div className="tcal-main-image-placeholder"></div>
@@ -91,12 +92,13 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
         </div>
         {article?.featured_media_obj?.source_url && (
           <div className="tcal-secondary-image-container">
-            <Image
+            <OptimizedImage
               src={article.featured_media_obj.source_url}
               alt={stripHtml(title)}
               fill
               sizes="(max-width: 768px) 100vw, 20vw"
               className="tcal-secondary-image"
+              showPlaceholder={true}
             />
           </div>
         )}

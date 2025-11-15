@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { EnhancedPost } from "../../../lib/types";
 import {
   stripHtml,
   truncateText,
   getArticleTitle,
 } from "../../../lib/utils";
+import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./PodcastCard.css";
 
 export interface PodcastCardProps {
@@ -53,12 +53,13 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   const imageContent = showImage && (
     <div className={`podcast-card-image-container image-${imagePosition}`}>
       {podcast?.featured_media_obj?.source_url ? (
-        <Image
+        <OptimizedImage
           src={podcast.featured_media_obj.source_url}
           alt={stripHtml(title)}
           fill
           className="podcast-card-image"
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          showPlaceholder={true}
         />
       ) : (
         <div className="podcast-card-image-placeholder">

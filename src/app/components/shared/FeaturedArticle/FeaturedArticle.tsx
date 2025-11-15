@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
 import {
@@ -10,6 +9,7 @@ import {
   getArticleTitle,
   getArticleLink,
 } from "../../../lib/utils";
+import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./FeaturedArticle.css";
 
 export interface FeaturedArticleProps {
@@ -39,13 +39,14 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
   const imageContent = showImage && (
     <div className="featured-article-image-container">
       {article?.featured_media_obj?.source_url ? (
-        <Image
+        <OptimizedImage
           src={article.featured_media_obj.source_url}
           alt={stripHtml(title)}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="featured-article-image"
           priority
+          showPlaceholder={true}
         />
       ) : (
         <div className="featured-article-image-placeholder">

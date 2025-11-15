@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { EnhancedPost } from "../../lib/types";
+import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./FeaturedArticleLayout.css";
 
 interface FeaturedArticleLayoutProps {
@@ -92,12 +92,13 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
         <div className="featured-article">
           <div className="featured-image-container">
             {featuredArticle.featured_media_obj?.source_url ? (
-              <Image
+              <OptimizedImage
                 src={featuredArticle.featured_media_obj.source_url}
                 alt={stripHtml(featuredTitleText)}
                 width={673}
                 height={454}
                 className="featured-image"
+                showPlaceholder={true}
               />
             ) : (
               <div className="featured-image-placeholder">

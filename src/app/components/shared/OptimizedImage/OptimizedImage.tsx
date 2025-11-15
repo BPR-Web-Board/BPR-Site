@@ -2,6 +2,10 @@
 
 import React, { useState } from "react";
 import Image, { ImageProps } from "next/image";
+import {
+  DEFAULT_PLACEHOLDER,
+  DEFAULT_ERROR_PLACEHOLDER,
+} from "../../../../lib/loaders/imageLoader";
 
 export interface OptimizedImageProps extends Omit<ImageProps, "onError" | "onLoad"> {
   fallbackSrc?: string;
@@ -12,14 +16,15 @@ export interface OptimizedImageProps extends Omit<ImageProps, "onError" | "onLoa
 /**
  * OptimizedImage component with error handling and loading states
  * Handles timeout errors gracefully by showing fallback or placeholder
+ * Always renders an image - either the actual image, loading state, or error state
  */
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
   src,
   alt,
-  fallbackSrc = "",
+  fallbackSrc,
   showPlaceholder = true,
   placeholderClassName = "image-placeholder",
-  className,
+  className = "",
   ...props
 }) => {
   const [imageError, setImageError] = useState(false);
@@ -35,35 +40,29 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     setIsLoading(false);
   };
 
-  // Show placeholder if image failed and no fallback
-  if (imageError && !fallbackSrc) {
-    return showPlaceholder ? (
-      <div className={placeholderClassName} aria-label={alt}>
-        <span>Image unavailable</span>
-      </div>
-    ) : null;
+  // Determine which image source to use
+  let imageSrc = src;
+
+  if (imageError) {
+    // Use fallback if provided, otherwise use error placeholder
+    imageSrc = fallbackSrc || DEFAULT_ERROR_PLACEHOLDER;
+  } else if (isLoading && showPlaceholder) {
+    // While loading, show the image but it will fade in
+    // The browser will handle the loading state naturally
   }
 
-  // Use fallback if primary image failed
-  const imageSrc = imageError && fallbackSrc ? fallbackSrc : src;
-
   return (
-    <>
-      {isLoading && showPlaceholder && (
-        <div className={placeholderClassName} aria-label="Loading...">
-          <span>Loading...</span>
-        </div>
-      )}
-      <Image
-        src={imageSrc}
-        alt={alt}
-        className={`${className} ${isLoading ? "loading" : "loaded"}`}
-        onError={handleError}
-        onLoad={handleLoad}
-        unoptimized={imageError} // Skip optimization for fallback images
-        {...props}
-      />
-    </>
+    <Image
+      src={imageSrc}
+      alt={alt}
+      className={`${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}
+      onError={handleError}
+      onLoad={handleLoad}
+      placeholder="blur"
+      blurDataURL={DEFAULT_PLACEHOLDER}
+      unoptimized={imageError} // Skip optimization for error placeholders
+      {...props}
+    />
   );
 };
 
