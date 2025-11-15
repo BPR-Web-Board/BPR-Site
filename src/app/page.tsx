@@ -3,59 +3,45 @@ import Hero from "./components/Hero";
 import "./mainStyle.css";
 import ArticleLayout from "./components/ArticleLayout/ArticleLayout";
 import TwoColumnArticleLayout from "./components/TwoColumnArticleLayout";
-import { enhancePosts } from "./lib/enhancePost";
-import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
-import { getAllCategories } from "./lib/wordpress";
 import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
-import { deduplicateArticlesBySections } from "./lib/utils";
+import { fetchMainPageData, logDataFetchStats } from "./lib/dataManager";
 // import Footer from "./components/Footer";
 
-// Fetch all data in parallel for optimal performance
-const [posts, categories, usaPosts, worldPosts, culturePosts, policyPosts] =
-  await Promise.all([
-    getAllPosts(),
-    getAllCategories(),
-    getPostsByCategorySlug("usa", { per_page: 15 }),
-    getPostsByCategorySlug("world", { per_page: 15 }),
-    getPostsByCategorySlug("culture", { per_page: 10 }),
-    getPostsByCategorySlug("law", { per_page: 8 }), // Law/Justice for policy content
-  ]);
+/**
+ * Main Page - Optimized Data Fetching
+ *
+ * Uses centralized data manager for:
+ * - Reduced API calls (2 calls vs 6+ previously)
+ * - Automatic deduplication across all sections
+ * - Priority-based article distribution
+ * - Smart caching utilization
+ */
+const pageData = await fetchMainPageData();
+
+// Extract data from optimized fetch
+const {
+  featured: enhancedPosts,
+  usa: usaPostsDedup,
+  world: worldPostsDedup,
+  culture: culturePostsDedup,
+  law: policyPostsDedup,
+  categories,
+} = pageData;
+
+// Log optimization stats in development
+if (process.env.NODE_ENV === 'development') {
+  const totalPosts =
+    enhancedPosts.length +
+    usaPostsDedup.length +
+    worldPostsDedup.length +
+    culturePostsDedup.length +
+    policyPostsDedup.length;
+
+  logDataFetchStats('Main Page', 2, 50, totalPosts);
+}
 
 console.log("Categories:", categories);
-
-// Enhance all posts in parallel for optimal performance
-const [
-  enhancedPosts,
-  enhancedUsaPosts,
-  enhancedWorldPosts,
-  enhancedCulturePosts,
-  enhancedPolicyPosts,
-] = await Promise.all([
-  enhancePosts(posts.slice(0, 20), categories),
-  enhancePosts(usaPosts, categories),
-  enhancePosts(worldPosts, categories),
-  enhancePosts(culturePosts, categories),
-  enhancePosts(policyPosts, categories),
-]);
-
-// Create sections with category priority (order matters for deduplication)
-const sectionsData = [
-  { categorySlug: "usa", posts: enhancedUsaPosts },
-  { categorySlug: "world", posts: enhancedWorldPosts },
-  { categorySlug: "culture", posts: enhancedCulturePosts },
-  { categorySlug: "law", posts: enhancedPolicyPosts },
-];
-
-// Deduplicate articles across sections
-// This ensures an article tagged with multiple categories only appears once
-const deduplicatedSections = deduplicateArticlesBySections(sectionsData);
-
-// Extract deduplicated posts by category
-const usaPostsDedup = deduplicatedSections[0].posts;
-const worldPostsDedup = deduplicatedSections[1].posts;
-const culturePostsDedup = deduplicatedSections[2].posts;
-const policyPostsDedup = deduplicatedSections[3].posts;
 
 export default function HomePage() {
   return (

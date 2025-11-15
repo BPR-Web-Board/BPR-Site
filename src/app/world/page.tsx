@@ -7,100 +7,95 @@ import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
-import { enhancePosts } from "../lib/enhancePost";
-import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
-import type { EnhancedPost } from "../lib/types";
+import {
+  fetchCategoryPageData,
+  ensureMinimumContent,
+  combineAndDeduplicate,
+  logDataFetchStats,
+} from "../lib/dataManager";
 
-// Fetch all data in parallel for optimal performance
-const [
-  categories,
-  worldPostsRaw,
-  europePostsRaw,
-  asiaPacificPostsRaw,
-  middleEastPostsRaw,
-  africaPostsRaw,
-  latinAmericaPostsRaw,
-  southAmericaPostsRaw,
-] = await Promise.all([
-  getAllCategories(),
-  getPostsByCategorySlug("world", { per_page: 24 }),
-  getPostsByCategorySlug("europe", { per_page: 8 }),
-  getPostsByCategorySlug("asia-pacific", { per_page: 8 }),
-  getPostsByCategorySlug("middle-east", { per_page: 8 }),
-  getPostsByCategorySlug("africa", { per_page: 8 }),
-  getPostsByCategorySlug("latin-america", { per_page: 8 }),
-  getPostsByCategorySlug("south-america", { per_page: 8 }),
+/**
+ * World Page - Optimized Data Fetching
+ *
+ * Uses centralized data manager for:
+ * - Reduced API calls (2 calls vs 8 previously)
+ * - Automatic deduplication across subcategories
+ * - Priority-based article distribution
+ * - Smart quota enforcement
+ */
+const pageData = await fetchCategoryPageData("world", [
+  "europe",
+  "asia-pacific",
+  "middle-east",
+  "africa",
+  "latin-america",
+  "south-america",
 ]);
 
-// Enhance all posts in parallel
-const [
-  worldPosts,
-  europePosts,
-  asiaPacificPosts,
-  middleEastPosts,
-  africaPosts,
-  latinAmericaPosts,
-  southAmericaPosts,
-] = await Promise.all([
-  enhancePosts(worldPostsRaw, categories),
-  enhancePosts(europePostsRaw, categories),
-  enhancePosts(asiaPacificPostsRaw, categories),
-  enhancePosts(middleEastPostsRaw, categories),
-  enhancePosts(africaPostsRaw, categories),
-  enhancePosts(latinAmericaPostsRaw, categories),
-  enhancePosts(southAmericaPostsRaw, categories),
-]);
+// Extract data from optimized fetch
+const { main: worldPosts, subcategories, categories } = pageData;
 
-const worldCategory = categories.find((cat) => cat.slug === "world");
+// Subcategory posts (automatically deduplicated)
+const europePosts = subcategories["europe"] || [];
+const asiaPacificPosts = subcategories["asia-pacific"] || [];
+const middleEastPosts = subcategories["middle-east"] || [];
+const africaPosts = subcategories["africa"] || [];
+const latinAmericaPosts = subcategories["latin-america"] || [];
+const southAmericaPosts = subcategories["south-america"] || [];
 
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
-
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
-
-  return [];
-};
-
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
-
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
-
-  return combined;
-};
-
-const europeSpotlight = ensureContent(europePosts, worldPosts).slice(0, 7);
-const asiaPacificSpotlight = ensureContent(asiaPacificPosts, worldPosts).slice(
+// Prepare section content with fallbacks
+const europeSpotlight = ensureMinimumContent(europePosts, worldPosts, 7).slice(
   0,
-  4
+  7
 );
-const middleEastSpotlight = ensureContent(middleEastPosts, worldPosts).slice(
+const asiaPacificSpotlight = ensureMinimumContent(
+  asiaPacificPosts,
+  worldPosts,
+  4
+).slice(0, 4);
+const middleEastSpotlight = ensureMinimumContent(
+  middleEastPosts,
+  worldPosts,
+  5
+).slice(0, 5);
+const africaSpotlight = ensureMinimumContent(africaPosts, worldPosts, 5).slice(
   0,
   5
 );
-const africaSpotlight = ensureContent(africaPosts, worldPosts).slice(0, 5);
-const americasPool = combineUniquePosts(
+
+// Combine Americas (Latin + South + general World for this region)
+const americasPool = combineAndDeduplicate(
   latinAmericaPosts,
   southAmericaPosts,
   worldPosts
 );
+
+const worldCategory = categories.find((cat) => cat.slug === "world");
+
+// Log optimization stats in development
+if (process.env.NODE_ENV === "development") {
+  const totalPosts =
+    worldPosts.length +
+    europePosts.length +
+    asiaPacificPosts.length +
+    middleEastPosts.length +
+    africaPosts.length +
+    latinAmericaPosts.length +
+    southAmericaPosts.length;
+
+  const uniquePosts =
+    new Set([
+      ...worldPosts.map((p) => p.id),
+      ...europePosts.map((p) => p.id),
+      ...asiaPacificPosts.map((p) => p.id),
+      ...middleEastPosts.map((p) => p.id),
+      ...africaPosts.map((p) => p.id),
+      ...latinAmericaPosts.map((p) => p.id),
+      ...southAmericaPosts.map((p) => p.id),
+    ]).size;
+
+  logDataFetchStats("World Page", 2, totalPosts, uniquePosts);
+}
 
 export default function WorldPage() {
   return (

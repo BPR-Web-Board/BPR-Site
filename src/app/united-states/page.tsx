@@ -8,108 +8,110 @@ import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
-import { enhancePosts } from "../lib/enhancePost";
-import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
-import type { EnhancedPost } from "../lib/types";
+import {
+  fetchCategoryPageData,
+  ensureMinimumContent,
+  combineAndDeduplicate,
+  logDataFetchStats,
+} from "../lib/dataManager";
 
-// Fetch all data in parallel for optimal performance
-const [
-  categories,
-  usaPostsRaw,
-  electionsPostsRaw,
-  educationPostsRaw,
-  environmentPostsRaw,
-  healthPostsRaw,
-  lawPostsRaw,
-  housingPostsRaw,
-  foreignPolicyPostsRaw,
-  securityPostsRaw,
-] = await Promise.all([
-  getAllCategories(),
-  getPostsByCategorySlug("usa", { per_page: 24 }),
-  getPostsByCategorySlug("elections", { per_page: 8 }),
-  getPostsByCategorySlug("education", { per_page: 8 }),
-  getPostsByCategorySlug("environment", { per_page: 8 }),
-  getPostsByCategorySlug("health", { per_page: 8 }),
-  getPostsByCategorySlug("law", { per_page: 8 }),
-  getPostsByCategorySlug("housing", { per_page: 8 }),
-  getPostsByCategorySlug("foreign-policy", { per_page: 8 }),
-  getPostsByCategorySlug("security-and-defense-usa", { per_page: 8 }),
+/**
+ * United States Page - Optimized Data Fetching
+ *
+ * Uses centralized data manager for:
+ * - Reduced API calls (2 calls vs 10 previously)
+ * - Automatic deduplication across subcategories
+ * - Priority-based article distribution
+ * - Smart quota enforcement
+ */
+const pageData = await fetchCategoryPageData("usa", [
+  "elections",
+  "education",
+  "environment",
+  "health",
+  "law",
+  "housing",
+  "foreign-policy",
+  "security-defense-usa",
 ]);
 
-// Enhance all posts in parallel
-const [
-  usaPosts,
+// Extract data from optimized fetch
+const { main: usaPosts, subcategories, categories } = pageData;
+
+// Subcategory posts (automatically deduplicated)
+const electionsPosts = subcategories["elections"] || [];
+const educationPosts = subcategories["education"] || [];
+const environmentPosts = subcategories["environment"] || [];
+const healthPosts = subcategories["health"] || [];
+const lawPosts = subcategories["law"] || [];
+const housingPosts = subcategories["housing"] || [];
+const foreignPolicyPosts = subcategories["foreign-policy"] || [];
+const securityPosts = subcategories["security-defense-usa"] || [];
+
+// Prepare section content with fallbacks
+const electionSpotlight = ensureMinimumContent(
   electionsPosts,
-  educationPosts,
+  usaPosts,
+  7
+).slice(0, 7);
+const environmentColumn = ensureMinimumContent(
   environmentPosts,
-  healthPosts,
-  lawPosts,
-  housingPosts,
-  foreignPolicyPosts,
-  securityPosts,
-] = await Promise.all([
-  enhancePosts(usaPostsRaw, categories),
-  enhancePosts(electionsPostsRaw, categories),
-  enhancePosts(educationPostsRaw, categories),
-  enhancePosts(environmentPostsRaw, categories),
-  enhancePosts(healthPostsRaw, categories),
-  enhancePosts(lawPostsRaw, categories),
-  enhancePosts(housingPostsRaw, categories),
-  enhancePosts(foreignPolicyPostsRaw, categories),
-  enhancePosts(securityPostsRaw, categories),
-]);
-
-const usaCategory = categories.find((cat) => cat.slug === "usa");
-
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
-
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
-
-  return [];
-};
-
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
-
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
-
-  return combined;
-};
-
-const electionSpotlight = ensureContent(electionsPosts, usaPosts).slice(0, 7);
-const environmentColumn = ensureContent(
-  environmentPosts,
-  usaPosts
+  usaPosts,
+  5
 ).slice(0, 5);
-const healthColumn = ensureContent(healthPosts, usaPosts).slice(0, 5);
-const educationArticles = ensureContent(educationPosts, usaPosts).slice(0, 4);
-const lawArticles = ensureContent(lawPosts, usaPosts).slice(0, 5);
-const housingArticles = ensureContent(housingPosts, usaPosts).slice(0, 4);
-const nationalSecurityPool = combineUniquePosts(
+const healthColumn = ensureMinimumContent(healthPosts, usaPosts, 5).slice(
+  0,
+  5
+);
+const educationArticles = ensureMinimumContent(
+  educationPosts,
+  usaPosts,
+  4
+).slice(0, 4);
+const lawArticles = ensureMinimumContent(lawPosts, usaPosts, 5).slice(0, 5);
+const housingArticles = ensureMinimumContent(housingPosts, usaPosts, 4).slice(
+  0,
+  4
+);
+
+// Combine National Security topics (Foreign Policy + Defense + general USA)
+const nationalSecurityPool = combineAndDeduplicate(
   foreignPolicyPosts,
   securityPosts,
   usaPosts
 );
-const previewArticles = ensureContent(usaPosts).slice(0, 10);
+
+const previewArticles = usaPosts.slice(0, 10);
+const usaCategory = categories.find((cat) => cat.slug === "usa");
+
+// Log optimization stats in development
+if (process.env.NODE_ENV === "development") {
+  const totalPosts =
+    usaPosts.length +
+    electionsPosts.length +
+    educationPosts.length +
+    environmentPosts.length +
+    healthPosts.length +
+    lawPosts.length +
+    housingPosts.length +
+    foreignPolicyPosts.length +
+    securityPosts.length;
+
+  const uniquePosts =
+    new Set([
+      ...usaPosts.map((p) => p.id),
+      ...electionsPosts.map((p) => p.id),
+      ...educationPosts.map((p) => p.id),
+      ...environmentPosts.map((p) => p.id),
+      ...healthPosts.map((p) => p.id),
+      ...lawPosts.map((p) => p.id),
+      ...housingPosts.map((p) => p.id),
+      ...foreignPolicyPosts.map((p) => p.id),
+      ...securityPosts.map((p) => p.id),
+    ]).size;
+
+  logDataFetchStats("United States Page", 2, totalPosts, uniquePosts);
+}
 
 export default function UnitedStatesPage() {
   return (
