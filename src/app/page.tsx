@@ -77,8 +77,8 @@ export default function HomePage() {
           <TwoColumnArticleLayout
             leftColumnTitle="USA News"
             rightColumnTitle="Latest Updates"
-            leftColumnArticles={usaPostsDedup.slice(0, 3)}
-            rightColumnArticles={usaPostsDedup.slice(3, 8)}
+            leftColumnArticles={usaPostsDedup.slice(0, 4)}
+            rightColumnArticles={usaPostsDedup.slice(4, 8)}
           />
           <FourArticleGrid
             posts={usaPostsDedup}
@@ -89,7 +89,7 @@ export default function HomePage() {
           />
         </div>
 
-        <Hero posts={enhancedPosts} />
+        <Hero posts={usaPostsDedup} />
 
         {/* Section 2: World News */}
         <div className="two-column-layout-wrapper">
@@ -106,7 +106,7 @@ export default function HomePage() {
           />
         </div>
 
-        <Hero posts={enhancedPosts} />
+        <Hero posts={worldPostsDedup} />
 
         {/* Section 3: Culture & Arts */}
         <div className="two-column-layout-wrapper">
@@ -125,7 +125,7 @@ export default function HomePage() {
           />
         </div>
 
-        <Hero posts={enhancedPosts} />
+        <Hero posts={culturePostsDedup} />
 
         {/* Section 4: Policy & Law */}
         {/* <div className="two-column-layout-wrapper">

@@ -88,6 +88,10 @@ body.scrolled {
 }
 
 /* Additional font loading helpers */
+/* Note: Custom fonts are loaded via Adobe Fonts (Typekit) above */
+/* If you need to use local fonts instead, uncomment and add font files to /public/fonts/ */
+
+/*
 @font-face {
   font-family: "Nicholas";
   src: url("/fonts/Nicholas-Regular.woff2") format("woff2");
@@ -127,6 +131,7 @@ body.scrolled {
   font-style: normal;
   font-display: swap;
 }
+*/
 
 /* Ensure image placeholders look good */
 .image-placeholder {

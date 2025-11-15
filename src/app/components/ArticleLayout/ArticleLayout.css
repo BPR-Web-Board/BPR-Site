@@ -1,9 +1,9 @@
 /* ArticleLayout Component Styles */
 .article-layout {
-  width: 95vw;
-  /* max-width: 3200px; */
+  width: 85vw;
+  max-width: 2600px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 0rem;
 }
 
 /* Section Header */
