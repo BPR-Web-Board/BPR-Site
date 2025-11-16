@@ -24,8 +24,9 @@ import {
  * - Priority-based article distribution
  * - Smart quota enforcement
  */
-const pageData = await fetchCategoryPageData("usa", [
+const pageData = await fetchCategoryPageData("united-states", [
   "elections",
+  "economy",
   "education",
   "environment",
   "health",
@@ -40,6 +41,7 @@ const { main: usaPosts, subcategories, categories } = pageData;
 
 // Subcategory posts (automatically deduplicated)
 const electionsPosts = subcategories["elections"] || [];
+const economyPosts = subcategories["economy"] || [];
 const educationPosts = subcategories["education"] || [];
 const environmentPosts = subcategories["environment"] || [];
 const healthPosts = subcategories["health"] || [];
@@ -82,13 +84,14 @@ const nationalSecurityPool = combineAndDeduplicate(
 );
 
 const previewArticles = usaPosts.slice(0, 10);
-const usaCategory = categories.find((cat) => cat.slug === "usa");
+const usaCategory = categories.find((cat) => cat.slug === "united-states");
 
 // Log optimization stats in development
 if (process.env.NODE_ENV === "development") {
   const totalPosts =
     usaPosts.length +
     electionsPosts.length +
+    economyPosts.length +
     educationPosts.length +
     environmentPosts.length +
     healthPosts.length +
@@ -101,6 +104,7 @@ if (process.env.NODE_ENV === "development") {
     new Set([
       ...usaPosts.map((p) => p.id),
       ...electionsPosts.map((p) => p.id),
+      ...economyPosts.map((p) => p.id),
       ...educationPosts.map((p) => p.id),
       ...environmentPosts.map((p) => p.id),
       ...healthPosts.map((p) => p.id),

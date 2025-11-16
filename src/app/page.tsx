@@ -12,7 +12,7 @@ import { fetchMainPageData, logDataFetchStats } from "./lib/dataManager";
  * Main Page - Optimized Data Fetching
  *
  * Uses centralized data manager for:
- * - Reduced API calls (2 calls vs 6+ previously)
+ * - Category-specific fetching for balanced distribution
  * - Automatic deduplication across all sections
  * - Priority-based article distribution
  * - Smart caching utilization
@@ -22,23 +22,37 @@ const pageData = await fetchMainPageData();
 // Extract data from optimized fetch
 const {
   featured: enhancedPosts,
-  usa: usaPostsDedup,
+  magazine: magazinePostsDedup,
+  unitedStates: usaPostsDedup,
   world: worldPostsDedup,
   culture: culturePostsDedup,
-  law: policyPostsDedup,
+  interviews: interviewsPostsDedup,
+  multimedia: multimediaPostsDedup,
   categories,
 } = pageData;
 
 // Log optimization stats in development
 if (process.env.NODE_ENV === 'development') {
-  const totalPosts =
+  const totalPostsFetched = 12 + 15 + 15 + 12 + 10 + 10; // Sum of per_page for each category
+  const uniquePostsUsed =
     enhancedPosts.length +
+    magazinePostsDedup.length +
     usaPostsDedup.length +
     worldPostsDedup.length +
     culturePostsDedup.length +
-    policyPostsDedup.length;
+    interviewsPostsDedup.length +
+    multimediaPostsDedup.length;
 
-  logDataFetchStats('Main Page', 2, 50, totalPosts);
+  logDataFetchStats('Main Page', 7, totalPostsFetched, uniquePostsUsed);
+  console.log('Section breakdown:', {
+    featured: enhancedPosts.length,
+    magazine: magazinePostsDedup.length,
+    usa: usaPostsDedup.length,
+    world: worldPostsDedup.length,
+    culture: culturePostsDedup.length,
+    interviews: interviewsPostsDedup.length,
+    multimedia: multimediaPostsDedup.length,
+  });
 }
 
 console.log("Categories:", categories);

@@ -29,14 +29,19 @@ import { enhancePosts } from './enhancePost';
  */
 export const CATEGORY_PRIORITIES: Record<string, number> = {
   // Top-level categories (shown on main page)
-  'usa': 5,
+  'magazine': 6,
+  'united-states': 5,
   'world': 5,
-  'culture': 4,
+  'culture': 5,
+  'interviews': 5,
+  'multimedia': 4,
+  'bpradio': 4,
   'law': 4,
   'policy': 4,
 
   // USA subcategories
   'elections': 4,
+  'economy': 4,
   'education': 3,
   'environment': 3,
   'health': 3,
@@ -69,10 +74,12 @@ export const CATEGORY_PRIORITIES: Record<string, number> = {
 export const SECTION_QUOTAS = {
   main: {
     featured: 5,
-    usa: 12,
-    world: 12,
+    magazine: 8,
+    unitedStates: 10,
+    world: 10,
     culture: 8,
-    law: 6,
+    interviews: 6,
+    multimedia: 6,
   },
   category: {
     main: 20,
@@ -92,10 +99,12 @@ export interface SectionData {
 
 export interface MainPageData {
   featured: EnhancedPost[];
-  usa: EnhancedPost[];
+  magazine: EnhancedPost[];
+  unitedStates: EnhancedPost[];
   world: EnhancedPost[];
   culture: EnhancedPost[];
-  law: EnhancedPost[];
+  interviews: EnhancedPost[];
+  multimedia: EnhancedPost[];
   categories: Category[];
 }
 
@@ -292,49 +301,100 @@ export function deduplicateByPriority(
  * Fetch and organize data for main page
  *
  * Optimization strategy:
- * 1. Fetch global post pool (50 posts, cached)
- * 2. Fetch categories (cached for 15min)
- * 3. Distribute articles intelligently with deduplication
+ * 1. Fetch from each main category separately (magazine, world, united-states, culture, interviews, multimedia)
+ * 2. Fetch enough posts per category to account for deduplication (~15-20 per category)
+ * 3. Deduplicate based on priority (higher priority categories claim articles first)
+ * 4. Ensure each section gets its minimum quota
  *
- * API Calls: 2 (down from 6+)
+ * API Calls: 7 (categories + 6 main categories)
+ * Note: This is more than the previous approach but guarantees balanced distribution
  */
 export async function fetchMainPageData(): Promise<MainPageData> {
-  // Parallel fetch: categories + large post pool
-  const [allCategories, globalPostPool] = await Promise.all([
+  // Fetch categories + posts from each main category in parallel
+  const [
+    allCategories,
+    magazinePosts,
+    unitedStatesPosts,
+    worldPosts,
+    culturePosts,
+    interviewsPosts,
+    multimediaPosts,
+  ] = await Promise.all([
     getAllCategories(),
-    getAllPosts({ per_page: 50 }), // Larger pool for distribution
+    getPostsByCategorySlug('magazine', { per_page: 12 }),
+    getPostsByCategorySlug('united-states', { per_page: 15 }),
+    getPostsByCategorySlug('world', { per_page: 15 }),
+    getPostsByCategorySlug('culture', { per_page: 12 }),
+    getPostsByCategorySlug('interviews', { per_page: 10 }),
+    getPostsByCategorySlug('bpradio', { per_page: 10 }).catch(() =>
+      getPostsByCategorySlug('multimedia', { per_page: 10 })
+    ), // Try bpradio first, fall back to multimedia
   ]);
 
-  // Enhance all posts at once (batch optimization)
-  const enhancedPool = await enhancePosts(globalPostPool, allCategories);
+  // Enhance all posts in parallel
+  const [
+    enhancedMagazine,
+    enhancedUnitedStates,
+    enhancedWorld,
+    enhancedCulture,
+    enhancedInterviews,
+    enhancedMultimedia,
+  ] = await Promise.all([
+    enhancePosts(magazinePosts, allCategories),
+    enhancePosts(unitedStatesPosts, allCategories),
+    enhancePosts(worldPosts, allCategories),
+    enhancePosts(culturePosts, allCategories),
+    enhancePosts(interviewsPosts, allCategories),
+    enhancePosts(multimediaPosts, allCategories),
+  ]);
 
-  // Define sections with quotas and priorities
-  const sections = [
-    { slug: 'usa', quota: SECTION_QUOTAS.main.usa, priority: CATEGORY_PRIORITIES['usa'] },
-    { slug: 'world', quota: SECTION_QUOTAS.main.world, priority: CATEGORY_PRIORITIES['world'] },
-    { slug: 'culture', quota: SECTION_QUOTAS.main.culture, priority: CATEGORY_PRIORITIES['culture'] },
-    { slug: 'law', quota: SECTION_QUOTAS.main.law, priority: CATEGORY_PRIORITIES['law'] },
+  // Build sections data with priorities
+  const sectionsData: SectionData[] = [
+    { categorySlug: 'magazine', posts: enhancedMagazine, priority: CATEGORY_PRIORITIES['magazine'] },
+    { categorySlug: 'united-states', posts: enhancedUnitedStates, priority: CATEGORY_PRIORITIES['united-states'] },
+    { categorySlug: 'world', posts: enhancedWorld, priority: CATEGORY_PRIORITIES['world'] },
+    { categorySlug: 'culture', posts: enhancedCulture, priority: CATEGORY_PRIORITIES['culture'] },
+    { categorySlug: 'interviews', posts: enhancedInterviews, priority: CATEGORY_PRIORITIES['interviews'] },
+    { categorySlug: 'multimedia', posts: enhancedMultimedia, priority: CATEGORY_PRIORITIES['multimedia'] || CATEGORY_PRIORITIES['bpradio'] },
   ];
 
-  // Distribute articles across sections with deduplication
-  const distributed = distributeArticles(enhancedPool, sections, allCategories);
+  // Deduplicate across sections (higher priority sections claim articles first)
+  const deduplicated = deduplicateByPriority(sectionsData);
 
-  // Featured section: top articles not yet assigned
-  const usedIds = new Set<number>();
-  Object.values(distributed).forEach(posts => {
-    posts.forEach(post => usedIds.add(post.id));
-  });
+  // Apply quotas (trim to desired length)
+  const magazine = deduplicated.find(s => s.categorySlug === 'magazine')?.posts.slice(0, SECTION_QUOTAS.main.magazine) || [];
+  const unitedStates = deduplicated.find(s => s.categorySlug === 'united-states')?.posts.slice(0, SECTION_QUOTAS.main.unitedStates) || [];
+  const world = deduplicated.find(s => s.categorySlug === 'world')?.posts.slice(0, SECTION_QUOTAS.main.world) || [];
+  const culture = deduplicated.find(s => s.categorySlug === 'culture')?.posts.slice(0, SECTION_QUOTAS.main.culture) || [];
+  const interviews = deduplicated.find(s => s.categorySlug === 'interviews')?.posts.slice(0, SECTION_QUOTAS.main.interviews) || [];
+  const multimedia = deduplicated.find(s => s.categorySlug === 'multimedia')?.posts.slice(0, SECTION_QUOTAS.main.multimedia) || [];
 
-  const featured = enhancedPool
-    .filter(post => !usedIds.has(post.id))
-    .slice(0, SECTION_QUOTAS.main.featured);
+  // Featured section: Get the top recent posts across all categories
+  // Combine all posts, sort by date, deduplicate, and take top N
+  const allPosts = combineAndDeduplicate(
+    enhancedMagazine,
+    enhancedUnitedStates,
+    enhancedWorld,
+    enhancedCulture,
+    enhancedInterviews,
+    enhancedMultimedia
+  );
+
+  // Sort by date (most recent first)
+  const sortedByDate = allPosts.sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const featured = sortedByDate.slice(0, SECTION_QUOTAS.main.featured);
 
   return {
     featured,
-    usa: distributed['usa'] || [],
-    world: distributed['world'] || [],
-    culture: distributed['culture'] || [],
-    law: distributed['law'] || [],
+    magazine,
+    unitedStates,
+    world,
+    culture,
+    interviews,
+    multimedia,
     categories: allCategories,
   };
 }
