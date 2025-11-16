@@ -22,8 +22,6 @@ const [posts, categories, usaPosts, worldPosts, culturePosts, policyPosts] =
     getPostsByCategorySlug("law", { per_page: 8 }), // Law/Justice for policy content
   ]);
 
-console.log("Categories:", categories);
-
 // Enhance all posts in parallel for optimal performance
 const [
   enhancedPosts,
