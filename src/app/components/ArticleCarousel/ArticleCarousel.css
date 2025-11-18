@@ -32,7 +32,7 @@
 }
 
 .carousel-title {
-  font-family: var(--font-primary-serif);
+  font-family: var(--font-titles);
   font-size: var(--ac-title-fs);
   font-weight: 700;
   line-height: normal;
@@ -74,7 +74,7 @@
 }
 
 .article-title-carousel {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-titles);
   font-size: clamp(2rem, 3.25rem, 3.25rem);
   font-weight: 700;
   line-height: 135%; /* 40px */
@@ -97,7 +97,7 @@
 }
 
 .article-author-carousel {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-authors);
   font-size: 1rem;
   font-weight: 400;
   line-height: normal;
@@ -114,7 +114,7 @@
 }
 
 .article-date-carousel {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-authors);
   font-size: 1rem;
   font-weight: 400;
   line-height: normal;
@@ -124,7 +124,7 @@
 }
 
 .article-excerpt-carousel {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-body-text);
   font-size: clamp(1.125rem, 1.75rem, 1.75rem);
   font-weight: 400;
   line-height: 130%;
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-body-text);
   font-size: 16px;
   color: #666;
 }
@@ -240,7 +240,7 @@
 .carousel-error {
   padding: 40px;
   text-align: center;
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-body-text);
   font-size: 16px;
   color: #666;
 }

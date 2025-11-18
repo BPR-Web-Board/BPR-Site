@@ -23,8 +23,8 @@
 
 .section-title {
   width: 100%;
-  font-family: var(--font-primary-serif);
-  font-weight: 600;
+  font-family: var(--font-titles);
+  font-weight: 700;
   color: var(--color-black);
   line-height: 1.1;
   font-size: clamp(1.75rem, 2.5vw, 2.75rem);
@@ -161,7 +161,7 @@
 .error-message {
   padding: 4rem 2rem;
   text-align: center;
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-body-text);
   color: var(--color-medium-gray);
 }
 
