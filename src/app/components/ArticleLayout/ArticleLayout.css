@@ -24,10 +24,10 @@
 .section-title {
   width: 100%;
   font-family: var(--font-primary-serif);
-  font-size: clamp(1.75rem, 2.5vw, 2.75rem);
   font-weight: 600;
   color: var(--color-black);
   line-height: 1.1;
+  font-size: clamp(1.75rem, 2.5vw, 2.75rem);
   margin: 0;
 }
 

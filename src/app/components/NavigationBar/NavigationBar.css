@@ -287,10 +287,12 @@
 }
 
 .nav-link {
-  font-family: var(--font-primary-sans);
+  font-family: var(--font-primary-serif);
+  font-weight: 600;
+  line-height: 1.1;
   text-decoration: none;
+  letter-spacing: 2px;
   color: #333;
-  font-weight: 500;
   font-size: 0.95rem;
   padding: 0.5rem 0;
   transition: color 0.2s ease;
