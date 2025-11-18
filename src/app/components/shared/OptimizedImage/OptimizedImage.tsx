@@ -27,7 +27,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   showPlaceholder = true,
   placeholderClassName = "image-placeholder",
   className = "",
-  loading = "lazy",
+  loading,
   ...props
 }) => {
   const [imageError, setImageError] = useState(false);
@@ -57,20 +57,25 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     // The browser will handle the loading state naturally
   }
 
-  return (
-    <Image
-      src={imageSrc}
-      alt={alt}
-      className={`${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`}
-      onError={handleError}
-      onLoad={handleLoad}
-      placeholder="blur"
-      blurDataURL={DEFAULT_PLACEHOLDER}
-      unoptimized={imageError} // Skip optimization for error placeholders
-      loading={loading}
-      {...props}
-    />
-  );
+  // Build image props - only include loading if priority is not set and loading is provided
+  const imageProps: any = {
+    src: imageSrc,
+    alt,
+    className: `${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`,
+    onError: handleError,
+    onLoad: handleLoad,
+    placeholder: "blur" as const,
+    blurDataURL: DEFAULT_PLACEHOLDER,
+    unoptimized: imageError,
+    ...props,
+  };
+
+  // Only add loading prop if priority is not set (Next.js doesn't allow both)
+  if (!props.priority && loading) {
+    imageProps.loading = loading;
+  }
+
+  return <Image {...imageProps} />;
 };
 
 export default OptimizedImage;
