@@ -66,10 +66,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       setHoverTimeout(null);
     }
 
-    // Show mega menu immediately or with slight delay
+    // Show mega menu with minimal delay
     const timeout = setTimeout(() => {
       setActiveDropdown(dropdown);
-    }, 100);
+    }, 50);
     setHoverTimeout(timeout);
   };
 
@@ -80,15 +80,15 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       setHoverTimeout(null);
     }
 
-    // Delay before closing to allow moving to mega menu
+    // Longer delay before closing to allow moving to mega menu
     const timeout = setTimeout(() => {
       setActiveDropdown(null);
-    }, 200);
+    }, 400);
     setHoverTimeout(timeout);
   };
 
   const handleMegaMenuEnter = () => {
-    // Keep mega menu open when hovering over it
+    // Keep mega menu open when hovering over it - cancel any close timeout
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
       setHoverTimeout(null);
@@ -96,10 +96,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
   };
 
   const handleMegaMenuLeave = () => {
-    // Close mega menu when mouse leaves
+    // Close mega menu when mouse leaves with slight delay
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
     const timeout = setTimeout(() => {
       setActiveDropdown(null);
-    }, 100);
+    }, 200);
     setHoverTimeout(timeout);
   };
 

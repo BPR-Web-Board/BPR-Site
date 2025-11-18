@@ -535,13 +535,15 @@
   top: 10vh; /* Position below the navbar */
   left: 0;
   width: 100vw;
-  max-height: 20vh;
+  max-height: 50vh;
   background: white;
   border-bottom: 1px solid #e5e5e5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   z-index: 999;
   overflow-y: auto;
   animation: megaMenuSlideDown 0.2s ease-out;
+  /* Ensure no gap between navbar and mega menu */
+  margin-top: -1px;
 }
 
 /* Adjust mega menu position when navbar is scrolled */
@@ -564,13 +566,13 @@
 .mega-menu-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1.5rem 3rem;
+  padding: 2rem 3rem 2.5rem;
 }
 
 .mega-menu-header {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
 }
 
 .mega-menu-title {
@@ -585,9 +587,9 @@
 
 .mega-menu-content {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 3rem;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 /* Left Column - Navigation */
@@ -599,16 +601,16 @@
 .mega-menu-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .mega-menu-nav-link {
   text-decoration: none;
   color: #333;
   font-family: var(--font-primary-sans);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 400;
-  padding: 0.5rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   border-radius: 2px;
   transition: all 0.2s ease;
   display: block;
