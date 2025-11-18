@@ -99,7 +99,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
     >
       <div className="mega-menu-container">
         <div className="mega-menu-header">
-          <h3 className="mega-menu-title">{section}</h3>
+          <h3 className="mega-menu-title">Sections</h3>
         </div>
         <div className="mega-menu-content">
           {/* Left Column - Navigation Links */}

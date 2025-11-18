@@ -287,8 +287,8 @@
 }
 
 .nav-link {
-  font-family: var(--font-primary-serif);
-  font-weight: 600;
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-weight: 400;
   line-height: 1.1;
   text-decoration: none;
   letter-spacing: 2px;
@@ -307,6 +307,7 @@
 .nav-link:hover {
   color: #c41e3a;
   border-bottom-color: #c41e3a;
+  font-weight: 600;
 }
 
 /* Dropdown Menus */
@@ -598,8 +599,8 @@
 
 .mega-menu-title {
   font-family: var(--font-primary-serif, serif);
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.305rem;
+  font-weight: 500;
   color: #000;
   margin: 0;
   letter-spacing: -0.02em;
@@ -628,8 +629,8 @@
 .mega-menu-nav-link {
   text-decoration: none;
   color: #333;
-  font-family: var(--font-primary-sans);
-  font-size: 0.95rem;
+  font-family: var(--font-primary-serif);
+  font-size: 1.05rem;
   font-weight: 400;
   padding: 0.6rem 0.75rem;
   border-radius: 2px;

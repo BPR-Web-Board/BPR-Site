@@ -251,6 +251,19 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
 
   const rightMenuItems: MenuItem[] = [
     {
+      label: "Multimedia",
+      href: "/multimedia",
+      megaMenu: [
+        {
+          label: "BPRadio",
+          href: "/multimedia/bpradio",
+          categorySlug: "bpradio",
+        },
+        { label: "Data", href: "/multimedia/data", categorySlug: "data" },
+        { label: "Media", href: "/multimedia/media", categorySlug: "media" },
+      ],
+    },
+    {
       label: "Magazine",
       href: "/magazine",
       megaMenu: [
@@ -267,19 +280,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
         { label: "Masthead", href: "/about/masthead" },
         { label: "Join BPR!", href: "/about/join" },
         { label: "High School Program", href: "/about/high-school" },
-      ],
-    },
-    {
-      label: "Multimedia",
-      href: "/multimedia",
-      megaMenu: [
-        {
-          label: "BPRadio",
-          href: "/multimedia/bpradio",
-          categorySlug: "bpradio",
-        },
-        { label: "Data", href: "/multimedia/data", categorySlug: "data" },
-        { label: "Media", href: "/multimedia/media", categorySlug: "media" },
       ],
     },
   ];

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { EnhancedPost } from "../../lib/types";
 import he from "he";
@@ -281,7 +281,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
       if (textBefore.trim()) {
         result.push({
           type: "text",
-          content: textBefore,
+          content: textBefore, // Keep HTML for links
           index: currentIndex++,
         });
       }
@@ -313,7 +313,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
     if (remainingContent.trim()) {
       result.push({
         type: "text",
-        content: stripHtml(remainingContent),
+        content: remainingContent, // Keep HTML for links
         index: currentIndex++,
       });
     }
@@ -333,10 +333,10 @@ function stripHtml(html: string): string {
 
   // Handle common HTML entities before general decoding
   const entityMap: { [key: string]: string } = {
-    "&nbsp;": "", // Non-breaking space -> regular space
-    "&ensp;": "", // En space -> regular space
-    "&emsp;": "", // Em space -> regular space
-    "&thinsp;": "", // Thin space -> regular space
+    "&nbsp;": " ", // Non-breaking space -> regular space
+    "&ensp;": " ", // En space -> regular space
+    "&emsp;": " ", // Em space -> regular space
+    "&thinsp;": " ", // Thin space -> regular space
     "&zwj;": "", // Zero-width joiner -> remove
     "&zwnj;": "", // Zero-width non-joiner -> remove
     "&shy;": "", // Soft hyphen -> remove
@@ -345,10 +345,10 @@ function stripHtml(html: string): string {
     "&hellip;": "...", // Horizontal ellipsis
     "&mdash;": "—", // Em dash
     "&ndash;": "–", // En dash
-    "&ldquo;": '"', // Left double quotation mark
-    "&rdquo;": '"', // Right double quotation mark
-    "&lsquo;": "'", // Left single quotation mark
-    "&rsquo;": "'", // Right single quotation mark
+    "&ldquo;": "", // Left double quotation mark -> remove
+    "&rdquo;": "", // Right double quotation mark -> remove
+    "&lsquo;": "", // Left single quotation mark -> remove
+    "&rsquo;": "", // Right single quotation mark -> remove
     "&bull;": "•", // Bullet point
   };
 
@@ -370,6 +370,8 @@ function stripHtml(html: string): string {
     .replace(/<!--.*?-->/g, "")
     // Remove any remaining HTML entities that might have been missed
     .replace(/&[a-zA-Z0-9#]+;/g, "")
+    // Remove straight quotation marks at the beginning and end
+    .replace(/^["'\s]+|["'\s]+$/g, "")
     // Clean up multiple whitespace characters
     .replace(/\s+/g, " ")
     // Remove leading/trailing whitespace
@@ -402,7 +404,12 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     typeof post.excerpt === "object" ? post.excerpt.rendered : post.excerpt;
   const rawContent =
     typeof post.content === "object" ? post.content.rendered : post.content;
-  const contentBlocks = extractContentBlocks(rawContent);
+
+  // Memoize contentBlocks to prevent infinite loop in useEffect
+  const contentBlocks = useMemo(
+    () => extractContentBlocks(rawContent),
+    [rawContent]
+  );
 
   // Get featured image details
   const featuredImage = post.featured_media_obj;
@@ -459,6 +466,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
               contentElementRefs.current[index] = el;
             }}
             dangerouslySetInnerHTML={{ __html: block.content }}
+            style={{ pointerEvents: "auto" }}
           />
         );
       } else if (block.type === "pullquote") {
@@ -600,14 +608,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         </div>
       </div>
 
-      {relatedPosts.length > 0 && (
-        <section className="article-related">
-          <div>
-            {/* Economy Category Example */}
-            <FourArticleGrid category="economy" showCategoryTitle={true} />
-          </div>
-        </section>
-      )}
+      {/* {relatedPosts.length > 0 && (
+      
+      )} */}
     </article>
   );
 };

@@ -1,7 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import Footer from "../../../components/Footer/Footer";
 import ArticleView from "../../../components/ArticleView/ArticleView";
 import {
   getPostBySlug,
@@ -92,7 +91,7 @@ export default async function UnitedStatesArticlePage({ params }: PageProps) {
         <main className="main-content">
           <ArticleView post={enhancedPost} relatedPosts={relatedPosts} />
         </main>
-        <Footer />
+        {/* Footer removed to prevent duplicates */}
       </div>
     );
   } catch (error) {

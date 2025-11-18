@@ -8,23 +8,10 @@
   background: #fff;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6rem;
+  gap: 3rem;
   border-top: 1px solid #000;
   position: relative;
   align-items: stretch;
-}
-
-/* Add vertical divider between columns */
-.two-column-article-layout::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 100%;
-  background-color: #000;
-  z-index: 1;
 }
 
 /* Column Styles */
@@ -249,7 +236,7 @@
   .two-column-article-layout {
     width: 85vw;
     padding: 3rem 2rem;
-    gap: 8rem;
+    gap: 4rem;
   }
 
   .tcal-main-article {
@@ -266,7 +253,7 @@
   .two-column-article-layout {
     width: 85vw;
     padding: 4rem 3rem;
-    gap: 10rem;
+    gap: 5rem;
   }
 
   .tcal-main-article {
@@ -283,7 +270,7 @@
   .two-column-article-layout {
     width: 90vw;
     grid-template-columns: 1fr;
-    gap: 4rem;
+    gap: 2.5rem;
     padding: 2rem 1rem;
   }
 
@@ -340,7 +327,7 @@
   .two-column-article-layout {
     width: 95vw;
     padding: 1.5rem 0.75rem;
-    gap: 3rem;
+    gap: 2rem;
   }
 
   .tcal-column-title {
