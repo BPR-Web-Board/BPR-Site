@@ -2,16 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { getPostsByCategorySlug } from "@/app/lib/wordpress";
-import { enhancePosts } from "@/app/lib/enhancePost";
-import { getAllCategories } from "@/app/lib/wordpress";
-import { getArticleTitle, getFeaturedImageUrl } from "@/app/lib/utils";
-import type { EnhancedPost } from "@/app/lib/types";
 
 interface SubMenuItem {
   label: string;
   href: string;
   categorySlug?: string;
+}
+
+interface Article {
+  id: number;
+  slug: string;
+  title: { rendered: string } | string;
+  excerpt?: { rendered: string } | string;
+  featured_media_obj?: { source_url: string };
+  categories_obj?: Array<{ slug: string }>;
 }
 
 interface MegaMenuProps {
@@ -27,49 +31,72 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const [articles, setArticles] = useState<{ [key: string]: EnhancedPost | null }>({});
+  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeSubsection, setActiveSubsection] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchFeaturedArticle = async () => {
       setLoading(true);
-      const articlesMap: { [key: string]: EnhancedPost | null } = {};
+
+      // Find the first item with a categorySlug to fetch a featured article
+      const itemWithCategory = items.find(item => item.categorySlug);
+
+      if (!itemWithCategory?.categorySlug) {
+        setLoading(false);
+        return;
+      }
 
       try {
-        const categories = await getAllCategories();
+        const response = await fetch(
+          `/api/category-article?category=${itemWithCategory.categorySlug}`
+        );
+        const data = await response.json();
 
-        // Fetch articles for items with categorySlug
-        const fetchPromises = items
-          .filter((item) => item.categorySlug)
-          .map(async (item) => {
-            try {
-              const posts = await getPostsByCategorySlug(item.categorySlug!, { per_page: 5 });
-              const enhancedPosts = await enhancePosts(posts, categories);
-
-              // Randomly select one article from the fetched posts
-              if (enhancedPosts && enhancedPosts.length > 0) {
-                const randomIndex = Math.floor(Math.random() * enhancedPosts.length);
-                articlesMap[item.categorySlug!] = enhancedPosts[randomIndex];
-              } else {
-                articlesMap[item.categorySlug!] = null;
-              }
-            } catch (error) {
-              console.error(`Error fetching articles for ${item.categorySlug}:`, error);
-              articlesMap[item.categorySlug!] = null;
-            }
-          });
-
-        await Promise.all(fetchPromises);
-        setArticles(articlesMap);
+        if (data.article) {
+          setFeaturedArticle(data.article);
+          setActiveSubsection(itemWithCategory.categorySlug);
+        }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching featured article:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArticles();
+    fetchFeaturedArticle();
   }, [items]);
+
+  const handleSubsectionHover = async (item: SubMenuItem) => {
+    if (!item.categorySlug) return;
+
+    setActiveSubsection(item.categorySlug);
+
+    try {
+      const response = await fetch(
+        `/api/category-article?category=${item.categorySlug}`
+      );
+      const data = await response.json();
+
+      if (data.article) {
+        setFeaturedArticle(data.article);
+      }
+    } catch (error) {
+      console.error("Error fetching article:", error);
+    }
+  };
+
+  const getArticleTitle = (article: Article): string => {
+    return typeof article.title === "object" ? article.title.rendered : article.title;
+  };
+
+  const getFeaturedImageUrl = (article: Article): string => {
+    return article.featured_media_obj?.source_url || "";
+  };
+
+  const getArticleLink = (article: Article): string => {
+    return `/${article.categories_obj?.[0]?.slug || "world"}/article/${article.slug}`;
+  };
 
   return (
     <div
@@ -82,41 +109,48 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
           <h3 className="mega-menu-title">{section}</h3>
         </div>
         <div className="mega-menu-content">
-          <div className="mega-menu-grid">
-            {items.map((item) => {
-              const article = item.categorySlug ? articles[item.categorySlug] : null;
-              const hasArticle = article && !loading;
-
-              return (
-                <div key={item.label} className="mega-menu-item">
-                  <a href={item.href} className="mega-menu-link">
-                    <span className="mega-menu-link-text">{item.label}</span>
-                  </a>
-                  {hasArticle && (
-                    <a
-                      href={`/${article.categories_obj?.[0]?.slug || "world"}/article/${article.slug}`}
-                      className="mega-menu-article-preview"
-                    >
-                      {getFeaturedImageUrl(article) && (
-                        <div className="mega-menu-article-image">
-                          <Image
-                            src={getFeaturedImageUrl(article)}
-                            alt={getArticleTitle(article)}
-                            width={120}
-                            height={80}
-                            style={{ objectFit: "cover" }}
-                          />
-                        </div>
-                      )}
-                      <p className="mega-menu-article-title">
-                        {getArticleTitle(article)}
-                      </p>
-                    </a>
-                  )}
-                </div>
-              );
-            })}
+          {/* Left Column - Navigation Links */}
+          <div className="mega-menu-navigation">
+            <nav className="mega-menu-nav-list">
+              {items.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="mega-menu-nav-link"
+                  onMouseEnter={() => handleSubsectionHover(item)}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
           </div>
+
+          {/* Right Column - Featured Article Preview */}
+          {featuredArticle && (
+            <div className="mega-menu-featured">
+              <a
+                href={getArticleLink(featuredArticle)}
+                className="mega-menu-article-card"
+              >
+                {getFeaturedImageUrl(featuredArticle) && (
+                  <div className="mega-menu-featured-image">
+                    <Image
+                      src={getFeaturedImageUrl(featuredArticle)}
+                      alt={getArticleTitle(featuredArticle)}
+                      width={400}
+                      height={250}
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                )}
+                <div className="mega-menu-featured-content">
+                  <h4 className="mega-menu-featured-title">
+                    {getArticleTitle(featuredArticle)}
+                  </h4>
+                </div>
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

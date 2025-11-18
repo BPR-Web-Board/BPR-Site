@@ -48,8 +48,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       window.removeEventListener("scroll", handleScroll);
       document.body.classList.remove("scrolled");
       document.body.style.overflow = "unset";
+      // Clean up any pending timeouts
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
     };
-  }, []);
+  }, [hoverTimeout]);
 
   const handleDropdownToggle = (dropdown: string) => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
@@ -62,10 +66,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       setHoverTimeout(null);
     }
 
-    // Delay showing the mega menu for a more intentional hover
+    // Show mega menu immediately or with slight delay
     const timeout = setTimeout(() => {
       setActiveDropdown(dropdown);
-    }, 150);
+    }, 100);
     setHoverTimeout(timeout);
   };
 
@@ -76,10 +80,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       setHoverTimeout(null);
     }
 
-    // Slight delay before closing to allow moving to mega menu
+    // Delay before closing to allow moving to mega menu
     const timeout = setTimeout(() => {
       setActiveDropdown(null);
-    }, 100);
+    }, 200);
     setHoverTimeout(timeout);
   };
 
@@ -92,7 +96,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
   };
 
   const handleMegaMenuLeave = () => {
-    setActiveDropdown(null);
+    // Close mega menu when mouse leaves
+    const timeout = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 100);
+    setHoverTimeout(timeout);
   };
 
   const toggleMobileMenu = () => {
