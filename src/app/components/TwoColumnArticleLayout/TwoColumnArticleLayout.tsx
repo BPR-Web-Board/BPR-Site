@@ -27,7 +27,10 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
   rightColumnArticles,
   className = "",
 }) => {
-  const renderArticle = (article: EnhancedPost, isMainArticle: boolean = false) => {
+  const renderArticle = (
+    article: EnhancedPost,
+    isMainArticle: boolean = false
+  ) => {
     const articleLink = getArticleLink(article);
     const title = getArticleTitle(article);
     const plainTitle = stripHtml(title);
@@ -79,7 +82,10 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
     return (
       <article key={article.id} className="tcal-secondary-article">
         <Link href={articleLink} className="tcal-secondary-title-link">
-          <h3 className="tcal-secondary-title">{secondaryTitle}</h3>
+          <h3
+            className="tcal-secondary-title"
+            dangerouslySetInnerHTML={{ __html: secondaryTitle }}
+          ></h3>
         </Link>
         <div
           className="tcal-secondary-excerpt"
@@ -110,9 +116,7 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
     (!leftColumnArticles || leftColumnArticles.length === 0) &&
     (!rightColumnArticles || rightColumnArticles.length === 0)
   ) {
-    return (
-      <div className="tcal-empty">No articles available</div>
-    );
+    return <div className="tcal-empty">No articles available</div>;
   }
 
   return (
@@ -130,9 +134,9 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
                 <div className="tcal-article-divider" aria-hidden="true"></div>
               )}
               <div className="tcal-secondary-articles">
-                {leftColumnArticles.slice(1, 4).map((article) =>
-                  renderArticle(article, false)
-                )}
+                {leftColumnArticles
+                  .slice(1, 4)
+                  .map((article) => renderArticle(article, false))}
               </div>
             </>
           )}
@@ -152,9 +156,9 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
                 <div className="tcal-article-divider" aria-hidden="true"></div>
               )}
               <div className="tcal-secondary-articles">
-                {rightColumnArticles.slice(1, 4).map((article) =>
-                  renderArticle(article, false)
-                )}
+                {rightColumnArticles
+                  .slice(1, 4)
+                  .map((article) => renderArticle(article, false))}
               </div>
             </>
           )}

@@ -27,6 +27,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,24 +67,33 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       setHoverTimeout(null);
     }
 
-    // Show mega menu with minimal delay
-    const timeout = setTimeout(() => {
+    // If switching between menus, change immediately without closing first
+    if (activeDropdown && activeDropdown !== dropdown) {
+      setIsTransitioning(true);
       setActiveDropdown(dropdown);
-    }, 50);
-    setHoverTimeout(timeout);
+      // Reset transition flag after a brief moment
+      setTimeout(() => setIsTransitioning(false), 50);
+    } else if (activeDropdown !== dropdown) {
+      // Show mega menu immediately
+      setActiveDropdown(dropdown);
+      setIsTransitioning(false);
+    }
   };
 
   const handleMouseLeave = () => {
-    // Clear timeout on mouse leave
+    // Clear any existing timeout
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
       setHoverTimeout(null);
     }
 
-    // Longer delay before closing to allow moving to mega menu
+    // Delay before closing to allow moving to mega menu
+    // Use a longer delay to prevent glitching when cursor moves to mega menu area
     const timeout = setTimeout(() => {
-      setActiveDropdown(null);
-    }, 400);
+      if (!isTransitioning) {
+        setActiveDropdown(null);
+      }
+    }, 150);
     setHoverTimeout(timeout);
   };
 
@@ -93,16 +103,20 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       clearTimeout(hoverTimeout);
       setHoverTimeout(null);
     }
+    setIsTransitioning(false);
   };
 
   const handleMegaMenuLeave = () => {
-    // Close mega menu when mouse leaves with slight delay
+    // Close mega menu when mouse leaves - use same delay as nav item leave
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
     }
     const timeout = setTimeout(() => {
-      setActiveDropdown(null);
-    }, 200);
+      if (!isTransitioning) {
+        setActiveDropdown(null);
+      }
+    }, 150);
     setHoverTimeout(timeout);
   };
 
@@ -132,14 +146,46 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       label: "United States",
       href: "/united-states",
       megaMenu: [
-        { label: "Education", href: "/united-states/education", categorySlug: "education" },
-        { label: "Elections", href: "/united-states/elections", categorySlug: "elections" },
-        { label: "Environment", href: "/united-states/environment", categorySlug: "environment" },
-        { label: "Foreign Policy", href: "/united-states/foreign-policy", categorySlug: "foreign-policy" },
-        { label: "Health", href: "/united-states/health", categorySlug: "health" },
-        { label: "Housing", href: "/united-states/housing", categorySlug: "housing" },
-        { label: "Law/Justice", href: "/united-states/law-justice", categorySlug: "law" },
-        { label: "Security and Defense", href: "/united-states/security-defense", categorySlug: "security-and-defense-usa" },
+        {
+          label: "Education",
+          href: "/united-states/education",
+          categorySlug: "education",
+        },
+        {
+          label: "Elections",
+          href: "/united-states/elections",
+          categorySlug: "elections",
+        },
+        {
+          label: "Environment",
+          href: "/united-states/environment",
+          categorySlug: "environment",
+        },
+        {
+          label: "Foreign Policy",
+          href: "/united-states/foreign-policy",
+          categorySlug: "foreign-policy",
+        },
+        {
+          label: "Health",
+          href: "/united-states/health",
+          categorySlug: "health",
+        },
+        {
+          label: "Housing",
+          href: "/united-states/housing",
+          categorySlug: "housing",
+        },
+        {
+          label: "Law/Justice",
+          href: "/united-states/law-justice",
+          categorySlug: "law",
+        },
+        {
+          label: "Security and Defense",
+          href: "/united-states/security-defense",
+          categorySlug: "security-and-defense-usa",
+        },
       ],
     },
     {
@@ -147,22 +193,58 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       href: "/world",
       megaMenu: [
         { label: "Africa", href: "/world/africa", categorySlug: "africa" },
-        { label: "Asia/Pacific", href: "/world/asia-pacific", categorySlug: "asia-pacific" },
+        {
+          label: "Asia/Pacific",
+          href: "/world/asia-pacific",
+          categorySlug: "asia-pacific",
+        },
         { label: "Europe", href: "/world/europe", categorySlug: "europe" },
-        { label: "Latin America", href: "/world/latin-america", categorySlug: "latin-america" },
-        { label: "Middle East", href: "/world/middle-east", categorySlug: "middle-east" },
-        { label: "South America", href: "/world/south-america", categorySlug: "south-america" },
+        {
+          label: "Latin America",
+          href: "/world/latin-america",
+          categorySlug: "latin-america",
+        },
+        {
+          label: "Middle East",
+          href: "/world/middle-east",
+          categorySlug: "middle-east",
+        },
+        {
+          label: "South America",
+          href: "/world/south-america",
+          categorySlug: "south-america",
+        },
       ],
     },
     {
       label: "Interviews",
       href: "/interviews",
       megaMenu: [
-        { label: "Professor Podcasts", href: "/interviews/professor-podcasts", categorySlug: "professor-podcasts" },
-        { label: "Rhode Island", href: "/interviews/rhode-island", categorySlug: "rhode-island-interviews" },
-        { label: "U.S.", href: "/interviews/us", categorySlug: "us-interviews" },
-        { label: "Congress", href: "/interviews/congress", categorySlug: "congress-interviews" },
-        { label: "World", href: "/interviews/world", categorySlug: "world-interviews" },
+        {
+          label: "Professor Podcasts",
+          href: "/interviews/professor-podcasts",
+          categorySlug: "professor-podcasts",
+        },
+        {
+          label: "Rhode Island",
+          href: "/interviews/rhode-island",
+          categorySlug: "rhode-island-interviews",
+        },
+        {
+          label: "U.S.",
+          href: "/interviews/us",
+          categorySlug: "us-interviews",
+        },
+        {
+          label: "Congress",
+          href: "/interviews/congress",
+          categorySlug: "congress-interviews",
+        },
+        {
+          label: "World",
+          href: "/interviews/world",
+          categorySlug: "world-interviews",
+        },
       ],
     },
   ];
@@ -171,7 +253,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
     {
       label: "Magazine",
       href: "/magazine",
-      dropdown: [
+      megaMenu: [
         { label: "Latest Issue", href: "/magazine" },
         { label: "Archives", href: "/magazine/archives" },
         { label: "Pitch", href: "/magazine/pitch" },
@@ -191,7 +273,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       label: "Multimedia",
       href: "/multimedia",
       megaMenu: [
-        { label: "BPRadio", href: "/multimedia/bpradio", categorySlug: "bpradio" },
+        {
+          label: "BPRadio",
+          href: "/multimedia/bpradio",
+          categorySlug: "bpradio",
+        },
         { label: "Data", href: "/multimedia/data", categorySlug: "data" },
         { label: "Media", href: "/multimedia/media", categorySlug: "media" },
       ],
@@ -306,6 +392,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
             }
             onMouseEnter={handleMegaMenuEnter}
             onMouseLeave={handleMegaMenuLeave}
+            isScrolled={isScrolled}
           />
         )}
 

@@ -23,71 +23,61 @@ interface MegaMenuProps {
   items: SubMenuItem[];
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  isScrolled: boolean;
 }
+
+// Sections that should show spotlight articles
+const SPOTLIGHT_SECTIONS = [
+  "United States",
+  "World",
+  "Interviews",
+  "Multimedia",
+  "Magazine",
+];
 
 const MegaMenu: React.FC<MegaMenuProps> = ({
   section,
   items,
   onMouseEnter,
   onMouseLeave,
+  isScrolled,
 }) => {
-  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeSubsection, setActiveSubsection] = useState<string | null>(null);
+  const [featuredArticles, setFeaturedArticles] = useState<Article[]>([]);
 
   useEffect(() => {
-    const fetchFeaturedArticle = async () => {
-      setLoading(true);
-
-      // Find the first item with a categorySlug to fetch a featured article
-      const itemWithCategory = items.find(item => item.categorySlug);
-
-      if (!itemWithCategory?.categorySlug) {
-        setLoading(false);
+    const fetchSpotlightArticles = async () => {
+      // Only fetch spotlight articles for specific sections
+      if (!SPOTLIGHT_SECTIONS.includes(section)) {
         return;
       }
 
+      // Fetch 2 most recent articles from spotlight endpoint for all sections
       try {
         const response = await fetch(
-          `/api/category-article?category=${itemWithCategory.categorySlug}`
+          `/api/spotlight-article?section=${encodeURIComponent(
+            section
+          )}&per_page=2`
         );
         const data = await response.json();
 
-        if (data.article) {
-          setFeaturedArticle(data.article);
-          setActiveSubsection(itemWithCategory.categorySlug);
+        // Handle both single article and multiple articles response formats
+        if (data.articles && Array.isArray(data.articles)) {
+          setFeaturedArticles(data.articles);
+        } else if (data.article) {
+          setFeaturedArticles([data.article]);
         }
       } catch (error) {
-        console.error("Error fetching featured article:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching spotlight articles:", error);
       }
     };
 
-    fetchFeaturedArticle();
-  }, [items]);
-
-  const handleSubsectionHover = async (item: SubMenuItem) => {
-    if (!item.categorySlug) return;
-
-    setActiveSubsection(item.categorySlug);
-
-    try {
-      const response = await fetch(
-        `/api/category-article?category=${item.categorySlug}`
-      );
-      const data = await response.json();
-
-      if (data.article) {
-        setFeaturedArticle(data.article);
-      }
-    } catch (error) {
-      console.error("Error fetching article:", error);
-    }
-  };
+    fetchSpotlightArticles();
+  }, [section]);
 
   const getArticleTitle = (article: Article): string => {
-    return typeof article.title === "object" ? article.title.rendered : article.title;
+    return typeof article.title === "object"
+      ? article.title.rendered
+      : article.title;
   };
 
   const getFeaturedImageUrl = (article: Article): string => {
@@ -95,14 +85,17 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   };
 
   const getArticleLink = (article: Article): string => {
-    return `/${article.categories_obj?.[0]?.slug || "world"}/article/${article.slug}`;
+    return `/${article.categories_obj?.[0]?.slug || "world"}/article/${
+      article.slug
+    }`;
   };
 
   return (
     <div
-      className="mega-menu"
+      className={`mega-menu ${isScrolled ? "scrolled" : "expanded"}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onMouseMove={onMouseEnter}
     >
       <div className="mega-menu-container">
         <div className="mega-menu-header">
@@ -117,7 +110,6 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
                   key={item.label}
                   href={item.href}
                   className="mega-menu-nav-link"
-                  onMouseEnter={() => handleSubsectionHover(item)}
                 >
                   {item.label}
                 </a>
@@ -126,29 +118,36 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
           </div>
 
           {/* Right Column - Featured Article Preview */}
-          {featuredArticle && (
-            <div className="mega-menu-featured">
-              <a
-                href={getArticleLink(featuredArticle)}
-                className="mega-menu-article-card"
-              >
-                {getFeaturedImageUrl(featuredArticle) && (
-                  <div className="mega-menu-featured-image">
-                    <Image
-                      src={getFeaturedImageUrl(featuredArticle)}
-                      alt={getArticleTitle(featuredArticle)}
-                      width={400}
-                      height={250}
-                      style={{ objectFit: "cover" }}
-                    />
+          {featuredArticles.length > 0 && (
+            <div
+              className={`mega-menu-featured ${
+                featuredArticles.length > 1 ? "mega-menu-magazine-grid" : ""
+              }`}
+            >
+              {featuredArticles.map((article) => (
+                <a
+                  key={article.id}
+                  href={getArticleLink(article)}
+                  className="mega-menu-article-card"
+                >
+                  {getFeaturedImageUrl(article) && (
+                    <div className="mega-menu-featured-image">
+                      <Image
+                        src={getFeaturedImageUrl(article)}
+                        alt={getArticleTitle(article)}
+                        width={400}
+                        height={250}
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                  )}
+                  <div className="mega-menu-featured-content">
+                    <h4 className="mega-menu-featured-title">
+                      {getArticleTitle(article)}
+                    </h4>
                   </div>
-                )}
-                <div className="mega-menu-featured-content">
-                  <h4 className="mega-menu-featured-title">
-                    {getArticleTitle(featuredArticle)}
-                  </h4>
-                </div>
-              </a>
+                </a>
+              ))}
             </div>
           )}
         </div>

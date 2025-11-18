@@ -2,10 +2,7 @@
 
 import React from "react";
 import { EnhancedPost } from "../../lib/types";
-import {
-  stripHtml,
-  getArticleTitle,
-} from "../../lib/utils";
+import { stripHtml, getArticleTitle } from "../../lib/utils";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import "./FeaturedPodcast.css";
 
@@ -45,11 +42,7 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
             />
           ) : (
             <div className="featured-podcast-image-placeholder">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M9 18v-6m6 6v-6m-9 0a3 3 0 0 1 6 0m-6 0a3 3 0 0 0 6 0m-9 0c0-1.1.9-2 2-2s2 .9 2 2m6 0c0-1.1.9-2 2-2s2 .9 2 2" />
               </svg>
             </div>
@@ -57,7 +50,10 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
         </div>
 
         <div className="featured-podcast-content">
-          <h2 className="featured-podcast-title">{title}</h2>
+          <h2
+            className="featured-podcast-title"
+            dangerouslySetInnerHTML={{ __html: title }}
+          ></h2>
 
           <div className="featured-podcast-meta">
             <span className="featured-podcast-author">
@@ -78,9 +74,12 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
             })}
           </div>
 
-          <p className="featured-podcast-excerpt">
-            {stripHtml(podcast?.excerpt?.rendered || "")}
-          </p>
+          <p
+            className="featured-podcast-excerpt"
+            dangerouslySetInnerHTML={{
+              __html: podcast?.excerpt?.rendered || "",
+            }}
+          ></p>
 
           {spotifyLink && (
             <a
@@ -108,9 +107,7 @@ function extractSpotifyUrl(content: string): string | undefined {
   const spotifyRegex = /(?:https?:\/\/)?(?:www\.)?spotify\.com\/[^\s"<>)]+/g;
   const matches = content.match(spotifyRegex);
   if (matches && matches.length > 0) {
-    return matches[0].startsWith("http")
-      ? matches[0]
-      : `https://${matches[0]}`;
+    return matches[0].startsWith("http") ? matches[0] : `https://${matches[0]}`;
   }
   return undefined;
 }

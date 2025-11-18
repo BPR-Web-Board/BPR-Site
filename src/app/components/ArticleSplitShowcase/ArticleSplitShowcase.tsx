@@ -164,9 +164,10 @@ const ArticleSplitShowcase: React.FC<ArticleSplitShowcaseProps> = ({
                 href={articleLink}
                 className="article-split-secondary-title-link"
               >
-                <h3 className="article-split-secondary-title">
-                  {articleTitle}
-                </h3>
+                <h3
+                  className="article-split-secondary-title"
+                  dangerouslySetInnerHTML={{ __html: articleTitle }}
+                ></h3>
               </Link>
               <div className="article-split-secondary-author">
                 BY {authorName}

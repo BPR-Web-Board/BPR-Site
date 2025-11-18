@@ -116,7 +116,7 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
           >
             <h3
               className="article-title-carousel"
-              dangerouslySetInnerHTML={{ __html: stripHtml(titleText) }}
+              dangerouslySetInnerHTML={{ __html: titleText }}
             />
           </Link>
 
@@ -133,7 +133,7 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
           <div
             className="article-excerpt-carousel"
             dangerouslySetInnerHTML={{
-              __html: truncateText(stripHtml(excerptText), 400),
+              __html: truncateText(excerptText, 400),
             }}
           />
         </div>

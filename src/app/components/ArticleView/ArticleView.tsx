@@ -529,7 +529,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
       {/* Header with title and excerpt side by side */}
       <header className="article-header">
         <div className="header-content">
-          <h1 className="article-title-view">{stripHtml(titleText)}</h1>
+          <h1
+            className="article-title-view"
+            dangerouslySetInnerHTML={{ __html: titleText }}
+          ></h1>
           <div
             className="article-excerpt-view"
             dangerouslySetInnerHTML={{ __html: excerptText }}

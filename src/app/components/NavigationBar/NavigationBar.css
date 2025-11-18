@@ -532,24 +532,43 @@
 /* Mega Menu Styles - NYT Editorial Style */
 .mega-menu {
   position: fixed;
-  top: 10vh; /* Position below the navbar */
   left: 0;
   width: 100vw;
-  max-height: 50vh;
   background: white;
   border-bottom: 1px solid #e5e5e5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   z-index: 999;
-  overflow-y: auto;
+  overflow-y: visible;
   animation: megaMenuSlideDown 0.2s ease-out;
-  /* Ensure no gap between navbar and mega menu */
-  margin-top: -1px;
+  /* Add padding at top to create hover bridge between navbar and menu */
+  padding-top: 0;
+  transition: top 0.3s ease-in-out;
 }
 
-/* Adjust mega menu position when navbar is scrolled */
-.navigation-bar.scrolled ~ .mega-menu,
-.navigation-bar.scrolled .mega-menu {
-  top: 5vh;
+/* Position below the navbar based on expanded/scrolled state */
+.mega-menu.expanded {
+  top: max(
+    10vh,
+    80px
+  ); /* Position below the navbar in expanded state - matches navbar height */
+}
+
+.mega-menu.scrolled {
+  top: max(
+    5vh,
+    60px
+  ); /* Position below scrolled navbar - matches navbar height */
+}
+
+/* Create an invisible bridge to prevent gap issues when hovering from below */
+.mega-menu::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: transparent;
 }
 
 @keyframes megaMenuSlideDown {
@@ -564,13 +583,13 @@
 }
 
 .mega-menu-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem 3rem 2.5rem;
+  padding: 2.5rem 6rem 4rem;
 }
 
 .mega-menu-header {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid #e5e5e5;
   padding-bottom: 0.75rem;
 }
@@ -588,14 +607,14 @@
 .mega-menu-content {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 3rem;
+  gap: 6rem;
   padding: 0.5rem 0;
 }
 
 /* Left Column - Navigation */
 .mega-menu-navigation {
   border-right: 1px solid #e5e5e5;
-  padding-right: 2rem;
+  padding-right: 4rem;
 }
 
 .mega-menu-nav-list {
@@ -628,6 +647,14 @@
   align-items: flex-start;
 }
 
+/* Article Grid - Two articles side by side */
+.mega-menu-magazine-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  width: 100%;
+}
+
 .mega-menu-article-card {
   display: block;
   text-decoration: none;
@@ -647,7 +674,12 @@
   overflow: hidden;
   border-radius: 2px;
   background: #f0f0f0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Adjust image size for Magazine grid */
+.mega-menu-magazine-grid .mega-menu-featured-image {
+  max-width: 100%;
 }
 
 .mega-menu-featured-image img {
@@ -680,26 +712,43 @@
   color: #c41e3a;
 }
 
-/* Hide mega menu on mobile - only show dropdowns */
+/* Hide mega menu on mobile - only show mobile menu */
 @media (max-width: 768px) {
   .mega-menu {
     display: none;
   }
 }
 
-/* Responsive adjustments for mega menu */
-@media (min-width: 769px) and (max-width: 1200px) {
-  .mega-menu-container {
-    padding: 1.5rem 2rem;
+/* Hide article previews on tablet and below, show only navigation */
+@media (max-width: 1023px) {
+  .mega-menu-featured {
+    display: none !important;
   }
 
   .mega-menu-content {
-    grid-template-columns: 200px 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .mega-menu-navigation {
-    padding-right: 1.5rem;
+    border-right: none;
+    padding-right: 0;
+  }
+}
+
+/* Responsive adjustments for mega menu - desktop only */
+@media (min-width: 1024px) and (max-width: 1400px) {
+  .mega-menu-container {
+    padding: 2rem 3rem;
+  }
+
+  .mega-menu-content {
+    grid-template-columns: 240px 1fr;
+    gap: 4rem;
+  }
+
+  .mega-menu-navigation {
+    padding-right: 2rem;
   }
 
   .mega-menu-featured-image {
@@ -708,5 +757,18 @@
 
   .mega-menu-featured-title {
     font-size: 1rem;
+  }
+
+  /* Make article grid single column on smaller desktop */
+  .mega-menu-magazine-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Large desktop - show 2 articles side by side */
+@media (min-width: 1401px) {
+  .mega-menu-magazine-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

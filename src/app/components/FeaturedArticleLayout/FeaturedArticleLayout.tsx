@@ -114,7 +114,10 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
               }/article/${featuredArticle.slug}`}
               className="featured-title-link"
             >
-              <h3 className="featured-title">{stripHtml(featuredTitleText)}</h3>
+              <h3
+                className="featured-title"
+                dangerouslySetInnerHTML={{ __html: featuredTitleText }}
+              ></h3>
             </Link>
 
             <div className="featured-meta">
@@ -126,9 +129,12 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
               </span>
             </div>
             {maxArticles > 5 && (
-              <div className="featured-excerpt">
-                {truncateText(stripHtml(featuredExcerptText), 400)}
-              </div>
+              <div
+                className="featured-excerpt"
+                dangerouslySetInnerHTML={{
+                  __html: truncateText(featuredExcerptText, 400),
+                }}
+              ></div>
             )}
           </div>
         </div>
@@ -151,9 +157,12 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
                   }/article/${article.slug}`}
                   className="list-title-link"
                 >
-                  <h4 className="list-title">
-                    {truncateText(stripHtml(titleText), 100)}
-                  </h4>
+                  <h4
+                    className="list-title"
+                    dangerouslySetInnerHTML={{
+                      __html: truncateText(titleText, 100),
+                    }}
+                  ></h4>
                 </Link>
 
                 <div className="list-author">

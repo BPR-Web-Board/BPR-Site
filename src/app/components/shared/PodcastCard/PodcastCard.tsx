@@ -2,11 +2,7 @@
 
 import React from "react";
 import { EnhancedPost } from "../../../lib/types";
-import {
-  stripHtml,
-  truncateText,
-  getArticleTitle,
-} from "../../../lib/utils";
+import { stripHtml, truncateText, getArticleTitle } from "../../../lib/utils";
 import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./PodcastCard.css";
 
@@ -78,7 +74,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
   const textContent = (
     <div className="podcast-card-content">
-      <h3 className={`podcast-card-title variant-${variant}`}>{title}</h3>
+      <h3
+        className={`podcast-card-title variant-${variant}`}
+        dangerouslySetInnerHTML={{ __html: title }}
+      ></h3>
 
       <div className="podcast-card-meta">
         <span className="podcast-card-author">
@@ -89,7 +88,12 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         )}
       </div>
 
-      {showExcerpt && <div className="podcast-card-excerpt">{excerpt}</div>}
+      {showExcerpt && (
+        <div
+          className="podcast-card-excerpt"
+          dangerouslySetInnerHTML={{ __html: excerpt }}
+        ></div>
+      )}
 
       {spotifyLink && (
         <a
@@ -140,9 +144,7 @@ function extractSpotifyUrl(content: string): string | undefined {
   const spotifyRegex = /(?:https?:\/\/)?(?:www\.)?spotify\.com\/[^\s"<>)]+/g;
   const matches = content.match(spotifyRegex);
   if (matches && matches.length > 0) {
-    return matches[0].startsWith("http")
-      ? matches[0]
-      : `https://${matches[0]}`;
+    return matches[0].startsWith("http") ? matches[0] : `https://${matches[0]}`;
   }
   return undefined;
 }

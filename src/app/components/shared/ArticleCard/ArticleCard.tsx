@@ -58,7 +58,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const textContent = (
     <div className="article-card-content">
       <Link href={articleLink} className="article-card-title-link">
-        <h3 className={`article-card-title variant-${variant}`}>{title}</h3>
+        <h3
+          className={`article-card-title variant-${variant}`}
+          dangerouslySetInnerHTML={{ __html: title }}
+        ></h3>
       </Link>
 
       <div className="article-card-meta">
@@ -67,7 +70,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         </span>
       </div>
 
-      {showExcerpt && <div className="article-card-excerpt">{excerpt}</div>}
+      {showExcerpt && (
+        <div
+          className="article-card-excerpt"
+          dangerouslySetInnerHTML={{ __html: excerpt }}
+        ></div>
+      )}
     </div>
   );
 
