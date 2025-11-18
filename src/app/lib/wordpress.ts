@@ -19,12 +19,12 @@ export const api = axios.create({
 
 // Cache TTL constants (in milliseconds)
 const CACHE_TTL = {
-  POSTS: 5 * 60 * 1000, // 5 minutes
-  CATEGORIES: 15 * 60 * 1000, // 15 minutes (categories change less frequently)
-  TAGS: 15 * 60 * 1000, // 15 minutes
-  PAGES: 30 * 60 * 1000, // 30 minutes
-  AUTHORS: 60 * 60 * 1000, // 1 hour (authors rarely change)
-  MEDIA: 60 * 60 * 1000, // 1 hour (media rarely changes)
+  POSTS: 30 * 60 * 1000, // 30 minutes (increased from 5 for better cache hit rate)
+  CATEGORIES: 60 * 60 * 1000, // 1 hour (categories change infrequently)
+  TAGS: 60 * 60 * 1000, // 1 hour
+  PAGES: 60 * 60 * 1000, // 1 hour
+  AUTHORS: 2 * 60 * 60 * 1000, // 2 hours (authors rarely change)
+  MEDIA: 2 * 60 * 60 * 1000, // 2 hours (media rarely changes)
 };
 
 // WordPress Functions
@@ -40,7 +40,6 @@ export const getAllPosts = withCache(
     offset?: number;
     search?: string;
   }): Promise<Post[]> => {
-    console.log("filterParams", filterParams);
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
       params: {
         per_page: filterParams?.per_page || 30,

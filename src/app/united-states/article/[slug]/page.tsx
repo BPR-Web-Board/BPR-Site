@@ -5,17 +5,16 @@ import Footer from "../../../components/Footer/Footer";
 import ArticleView from "../../../components/ArticleView/ArticleView";
 import {
   getPostBySlug,
-  getFeaturedMediaById,
-  getAuthorById,
-  getCategoryById,
   getPostsByCategorySlug,
+  getAllCategories,
 } from "../../../lib/wordpress";
+import { enhancePosts } from "../../../lib/enhancePost";
 import { EnhancedPost } from "../../../lib/types";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for SEO
@@ -23,7 +22,8 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   try {
-    const post = await getPostBySlug(params.slug);
+    const { slug } = await params;
+    const post = await getPostBySlug(slug);
     const title =
       typeof post.title === "object" ? post.title.rendered : post.title;
     const excerpt =
@@ -51,62 +51,22 @@ export async function generateMetadata({
   }
 }
 
-async function enhancePost(post: any): Promise<EnhancedPost> {
-  let featured_media_obj = null;
-  let author_obj = null;
-  let author_name = "STAFF WRITER";
-  let categories_obj = [];
-
-  // Fetch featured media
-  if (post.featured_media && typeof post.featured_media === "number") {
-    try {
-      featured_media_obj = await getFeaturedMediaById(post.featured_media);
-    } catch (error) {
-      console.error("Error fetching featured media:", error);
-    }
-  }
-
-  // Fetch author info
-  if (post.author && typeof post.author === "number") {
-    try {
-      author_obj = await getAuthorById(post.author);
-      author_name = author_obj.name;
-    } catch (error) {
-      console.error("Error fetching author:", error);
-    }
-  }
-
-  // Fetch category info
-  if (post.categories && Array.isArray(post.categories)) {
-    try {
-      categories_obj = await Promise.all(
-        post.categories.map((catId: number) => getCategoryById(catId))
-      );
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  }
-
-  return {
-    ...post,
-    featured_media_obj,
-    author_obj,
-    author_name,
-    categories_obj,
-  };
-}
-
 export default async function UnitedStatesArticlePage({ params }: PageProps) {
   try {
-    // Fetch the post by slug
-    const post = await getPostBySlug(params.slug);
+    const { slug } = await params;
+
+    // Fetch post and categories in parallel
+    const [post, categories] = await Promise.all([
+      getPostBySlug(slug),
+      getAllCategories(),
+    ]);
 
     if (!post) {
       notFound();
     }
 
-    // Enhance the post with additional data
-    const enhancedPost = await enhancePost(post);
+    // Enhance the main post with batch fetching
+    const [enhancedPost] = await enhancePosts([post], categories);
 
     // Fetch related posts from the same category
     let relatedPosts: EnhancedPost[] = [];
@@ -120,20 +80,8 @@ export default async function UnitedStatesArticlePage({ params }: PageProps) {
           .filter((p) => p.id !== post.id)
           .slice(0, 4);
 
-        // Enhance related posts
-        relatedPosts = await Promise.all(
-          filteredPosts.map(async (p) => {
-            let featured_media_obj = null;
-            if (p.featured_media && typeof p.featured_media === "number") {
-              try {
-                featured_media_obj = await getFeaturedMediaById(
-                  p.featured_media
-                );
-              } catch {}
-            }
-            return { ...p, featured_media_obj };
-          })
-        );
+        // Use batch enhancement for related posts (fixes N+1 problem)
+        relatedPosts = await enhancePosts(filteredPosts, categories);
       } catch (error) {
         console.error("Error fetching related posts:", error);
       }

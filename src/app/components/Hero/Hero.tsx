@@ -9,12 +9,14 @@ export interface HeroProps {
   posts: EnhancedPost[];
   className?: string;
   preferredCategory?: string; // Optional: prefer posts from a specific category
+  priority?: boolean; // Optional: use priority loading for the image (default: false)
 }
 
 const Hero: React.FC<HeroProps> = ({
   posts,
   className = "",
   preferredCategory,
+  priority = false,
 }) => {
   // Filter posts that have featured images
   const postsWithImages = posts.filter(
@@ -111,7 +113,8 @@ const Hero: React.FC<HeroProps> = ({
             fill
             sizes="100vw"
             style={{ objectFit: "cover" }}
-            priority
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
             className="hero-bg-image"
             showPlaceholder={true}
           />

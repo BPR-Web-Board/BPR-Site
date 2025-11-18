@@ -59,7 +59,8 @@ export default function HomePage() {
   return (
     <div className="page-container">
       <div className="featured-content">
-        <Hero posts={enhancedPosts} />
+        {/* Main hero - shows the most recent featured post with priority loading */}
+        <Hero posts={enhancedPosts} priority={true} />
         <div className="article-layout-wrapper">
           <ArticlePreviewGrid articles={enhancedPosts.slice(0, 10)} />
           {/* USA Section - 2 rows of 4 articles each */}
@@ -73,8 +74,6 @@ export default function HomePage() {
         </div>
       </div>
       <div className="main-content">
-        <Hero posts={enhancedPosts} preferredCategory="usa" />
-
         {/* Section 1: USA News */}
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
@@ -92,7 +91,8 @@ export default function HomePage() {
           />
         </div>
 
-        <Hero posts={usaPostsDedup} />
+        {/* Hero for World section - loads lazily as user scrolls */}
+        <Hero posts={worldPostsDedup} />
 
         {/* Section 2: World News */}
         <div className="two-column-layout-wrapper">
@@ -108,8 +108,6 @@ export default function HomePage() {
             showBoundingLines={true}
           />
         </div>
-
-        <Hero posts={worldPostsDedup} />
 
         {/* Section 3: Culture & Arts */}
         <div className="two-column-layout-wrapper">
@@ -127,8 +125,6 @@ export default function HomePage() {
             showBoundingLines={true}
           />
         </div>
-
-        <Hero posts={culturePostsDedup} />
 
         {/* Section 4: Policy & Law */}
         {/* <div className="two-column-layout-wrapper">

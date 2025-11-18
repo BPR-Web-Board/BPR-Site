@@ -143,7 +143,7 @@ class WordPressCache {
       try {
         const cached = await redis.get(key);
         if (cached) {
-          console.log(`Redis Cache HIT for ${functionName}`);
+          // Removed console.log for production performance
           return JSON.parse(cached);
         }
       } catch (error) {
@@ -160,7 +160,7 @@ class WordPressCache {
       return null;
     }
 
-    console.log(`Memory Cache HIT for ${functionName}`);
+    // Removed console.log for production performance
     return entry.data as T;
   }
 
@@ -183,7 +183,7 @@ class WordPressCache {
     if (redis) {
       try {
         await redis.setEx(key, ttlSeconds, JSON.stringify(data));
-        console.log(`Redis Cache SET for ${functionName}`);
+        // Removed console.log for production performance
       } catch (error) {
         console.error("Redis SET error:", error);
         // Continue to memory cache even if Redis fails
@@ -351,11 +351,11 @@ export function withCache<T extends unknown[], R>(
     // Try to get from cache first
     const cached = await cache.get<R>(functionName, cacheKey);
     if (cached !== null) {
-      console.log(`Cache HIT for ${functionName}`);
+      // Removed console.log for production performance
       return cached;
     }
 
-    console.log(`Cache MISS for ${functionName}`);
+    // Removed console.log for production performance
 
     // Execute the function and cache the result
     try {
