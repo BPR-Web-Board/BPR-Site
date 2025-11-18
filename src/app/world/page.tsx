@@ -24,13 +24,31 @@ const [
 ] = await Promise.all([
   getAllCategories(),
   getPostsByCategorySlug("world", { per_page: 24 }),
-  getPostsByCategorySlug("europe", { per_page: 8 }),
-  getPostsByCategorySlug("asia-pacific", { per_page: 8 }),
-  getPostsByCategorySlug("middle-east", { per_page: 8 }),
-  getPostsByCategorySlug("africa", { per_page: 8 }),
-  getPostsByCategorySlug("latin-america", { per_page: 8 }),
-  getPostsByCategorySlug("south-america", { per_page: 8 }),
+  getPostsByCategorySlug("europe", { per_page: 15 }), // Fetch more to filter
+  getPostsByCategorySlug("asia-pacific", { per_page: 15 }),
+  getPostsByCategorySlug("middle-east", { per_page: 15 }),
+  getPostsByCategorySlug("africa", { per_page: 15 }),
+  getPostsByCategorySlug("latin-america", { per_page: 15 }),
+  getPostsByCategorySlug("south-america", { per_page: 15 }),
 ]);
+
+// Get the World category ID for filtering
+const worldCategory = categories.find((cat) => cat.slug === "world");
+const worldCategoryId = worldCategory?.id;
+
+// Filter subsection posts to only include those ALSO tagged with "world"
+// This ensures we show articles tagged with BOTH world AND the subsection
+const filterByWorld = (posts: any[]) => {
+  if (!worldCategoryId) return posts;
+  return posts.filter((post) => post.categories?.includes(worldCategoryId));
+};
+
+const europeWorld = filterByWorld(europePostsRaw);
+const asiaPacificWorld = filterByWorld(asiaPacificPostsRaw);
+const middleEastWorld = filterByWorld(middleEastPostsRaw);
+const africaWorld = filterByWorld(africaPostsRaw);
+const latinAmericaWorld = filterByWorld(latinAmericaPostsRaw);
+const southAmericaWorld = filterByWorld(southAmericaPostsRaw);
 
 // Enhance all posts in parallel
 const [
@@ -43,15 +61,13 @@ const [
   southAmericaPosts,
 ] = await Promise.all([
   enhancePosts(worldPostsRaw, categories),
-  enhancePosts(europePostsRaw, categories),
-  enhancePosts(asiaPacificPostsRaw, categories),
-  enhancePosts(middleEastPostsRaw, categories),
-  enhancePosts(africaPostsRaw, categories),
-  enhancePosts(latinAmericaPostsRaw, categories),
-  enhancePosts(southAmericaPostsRaw, categories),
+  enhancePosts(europeWorld, categories),
+  enhancePosts(asiaPacificWorld, categories),
+  enhancePosts(middleEastWorld, categories),
+  enhancePosts(africaWorld, categories),
+  enhancePosts(latinAmericaWorld, categories),
+  enhancePosts(southAmericaWorld, categories),
 ]);
-
-const worldCategory = categories.find((cat) => cat.slug === "world");
 
 const ensureContent = (
   primary: EnhancedPost[],

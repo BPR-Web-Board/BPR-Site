@@ -27,15 +27,35 @@ const [
 ] = await Promise.all([
   getAllCategories(),
   getPostsByCategorySlug("usa", { per_page: 24 }),
-  getPostsByCategorySlug("elections", { per_page: 8 }),
-  getPostsByCategorySlug("education", { per_page: 8 }),
-  getPostsByCategorySlug("environment", { per_page: 8 }),
-  getPostsByCategorySlug("health", { per_page: 8 }),
-  getPostsByCategorySlug("law", { per_page: 8 }),
-  getPostsByCategorySlug("housing", { per_page: 8 }),
-  getPostsByCategorySlug("foreign-policy", { per_page: 8 }),
-  getPostsByCategorySlug("security-and-defense-usa", { per_page: 8 }),
+  getPostsByCategorySlug("elections", { per_page: 15 }), // Fetch more to filter
+  getPostsByCategorySlug("education", { per_page: 15 }),
+  getPostsByCategorySlug("environment", { per_page: 15 }),
+  getPostsByCategorySlug("health", { per_page: 15 }),
+  getPostsByCategorySlug("law", { per_page: 15 }),
+  getPostsByCategorySlug("housing", { per_page: 15 }),
+  getPostsByCategorySlug("foreign-policy", { per_page: 15 }),
+  getPostsByCategorySlug("security-and-defense-usa", { per_page: 15 }),
 ]);
+
+// Get the USA category ID for filtering
+const usaCategory = categories.find((cat) => cat.slug === "usa");
+const usaCategoryId = usaCategory?.id;
+
+// Filter subsection posts to only include those ALSO tagged with "usa"
+// This ensures we show articles tagged with BOTH usa AND the subsection
+const filterByUSA = (posts: any[]) => {
+  if (!usaCategoryId) return posts;
+  return posts.filter((post) => post.categories?.includes(usaCategoryId));
+};
+
+const electionsUSA = filterByUSA(electionsPostsRaw);
+const educationUSA = filterByUSA(educationPostsRaw);
+const environmentUSA = filterByUSA(environmentPostsRaw);
+const healthUSA = filterByUSA(healthPostsRaw);
+const lawUSA = filterByUSA(lawPostsRaw);
+const housingUSA = filterByUSA(housingPostsRaw);
+const foreignPolicyUSA = filterByUSA(foreignPolicyPostsRaw);
+const securityUSA = filterByUSA(securityPostsRaw);
 
 // Enhance all posts in parallel
 const [
@@ -50,17 +70,15 @@ const [
   securityPosts,
 ] = await Promise.all([
   enhancePosts(usaPostsRaw, categories),
-  enhancePosts(electionsPostsRaw, categories),
-  enhancePosts(educationPostsRaw, categories),
-  enhancePosts(environmentPostsRaw, categories),
-  enhancePosts(healthPostsRaw, categories),
-  enhancePosts(lawPostsRaw, categories),
-  enhancePosts(housingPostsRaw, categories),
-  enhancePosts(foreignPolicyPostsRaw, categories),
-  enhancePosts(securityPostsRaw, categories),
+  enhancePosts(electionsUSA, categories),
+  enhancePosts(educationUSA, categories),
+  enhancePosts(environmentUSA, categories),
+  enhancePosts(healthUSA, categories),
+  enhancePosts(lawUSA, categories),
+  enhancePosts(housingUSA, categories),
+  enhancePosts(foreignPolicyUSA, categories),
+  enhancePosts(securityUSA, categories),
 ]);
-
-const usaCategory = categories.find((cat) => cat.slug === "usa");
 
 const ensureContent = (
   primary: EnhancedPost[],
