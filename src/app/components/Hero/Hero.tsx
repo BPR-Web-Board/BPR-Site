@@ -114,7 +114,7 @@ const Hero: React.FC<HeroProps> = ({
             sizes="100vw"
             style={{ objectFit: "cover" }}
             priority={priority}
-            loading={priority ? "eager" : "lazy"}
+            {...(!priority && { loading: "lazy" as const })}
             className="hero-bg-image"
             showPlaceholder={true}
           />
