@@ -20,9 +20,12 @@
   --color-blue: #6d81ca; /* Updated from placeholder gray */
 
   /* Font Variables - primary and backup */
-  --font-primary-serif: "Nicholas", var(--font-playfair), "Playfair Display", serif;
-  --font-primary-sans: "FranklinGothic URW", var(--font-libre-franklin), "Libre Franklin", sans-serif;
-  --font-primary-text: "Nicholas", var(--font-playfair), "Playfair Display", serif;
+  --font-primary-serif: "Nicholas", var(--font-playfair), "Playfair Display",
+    serif;
+  --font-primary-sans: "FranklinGothic URW", var(--font-libre-franklin),
+    "Libre Franklin", sans-serif;
+  --font-primary-text: "Nicholas", var(--font-playfair), "Playfair Display",
+    serif;
 
   /* Font sizes based on the 8pt grid - mobile first */
   --font-size-xs: 14px; /* Previously 12px */
@@ -66,8 +69,6 @@ html {
 *::after {
   box-sizing: inherit;
 }
-
-
 
 /* Fix for inconsistent background color */
 html,

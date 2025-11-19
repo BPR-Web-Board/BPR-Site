@@ -22,7 +22,8 @@ const libreFranklin = Libre_Franklin({
 
 export const metadata: Metadata = {
   title: "Brown Political Review",
-  description: "The Brown Political Review is a nonpartisan political publication that seeks to promote ideological diversity.",
+  description:
+    "The Brown Political Review is a nonpartisan political publication that seeks to promote ideological diversity.",
 };
 
 export default function RootLayout({
@@ -31,7 +32,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfairDisplay.variable} ${libreFranklin.variable}`}>
+    <html
+      lang="en"
+      className={`${playfairDisplay.variable} ${libreFranklin.variable}`}
+    >
       <head>
         {/* Load Adobe Fonts */}
         <link rel="stylesheet" href="https://use.typekit.net/oxs2lss.css" />

@@ -25,12 +25,7 @@ export default {
           "Libre Franklin",
           "sans-serif",
         ],
-        text: [
-          "Nicholas",
-          "var(--font-playfair)",
-          "Playfair Display",
-          "serif",
-        ],
+        text: ["Nicholas", "var(--font-playfair)", "Playfair Display", "serif"],
       },
     },
     screens: {
