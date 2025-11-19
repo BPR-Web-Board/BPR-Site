@@ -13,7 +13,24 @@ export default {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
+        serif: [
+          "Nicholas",
+          "var(--font-playfair)",
+          "Playfair Display",
+          "serif",
+        ],
+        sans: [
+          "FranklinGothic URW",
+          "var(--font-libre-franklin)",
+          "Libre Franklin",
+          "sans-serif",
+        ],
+        text: [
+          "Nicholas",
+          "var(--font-playfair)",
+          "Playfair Display",
+          "serif",
+        ],
       },
     },
     screens: {

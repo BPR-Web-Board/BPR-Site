@@ -111,7 +111,7 @@ export async function generateStaticParams() {
     "arts",
     "gender",
     "health-culture",
-    "lgbtq-politics",
+    "lgbtq",
     "race",
     "religion",
     "science",

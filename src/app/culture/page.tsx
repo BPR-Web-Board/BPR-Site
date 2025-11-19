@@ -30,7 +30,7 @@ const [
   getPostsByCategorySlug("arts", { per_page: 8 }),
   getPostsByCategorySlug("gender", { per_page: 8 }),
   getPostsByCategorySlug("health-culture", { per_page: 8 }),
-  getPostsByCategorySlug("lgbtq-politics", { per_page: 8 }),
+  getPostsByCategorySlug("lgbtq", { per_page: 8 }),
   getPostsByCategorySlug("race", { per_page: 8 }),
   getPostsByCategorySlug("religion", { per_page: 8 }),
   getPostsByCategorySlug("science", { per_page: 8 }),
@@ -95,7 +95,11 @@ const globalFallbackPool = contentManager.combineUniquePosts(
 
 // LGBTQ+ Politics section - ensure exactly 4 articles
 const lgbtqPool = contentManager.ensureContent(lgbtqPosts, culturePosts);
-const lgbtqArticles = contentManager.fillToCount(lgbtqPool, 4, globalFallbackPool);
+const lgbtqArticles = contentManager.fillToCount(
+  lgbtqPool,
+  4,
+  globalFallbackPool
+);
 
 // Preview Grid
 const previewArticles = contentManager.selectArticles(culturePosts, 10, {
@@ -125,14 +129,22 @@ const religionArticles = contentManager.selectArticles(religionPool, 5, {
 
 // Science section - ensure exactly 4 articles
 const sciencePool = contentManager.ensureContent(sciencePosts, culturePosts);
-const scienceArticles = contentManager.fillToCount(sciencePool, 4, globalFallbackPool);
+const scienceArticles = contentManager.fillToCount(
+  sciencePool,
+  4,
+  globalFallbackPool
+);
 
 // Technology section - ensure exactly 4 articles
 const technologyPool = contentManager.ensureContent(
   technologyPosts,
   culturePosts
 );
-const technologyArticles = contentManager.fillToCount(technologyPool, 4, globalFallbackPool);
+const technologyArticles = contentManager.fillToCount(
+  technologyPool,
+  4,
+  globalFallbackPool
+);
 
 // Health & Culture section - ensure exactly 4 articles
 const healthCulturePool = contentManager.ensureContent(

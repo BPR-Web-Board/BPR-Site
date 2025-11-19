@@ -114,9 +114,9 @@ export async function generateStaticParams() {
   // Common Interviews subsections
   const subsections = [
     "professor-podcasts",
-    "rhode-island-interviews",
+    "ri-interviews",
     "us-interviews",
-    "congress-interviews",
+    "congress",
     "world-interviews",
   ];
 

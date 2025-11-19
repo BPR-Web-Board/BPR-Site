@@ -115,11 +115,13 @@ export async function generateStaticParams() {
   const subsections = [
     "congress",
     "elections",
-    "judiciary",
-    "presidency",
-    "state-politics",
-    "us-foreign-policy",
-    "us-politics",
+    "law",
+    "education",
+    "environment",
+    "health",
+    "housing",
+    "foreign-policy",
+    "economy",
   ];
 
   return subsections.map((subsection) => ({

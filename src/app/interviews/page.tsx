@@ -25,9 +25,9 @@ const [
   getAllCategories(),
   getPostsByCategorySlug("interviews", { per_page: 24 }),
   getPostsByCategorySlug("professor-podcasts", { per_page: 8 }),
-  getPostsByCategorySlug("rhode-island-interviews", { per_page: 8 }),
+  getPostsByCategorySlug("ri-interviews", { per_page: 8 }),
   getPostsByCategorySlug("us-interviews", { per_page: 8 }),
-  getPostsByCategorySlug("congress-interviews", { per_page: 8 }),
+  getPostsByCategorySlug("congress", { per_page: 8 }),
   getPostsByCategorySlug("world-interviews", { per_page: 8 }),
 ]);
 
