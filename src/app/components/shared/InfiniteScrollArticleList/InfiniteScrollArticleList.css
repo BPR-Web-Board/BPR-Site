@@ -1,0 +1,171 @@
+/* Infinite Scroll Article List */
+.infinite-scroll-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.infinite-scroll-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.infinite-scroll-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 30px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading skeleton styles */
+.infinite-scroll-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.skeleton-article-row {
+  display: flex;
+  gap: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.skeleton-image {
+  width: 200px;
+  height: 150px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+}
+
+.skeleton-text {
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+
+.skeleton-pulse {
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Error state */
+.infinite-scroll-error {
+  text-align: center;
+  padding: 40px 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.infinite-scroll-error p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.retry-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #333;
+}
+
+/* End of content */
+.infinite-scroll-end {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.infinite-scroll-end p {
+  margin: 0;
+}
+
+/* Empty state */
+.infinite-scroll-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Intersection observer trigger */
+.infinite-scroll-trigger {
+  height: 1px;
+  margin-top: -100px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .infinite-scroll-container {
+    padding: 20px 15px;
+  }
+
+  .infinite-scroll-grid {
+    gap: 20px;
+  }
+
+  .infinite-scroll-item {
+    padding-bottom: 20px;
+  }
+
+  .skeleton-article-row {
+    flex-direction: column;
+  }
+
+  .skeleton-image {
+    width: 100%;
+    height: 200px;
+  }
+}
