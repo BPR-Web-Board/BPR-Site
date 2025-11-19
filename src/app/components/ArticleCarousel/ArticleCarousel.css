@@ -115,12 +115,56 @@
   height: 11px;
 }
 
-.article-author-carousel {
+/* Inline Podcast Player for Carousel */
+.podcast-inline-player-carousel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.podcast-play-icon-inline-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.podcast-play-icon-inline-carousel svg {
+  width: 14px;
+  height: 14px;
+  color: #000;
+  margin-left: 2px;
+  stroke-width: 2.5;
+}
+
+.carousel-slide a:hover .podcast-play-icon-inline-carousel {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.podcast-duration-inline-carousel {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 0.72px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #000;
+  white-space: nowrap;
+}
+
+.article-author-carousel {
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.7);
 }
@@ -134,10 +178,10 @@
 
 .article-date-carousel {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 1.02px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #000;
 }
@@ -411,7 +455,22 @@
 
   .article-author-carousel,
   .article-date-carousel {
-    font-size: 0.875rem;
+    font-size: 0.625rem;
+  }
+
+  /* Adjust inline podcast player for mobile */
+  .podcast-play-icon-inline-carousel {
+    width: 28px;
+    height: 28px;
+  }
+
+  .podcast-play-icon-inline-carousel svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .podcast-duration-inline-carousel {
+    font-size: 0.625rem;
   }
 
   .article-excerpt-carousel {
@@ -478,6 +537,22 @@
   .article-excerpt-carousel {
     font-size: clamp(14px, 4.5vw, 15px);
     text-align: left;
+  }
+
+  /* Adjust inline podcast player for small mobile */
+  .podcast-play-icon-inline-carousel {
+    width: 26px;
+    height: 26px;
+    border-width: 1.5px;
+  }
+
+  .podcast-play-icon-inline-carousel svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .podcast-duration-inline-carousel {
+    font-size: 0.625rem;
   }
 
   .progress-bar {

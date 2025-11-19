@@ -11,7 +11,6 @@ import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
-import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
 const [
@@ -103,9 +102,13 @@ const multimediaPool = contentManager.combineUniquePosts(
   mediaPosts,
   multimediaPosts
 );
-const multimediaPoolArticles = contentManager.selectArticles(multimediaPool, 4, {
-  allowPartial: true,
-});
+const multimediaPoolArticles = contentManager.selectArticles(
+  multimediaPool,
+  4,
+  {
+    allowPartial: true,
+  }
+);
 
 // Multimedia Highlights
 const multimediaHighlights = contentManager.selectArticles(multimediaPosts, 5, {
@@ -121,13 +124,16 @@ export default function MultimediaPage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        {(dataColumn.length > 0 || mediaColumn.length > 0) && (
+        {(dataColumn.length > 0 ||
+          mediaColumn.length > 0 ||
+          multimediaPosts.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Data"
               leftColumnArticles={dataColumn}
               rightColumnTitle="Media"
               rightColumnArticles={mediaColumn}
+              fallbackArticles={multimediaPosts}
             />
           </div>
         )}

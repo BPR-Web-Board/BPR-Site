@@ -34,6 +34,28 @@ function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength).trim() + "...";
 }
 
+// Helper function to extract Spotify URL from post content
+function extractSpotifyUrl(content: string): string | undefined {
+  // Check for Spotify iframes first (most common in WordPress)
+  const iframeRegex =
+    /<iframe[^>]*src=["']([^"']*spotify\.com[^"']*)[""][^>]*>/i;
+  const iframeMatch = content.match(iframeRegex);
+  if (iframeMatch && iframeMatch[1]) {
+    return iframeMatch[1];
+  }
+
+  // Check for direct Spotify URLs (including open.spotify.com/embed/)
+  const spotifyRegex =
+    /(?:https?:\/\/)?(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/gi;
+  const matches = content.match(spotifyRegex);
+  if (matches && matches.length > 0) {
+    const url = matches[0];
+    return url.startsWith("http") ? url : `https://${url}`;
+  }
+
+  return undefined;
+}
+
 const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
   title,
   posts,
@@ -148,6 +170,43 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
                           {formatDate(article.date).toUpperCase()}
                         </span>
                       </div>
+
+                      {(() => {
+                        // Check if article has Spotify embed
+                        const spotifyLink =
+                          (article?.meta?.spotify_url as string) ||
+                          extractSpotifyUrl(article.content?.rendered || "");
+
+                        // Check if this is a BPRadio/podcast article
+                        const isPodcast =
+                          article?.categories_obj?.some(
+                            (cat) =>
+                              cat.slug === "bpradio" ||
+                              cat.slug === "bpr-prodcast"
+                          ) || spotifyLink;
+
+                        // Extract duration from meta
+                        const podcastDuration = article?.meta
+                          ?.duration as string;
+
+                        return isPodcast && spotifyLink ? (
+                          <div className="podcast-inline-player-carousel">
+                            <div className="podcast-play-icon-inline-carousel">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                            <span className="podcast-duration-inline-carousel">
+                              {podcastDuration || "Podcast"}
+                            </span>
+                          </div>
+                        ) : null;
+                      })()}
 
                       <div
                         className="article-excerpt-carousel"

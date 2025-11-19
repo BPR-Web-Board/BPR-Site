@@ -13,7 +13,7 @@ interface SubsectionPageProps {
   };
 }
 
-export default async function WorldSubsectionPage({
+export default async function MultimediaSubsectionPage({
   params,
 }: SubsectionPageProps) {
   const { subsection } = params;
@@ -106,15 +106,8 @@ export default async function WorldSubsectionPage({
 
 // Generate static params for common subsections
 export async function generateStaticParams() {
-  // Common World subsections
-  const subsections = [
-    "europe",
-    "asia-pacific",
-    "middle-east",
-    "africa",
-    "latin-america",
-    "south-america",
-  ];
+  // Common Multimedia subsections
+  const subsections = ["bpradio", "data", "media"];
 
   return subsections.map((subsection) => ({
     subsection,

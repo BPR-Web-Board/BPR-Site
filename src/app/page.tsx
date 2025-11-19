@@ -65,7 +65,10 @@ const usaBottomGrid = contentManager.selectArticles(usaPool, 4, {
 });
 
 // World Section
-const worldPool = contentManager.ensureContent(enhancedWorldPosts, enhancedPosts);
+const worldPool = contentManager.ensureContent(
+  enhancedWorldPosts,
+  enhancedPosts
+);
 const worldHeroArticles = contentManager.selectArticles(worldPool, 5, {
   allowPartial: true,
 });
@@ -118,13 +121,16 @@ export default function HomePage() {
       </div>
       <div className="main-content">
         {/* Section 1: USA News */}
-        {(usaLeftColumn.length > 0 || usaRightColumn.length > 0) && (
+        {(usaLeftColumn.length > 0 ||
+          usaRightColumn.length > 0 ||
+          usaPool.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="USA News"
               rightColumnTitle="Latest Updates"
               leftColumnArticles={usaLeftColumn}
               rightColumnArticles={usaRightColumn}
+              fallbackArticles={usaPool}
             />
             {usaBottomGrid.length > 0 && (
               <FourArticleGrid
@@ -146,10 +152,7 @@ export default function HomePage() {
         {(worldLayoutArticles.length > 0 || worldGrid.length > 0) && (
           <div className="two-column-layout-wrapper">
             {worldLayoutArticles.length > 0 && (
-              <ArticleLayout
-                posts={worldLayoutArticles}
-                categoryName="World"
-              />
+              <ArticleLayout posts={worldLayoutArticles} categoryName="World" />
             )}
             {worldGrid.length > 0 && (
               <FourArticleGrid
@@ -165,13 +168,16 @@ export default function HomePage() {
         )}
 
         {/* Section 3: Culture & Arts */}
-        {(cultureLeftColumn.length > 0 || cultureRightColumn.length > 0) && (
+        {(cultureLeftColumn.length > 0 ||
+          cultureRightColumn.length > 0 ||
+          culturePool.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Culture"
               rightColumnTitle="Arts & Entertainment"
               leftColumnArticles={cultureLeftColumn}
               rightColumnArticles={cultureRightColumn}
+              fallbackArticles={culturePool}
             />
             {cultureGrid.length > 0 && (
               <FourArticleGrid

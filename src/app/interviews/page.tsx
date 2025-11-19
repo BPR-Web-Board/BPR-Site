@@ -11,7 +11,6 @@ import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
-import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
 const [
@@ -67,7 +66,10 @@ const professorSpotlight = contentManager.selectArticles(professorPool, 7, {
 });
 
 // Congress section
-const congressPool = contentManager.ensureContent(congressPosts, interviewsPosts);
+const congressPool = contentManager.ensureContent(
+  congressPosts,
+  interviewsPosts
+);
 const congressArticles = contentManager.selectArticles(congressPool, 4, {
   allowPartial: true,
 });
@@ -172,13 +174,16 @@ export default function InterviewsPage() {
             categoryName="World Interviews"
           />
         )}
-        {(rhodeIslandColumn.length > 0 || usInterviewsColumn.length > 0) && (
+        {(rhodeIslandColumn.length > 0 ||
+          usInterviewsColumn.length > 0 ||
+          interviewsPosts.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Rhode Island"
               leftColumnArticles={rhodeIslandColumn}
               rightColumnTitle="U.S. Interviews"
               rightColumnArticles={usInterviewsColumn}
+              fallbackArticles={interviewsPosts}
             />
           </div>
         )}

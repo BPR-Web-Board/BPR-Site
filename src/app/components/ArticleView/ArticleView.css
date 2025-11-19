@@ -89,13 +89,24 @@
 .author-byline,
 .illustrator-info {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 400;
-  line-height: 120%; /* 19.2px */
-  letter-spacing: 0.96px;
+  line-height: 120%;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 8px;
+}
+
+.article-date {
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #000;
-  margin-bottom: 8px;
+  margin-top: 16px;
 }
 
 /* Pull Quotes in Sidebar */

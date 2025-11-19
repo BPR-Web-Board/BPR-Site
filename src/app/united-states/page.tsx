@@ -85,7 +85,10 @@ const electionSpotlight = contentManager.selectArticles(electionPool, 7, {
 });
 
 // Two Column Layout - Environment and Health
-const environmentPool = contentManager.ensureContent(environmentPosts, usaPosts);
+const environmentPool = contentManager.ensureContent(
+  environmentPosts,
+  usaPosts
+);
 const environmentColumn = contentManager.selectArticles(environmentPool, 5, {
   allowPartial: true,
 });
@@ -162,13 +165,16 @@ export default function UnitedStatesPage() {
             posts={electionSpotlight}
           />
         )}
-        {(environmentColumn.length > 0 || healthColumn.length > 0) && (
+        {(environmentColumn.length > 0 ||
+          healthColumn.length > 0 ||
+          usaPosts.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Environment"
               leftColumnArticles={environmentColumn}
               rightColumnTitle="Health"
               rightColumnArticles={healthColumn}
+              fallbackArticles={usaPosts}
             />
           </div>
         )}

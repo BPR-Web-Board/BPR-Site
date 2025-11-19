@@ -13,7 +13,7 @@ interface SubsectionPageProps {
   };
 }
 
-export default async function WorldSubsectionPage({
+export default async function InterviewsSubsectionPage({
   params,
 }: SubsectionPageProps) {
   const { subsection } = params;
@@ -106,14 +106,13 @@ export default async function WorldSubsectionPage({
 
 // Generate static params for common subsections
 export async function generateStaticParams() {
-  // Common World subsections
+  // Common Interviews subsections
   const subsections = [
-    "europe",
-    "asia-pacific",
-    "middle-east",
-    "africa",
-    "latin-america",
-    "south-america",
+    "professor-podcasts",
+    "rhode-island-interviews",
+    "us-interviews",
+    "congress-interviews",
+    "world-interviews",
   ];
 
   return subsections.map((subsection) => ({

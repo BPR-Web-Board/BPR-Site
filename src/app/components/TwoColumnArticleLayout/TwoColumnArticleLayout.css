@@ -97,12 +97,13 @@
 
 .tcal-main-title {
   font-family: var(--font-primary-serif, "Playfair Display"), serif;
-  font-size: clamp(1.5rem, 2.5vw, 1.85rem);
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: clamp(1.45rem, 1.55vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.25;
   margin: 0;
   color: #000;
   transition: color 0.2s ease;
+  overflow: hidden;
 
   /* Ensure consistent height */
   display: -webkit-box;
@@ -119,9 +120,9 @@
 
 .tcal-main-excerpt {
   font-family: var(--font-primary-serif, "Crimson Text"), serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #333;
+  font-size: clamp(0.975rem, 1.35vw, 1.45rem);
+  line-height: 1.4;
+  color: #555;
   margin: 0.5rem 0;
 
   /* Ensure consistent height */
@@ -139,7 +140,7 @@
 
 .tcal-main-author {
   font-family: var(--font-primary-sans, "Libre Franklin"), sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   font-weight: 400;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -177,12 +178,18 @@
 
 .tcal-secondary-title {
   font-family: var(--font-primary-serif, "Playfair Display"), serif;
-  font-size: clamp(1.1rem, 1.85vw, 1.35rem);
+  font-size: clamp(1.45rem, 1.55vw, 1.75rem);
   font-weight: 600;
   line-height: 1.25;
   margin: 0;
   color: #000;
   transition: color 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .tcal-secondary-title-link:hover .tcal-secondary-title {
@@ -191,7 +198,7 @@
 
 .tcal-secondary-excerpt {
   font-family: var(--font-primary-serif, "Crimson Text"), serif;
-  font-size: 0.9rem;
+  font-size: clamp(0.975rem, 1.35vw, 1.45rem);
   line-height: 1.4;
   color: #555;
   margin: 0;
@@ -205,7 +212,7 @@
 
 .tcal-secondary-author {
   font-family: var(--font-primary-sans, "Libre Franklin"), sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.825rem;
   font-weight: 400;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -356,7 +363,7 @@
   }
 
   .tcal-secondary-title {
-    font-size: 1rem;
+    font-size: clamp(1.375rem, 2vw, 2rem);
   }
 
   .tcal-main-image-container {

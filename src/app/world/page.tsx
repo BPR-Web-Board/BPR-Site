@@ -74,7 +74,10 @@ const africaSpotlight = contentManager.selectArticles(africaPool, 7, {
 });
 
 // Asia/Pacific section
-const asiaPacificPool = contentManager.ensureContent(asiaPacificPosts, worldPosts);
+const asiaPacificPool = contentManager.ensureContent(
+  asiaPacificPosts,
+  worldPosts
+);
 const asiaPacificArticles = contentManager.selectArticles(asiaPacificPool, 4, {
   allowPartial: true,
 });
@@ -89,7 +92,10 @@ const europePool = contentManager.ensureContent(europePosts, worldPosts);
 const europeColumn = contentManager.selectArticles(europePool, 5, {
   allowPartial: true,
 });
-const middleEastPool = contentManager.ensureContent(middleEastPosts, worldPosts);
+const middleEastPool = contentManager.ensureContent(
+  middleEastPosts,
+  worldPosts
+);
 const middleEastColumn = contentManager.selectArticles(middleEastPool, 5, {
   allowPartial: true,
 });
@@ -100,16 +106,30 @@ const heroArticles2 = contentManager.selectArticles(worldPosts, 5, {
 });
 
 // Latin America section
-const latinAmericaPool = contentManager.ensureContent(latinAmericaPosts, worldPosts);
-const latinAmericaArticles = contentManager.selectArticles(latinAmericaPool, 5, {
-  allowPartial: true,
-});
+const latinAmericaPool = contentManager.ensureContent(
+  latinAmericaPosts,
+  worldPosts
+);
+const latinAmericaArticles = contentManager.selectArticles(
+  latinAmericaPool,
+  5,
+  {
+    allowPartial: true,
+  }
+);
 
 // South America section
-const southAmericaPool = contentManager.ensureContent(southAmericaPosts, worldPosts);
-const southAmericaArticles = contentManager.selectArticles(southAmericaPool, 4, {
-  allowPartial: true,
-});
+const southAmericaPool = contentManager.ensureContent(
+  southAmericaPosts,
+  worldPosts
+);
+const southAmericaArticles = contentManager.selectArticles(
+  southAmericaPool,
+  4,
+  {
+    allowPartial: true,
+  }
+);
 
 // Regional Pool - combines all regional posts for the grid
 const regionalPool = contentManager.combineUniquePosts(
@@ -156,18 +176,24 @@ export default function WorldPage() {
           />
         )}
         {asiaPacificArticles.length > 0 && (
-          <ArticleGrid posts={asiaPacificArticles} categoryName="Asia/Pacific" />
+          <ArticleGrid
+            posts={asiaPacificArticles}
+            categoryName="Asia/Pacific"
+          />
         )}
         {previewArticles.length > 0 && (
           <ArticlePreviewGrid articles={previewArticles} />
         )}
-        {(europeColumn.length > 0 || middleEastColumn.length > 0) && (
+        {(europeColumn.length > 0 ||
+          middleEastColumn.length > 0 ||
+          worldPosts.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Europe"
               leftColumnArticles={europeColumn}
               rightColumnTitle="Middle East"
               rightColumnArticles={middleEastColumn}
+              fallbackArticles={worldPosts}
             />
           </div>
         )}

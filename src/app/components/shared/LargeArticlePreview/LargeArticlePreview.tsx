@@ -50,8 +50,29 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
   const fullExcerpt = stripHtml(article?.excerpt?.rendered || "");
   const excerpt = truncateText(fullExcerpt, excerptLength);
 
+  // Check if article has Spotify embed
+  const spotifyLink =
+    (article?.meta?.spotify_url as string) ||
+    extractSpotifyUrl(article.content?.rendered || "");
+
+  // Extract duration from meta
+  const podcastDuration = article?.meta?.duration as string;
+
+  // Check if this is a BPRadio/podcast article
+  const isPodcast =
+    article?.categories_obj?.some(
+      (cat) => cat.slug === "bpradio" || cat.slug === "bpr-prodcast"
+    ) || spotifyLink;
+
+  // For compact variant, show play button on image; for default, show in metadata
+  const showPlayButtonOnImage = variant === "compact";
+
   return (
-    <article className={`large-article-preview variant-${variant} image-position-${imagePosition} ${className}`}>
+    <article
+      className={`large-article-preview variant-${variant} image-position-${imagePosition} ${
+        isPodcast && spotifyLink ? "has-podcast" : ""
+      } ${className}`}
+    >
       <Link href={articleLink} className="large-article-preview-link">
         {/* Image Container */}
         <div className="large-article-preview-image-container">
@@ -68,6 +89,15 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
           ) : (
             <div className="large-article-preview-image-placeholder"></div>
           )}
+          {isPodcast && spotifyLink && showPlayButtonOnImage && (
+            <div className="podcast-play-button-overlay">
+              <div className="podcast-play-button">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Content Container */}
@@ -78,10 +108,30 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
           />
 
           <div className="large-article-preview-meta">
-            <span className="large-article-preview-author">BY {authorName}</span>
+            <span className="large-article-preview-author">
+              BY {authorName}
+            </span>
             <span className="large-article-preview-meta-divider"></span>
             <span className="large-article-preview-date">{formattedDate}</span>
           </div>
+
+          {isPodcast && spotifyLink && !showPlayButtonOnImage && (
+            <div className="podcast-inline-player">
+              <div className="podcast-play-icon-inline">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <span className="podcast-duration-inline">
+                {podcastDuration || "Podcast"}
+              </span>
+            </div>
+          )}
 
           <div
             className="large-article-preview-excerpt"
@@ -92,5 +142,27 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
     </article>
   );
 };
+
+// Helper function to extract Spotify URL from post content
+function extractSpotifyUrl(content: string): string | undefined {
+  // Check for Spotify iframes first (most common in WordPress)
+  const iframeRegex =
+    /<iframe[^>]*src=["']([^"']*spotify\.com[^"']*)["'][^>]*>/i;
+  const iframeMatch = content.match(iframeRegex);
+  if (iframeMatch && iframeMatch[1]) {
+    return iframeMatch[1];
+  }
+
+  // Check for direct Spotify URLs (including open.spotify.com/embed/)
+  const spotifyRegex =
+    /(?:https?:\/\/)?(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/gi;
+  const matches = content.match(spotifyRegex);
+  if (matches && matches.length > 0) {
+    const url = matches[0];
+    return url.startsWith("http") ? url : `https://${url}`;
+  }
+
+  return undefined;
+}
 
 export default LargeArticlePreview;

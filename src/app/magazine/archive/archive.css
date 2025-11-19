@@ -1,29 +1,29 @@
-/* Infinite Scroll Article List */
-.infinite-scroll-container {
+/* Magazine Archive Page Styles */
+
+.archive-content {
   width: 85vw;
   max-width: 2600px;
   margin: 0 auto;
   padding: 3rem 0 4rem;
-  border-top: 2px solid var(--color-black, #0d0b00);
-  margin-top: 3rem;
 }
 
-.infinite-scroll-header {
+.archive-header {
   margin-bottom: 3rem;
   padding: 0 1rem;
-  padding-top: 2rem;
+  border-bottom: 2px solid var(--color-black, #0d0b00);
+  padding-bottom: 2rem;
 }
 
-.infinite-scroll-title {
+.archive-title {
   font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 600;
   line-height: 1.2;
   color: var(--color-black, #0d0b00);
   margin: 0 0 1rem 0;
-  font-size: clamp(2rem, 4vw, 3rem);
 }
 
-.infinite-scroll-description {
+.archive-description {
   font-family: var(
     --font-primary-sans,
     "FranklinGothic URW",
@@ -36,7 +36,7 @@
   margin: 0;
 }
 
-.infinite-scroll-grid {
+.archive-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 3rem 3rem;
@@ -44,30 +44,19 @@
   margin-bottom: 3rem;
 }
 
-.infinite-scroll-item {
+.archive-grid-item {
   width: 100%;
   min-width: 0;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.infinite-scroll-article-preview {
+.archive-article-preview {
   height: 100%;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading state */
-.infinite-scroll-loading {
+.archive-loading,
+.archive-error,
+.archive-end,
+.archive-empty {
   text-align: center;
   padding: 3rem 1rem;
   font-family: var(
@@ -78,7 +67,9 @@
   );
 }
 
-.infinite-scroll-loading p {
+.archive-loading p,
+.archive-end p,
+.archive-empty p {
   font-size: 1.125rem;
   color: var(--color-dark-gray, #3f3f3c);
   margin: 0;
@@ -103,23 +94,14 @@
   }
 }
 
-/* Error state */
-.infinite-scroll-error {
-  text-align: center;
-  padding: 3rem 1rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
+.archive-error {
   background-color: rgba(224, 93, 80, 0.1);
   border: 1px solid var(--color-red, #e05d50);
   border-radius: 4px;
-  margin: 2rem 0;
+  padding: 2rem;
 }
 
-.infinite-scroll-error p {
+.archive-error p {
   color: var(--color-red, #e05d50);
   font-size: 1rem;
   margin: 0 0 1rem 0;
@@ -146,115 +128,81 @@
   opacity: 0.9;
 }
 
-/* End of content */
-.infinite-scroll-end {
-  text-align: center;
-  padding: 3rem 1rem;
+.archive-end {
   border-top: 1px solid var(--color-gray, #b7b7b1);
   margin-top: 2rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
 }
 
-.infinite-scroll-end p {
-  font-size: 1.125rem;
-  color: var(--color-dark-gray, #3f3f3c);
-  margin: 0;
-}
-
-/* Empty state */
-.infinite-scroll-empty {
-  text-align: center;
-  padding: 3rem 1rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-}
-
-.infinite-scroll-empty p {
-  font-size: 1.125rem;
-  color: var(--color-dark-gray, #3f3f3c);
-  margin: 0;
-}
-
-/* Intersection observer trigger */
-.infinite-scroll-trigger {
+.observer-target {
   height: 20px;
   width: 100%;
 }
 
-/* Responsive styles */
+/* Responsive Styles */
 @media (max-width: 1023px) {
-  .infinite-scroll-container {
+  .archive-content {
     width: 90vw;
     padding: 2.5rem 0 3rem;
   }
 
-  .infinite-scroll-header {
+  .archive-header {
     margin-bottom: 2.5rem;
-    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
-  .infinite-scroll-grid {
+  .archive-grid {
     gap: 2.5rem 2.5rem;
   }
 }
 
 @media (max-width: 767px) {
-  .infinite-scroll-container {
+  .archive-content {
     width: 95vw;
     padding: 2rem 0 2.5rem;
   }
 
-  .infinite-scroll-header {
+  .archive-header {
     margin-bottom: 2rem;
     padding: 0 0.5rem;
-    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
-  .infinite-scroll-description {
+  .archive-description {
     font-size: 1rem;
   }
 
-  .infinite-scroll-grid {
+  .archive-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
 
-  .infinite-scroll-loading,
-  .infinite-scroll-error,
-  .infinite-scroll-end,
-  .infinite-scroll-empty {
+  .archive-loading,
+  .archive-error,
+  .archive-end,
+  .archive-empty {
     padding: 2rem 1rem;
   }
 
-  .infinite-scroll-loading p,
-  .infinite-scroll-end p,
-  .infinite-scroll-empty p {
+  .archive-loading p,
+  .archive-end p,
+  .archive-empty p {
     font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .infinite-scroll-container {
+  .archive-content {
     width: 100vw;
     padding: 1.5rem 0 2rem;
   }
 
-  .infinite-scroll-header {
+  .archive-header {
     padding: 0 0.5rem;
-    padding-top: 1rem;
+    padding-bottom: 1rem;
     margin-bottom: 1.5rem;
   }
 
-  .infinite-scroll-grid {
+  .archive-grid {
     gap: 1.5rem;
   }
 }

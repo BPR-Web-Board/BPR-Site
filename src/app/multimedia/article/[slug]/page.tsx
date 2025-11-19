@@ -50,7 +50,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function InterviewsArticlePage({ params }: PageProps) {
+export default async function MultimediaArticlePage({ params }: PageProps) {
   try {
     const { slug } = await params;
 

@@ -34,6 +34,16 @@ interface PullQuotePosition {
   topOffset: number;
 }
 
+// Helper function to format date
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 // Clean up leading punctuation/quotes specifically for pull quotes
 function cleanPullQuote(text: string): string {
   let t = stripHtml(text);
@@ -628,6 +638,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             <div className="illustrator-info">
               ILLUSTRATION BY {illustrator.toUpperCase()}
             </div>
+            <div className="article-date">
+              {formatDate(post.date).toUpperCase()}
+            </div>
           </div>
 
           <div className="sidebar-pull-quotes">
@@ -670,7 +683,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({
           <FourArticleGrid
             posts={postsToShow}
             categoryName="Related Articles"
-            className="width-constrained"
           />
         </div>
       )}

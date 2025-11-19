@@ -11,7 +11,6 @@ import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
-import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
 const [
@@ -120,7 +119,10 @@ const scienceArticles = contentManager.selectArticles(sciencePool, 4, {
 });
 
 // Technology section
-const technologyPool = contentManager.ensureContent(technologyPosts, culturePosts);
+const technologyPool = contentManager.ensureContent(
+  technologyPosts,
+  culturePosts
+);
 const technologyArticles = contentManager.selectArticles(technologyPool, 4, {
   allowPartial: true,
 });
@@ -130,9 +132,13 @@ const healthCulturePool = contentManager.ensureContent(
   healthCulturePosts,
   culturePosts
 );
-const healthCultureArticles = contentManager.selectArticles(healthCulturePool, 4, {
-  allowPartial: true,
-});
+const healthCultureArticles = contentManager.selectArticles(
+  healthCulturePool,
+  4,
+  {
+    allowPartial: true,
+  }
+);
 
 // Culture Pool - combines all subsections for the grid
 const culturePool = contentManager.combineUniquePosts(
@@ -186,13 +192,16 @@ export default function CulturePage() {
         {previewArticles.length > 0 && (
           <ArticlePreviewGrid articles={previewArticles} />
         )}
-        {(genderColumn.length > 0 || raceColumn.length > 0) && (
+        {(genderColumn.length > 0 ||
+          raceColumn.length > 0 ||
+          culturePosts.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Gender"
               leftColumnArticles={genderColumn}
               rightColumnTitle="Race"
               rightColumnArticles={raceColumn}
+              fallbackArticles={culturePosts}
             />
           </div>
         )}

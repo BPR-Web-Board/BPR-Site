@@ -13,6 +13,20 @@
   transform: translateY(-2px);
 }
 
+/* Card Link Wrapper */
+.podcast-card-link {
+  display: flex;
+  flex-direction: inherit;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.podcast-card.has-spotify {
+  cursor: pointer;
+}
+
 /* Image Container */
 .podcast-card-image-container {
   position: relative;
@@ -33,6 +47,70 @@
   flex-shrink: 0;
 }
 
+/* Play Button Overlay */
+.podcast-play-button-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.podcast-play-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: #1db954;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.podcast-play-button svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+  margin-left: 3px;
+}
+
+/* Hover effects (only for compact variant with overlay) */
+.podcast-card.variant-compact.has-spotify:hover .podcast-play-button {
+  transform: scale(1.1);
+  background-color: #1ed760;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.podcast-card.variant-compact.has-spotify:hover .podcast-card-image {
+  transform: scale(1.05);
+  filter: brightness(0.9);
+}
+
+/* Variant sizes for play button */
+.podcast-play-button-overlay.variant-compact .podcast-play-button {
+  width: 45px;
+  height: 45px;
+}
+
+.podcast-play-button-overlay.variant-compact .podcast-play-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.podcast-play-button-overlay.variant-featured .podcast-play-button {
+  width: 80px;
+  height: 80px;
+}
+
+.podcast-play-button-overlay.variant-featured .podcast-play-button svg {
+  width: 36px;
+  height: 36px;
+}
+
 .podcast-card-image {
   object-fit: cover;
   transition: transform 0.3s ease;
@@ -45,7 +123,11 @@
 .podcast-card-image-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--color-light-gray) 0%, var(--color-light-gray) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-light-gray) 0%,
+    var(--color-light-gray) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,10 +186,10 @@
 }
 
 .podcast-card-author {
-  font-family: var(--font-primary-sans);
+  font-family: "Nicholas", "Playfair Display", serif;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-dark-gray);
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.7);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -120,6 +202,50 @@
   background-color: var(--color-light-gray);
   padding: 0.25rem 0.5rem;
   border-radius: 3px;
+}
+
+/* Inline Podcast Player (for standard/featured variants) */
+.podcast-inline-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.podcast-play-icon-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--color-black);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.podcast-play-icon-inline svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-black);
+  margin-left: 2px;
+  stroke-width: 2.5;
+}
+
+.podcast-card-link:hover .podcast-play-icon-inline {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.podcast-duration-inline {
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #000;
+  white-space: nowrap;
 }
 
 /* Excerpt */
@@ -142,7 +268,7 @@
   gap: 0.5rem;
   margin-top: auto;
   padding: 0.5rem 1rem;
-  background-color: #1DB954;
+  background-color: #1db954;
   color: white;
   text-decoration: none;
   border-radius: 2rem;
@@ -228,6 +354,48 @@
   .podcast-card-excerpt {
     -webkit-line-clamp: 2;
   }
+
+  /* Adjust play button for tablets */
+  .podcast-play-button {
+    width: 55px;
+    height: 55px;
+  }
+
+  .podcast-play-button svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .podcast-play-button-overlay.variant-compact .podcast-play-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .podcast-play-button-overlay.variant-compact .podcast-play-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .podcast-play-button-overlay.variant-featured .podcast-play-button {
+    width: 70px;
+    height: 70px;
+  }
+
+  .podcast-play-button-overlay.variant-featured .podcast-play-button svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Adjust inline player for tablets */
+  .podcast-play-icon-inline {
+    width: 30px;
+    height: 30px;
+  }
+
+  .podcast-play-icon-inline svg {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -242,5 +410,47 @@
   .podcast-card-spotify-link {
     font-size: 0.7rem;
     padding: 0.4rem 0.8rem;
+  }
+
+  /* Adjust play button for mobile */
+  .podcast-play-button {
+    width: 50px;
+    height: 50px;
+  }
+
+  .podcast-play-button svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .podcast-play-button-overlay.variant-compact .podcast-play-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .podcast-play-button-overlay.variant-compact .podcast-play-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .podcast-play-button-overlay.variant-featured .podcast-play-button {
+    width: 60px;
+    height: 60px;
+  }
+
+  .podcast-play-button-overlay.variant-featured .podcast-play-button svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Adjust inline player for mobile */
+  .podcast-play-icon-inline {
+    width: 28px;
+    height: 28px;
+  }
+
+  .podcast-play-icon-inline svg {
+    width: 12px;
+    height: 12px;
   }
 }

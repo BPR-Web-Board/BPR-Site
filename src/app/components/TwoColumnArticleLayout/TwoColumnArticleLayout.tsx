@@ -10,6 +10,7 @@ import {
   getArticleLink,
 } from "../../lib/utils";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
+import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import "./TwoColumnArticleLayout.css";
 
 export interface TwoColumnArticleLayoutProps {
@@ -19,6 +20,7 @@ export interface TwoColumnArticleLayoutProps {
   rightColumnArticles: EnhancedPost[];
   className?: string;
   showMainArticle?: boolean;
+  fallbackArticles?: EnhancedPost[]; // Articles to use when columns are uneven or empty
 }
 
 const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
@@ -28,7 +30,125 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
   rightColumnArticles,
   className = "",
   showMainArticle = true,
+  fallbackArticles = [],
 }) => {
+  // Helper to get unique articles from fallback pool
+  const getUniqueArticles = (
+    existingArticles: EnhancedPost[],
+    needed: number
+  ): EnhancedPost[] => {
+    const existingIds = new Set(existingArticles.map((a) => a.id));
+    const unique: EnhancedPost[] = [];
+
+    for (const article of fallbackArticles) {
+      if (!existingIds.has(article.id) && unique.length < needed) {
+        unique.push(article);
+        existingIds.add(article.id);
+      }
+    }
+
+    return unique;
+  };
+
+  // Normalize arrays to ensure both columns have equal length
+  let normalizedLeftArticles = [...(leftColumnArticles || [])];
+  let normalizedRightArticles = [...(rightColumnArticles || [])];
+
+  const leftLength = normalizedLeftArticles.length;
+  const rightLength = normalizedRightArticles.length;
+
+  // If both columns are empty, show all available articles in FourArticleGrid
+  if (leftLength === 0 && rightLength === 0) {
+    const allAvailable = [...fallbackArticles];
+
+    if (allAvailable.length === 0) {
+      return <div className="tcal-empty">No articles available</div>;
+    }
+
+    return (
+      <FourArticleGrid
+        posts={allAvailable}
+        categoryName={leftColumnTitle || rightColumnTitle}
+        showCategoryTitle={!!(leftColumnTitle || rightColumnTitle)}
+        numberOfRows={1}
+        className={`width-constrained ${className}`}
+      />
+    );
+  }
+
+  // If one column is empty, fill it with fallback articles
+  if (leftLength === 0 && rightLength > 0) {
+    normalizedLeftArticles = getUniqueArticles(
+      normalizedRightArticles,
+      rightLength
+    );
+  } else if (rightLength === 0 && leftLength > 0) {
+    normalizedRightArticles = getUniqueArticles(
+      normalizedLeftArticles,
+      leftLength
+    );
+  }
+
+  // Equalize column lengths by padding shorter column with fallback articles
+  const maxLength = Math.max(
+    normalizedLeftArticles.length,
+    normalizedRightArticles.length
+  );
+
+  if (normalizedLeftArticles.length < maxLength) {
+    const needed = maxLength - normalizedLeftArticles.length;
+    const fillArticles = getUniqueArticles(
+      [...normalizedLeftArticles, ...normalizedRightArticles],
+      needed
+    );
+    normalizedLeftArticles = [...normalizedLeftArticles, ...fillArticles];
+  }
+
+  if (normalizedRightArticles.length < maxLength) {
+    const needed = maxLength - normalizedRightArticles.length;
+    const fillArticles = getUniqueArticles(
+      [...normalizedLeftArticles, ...normalizedRightArticles],
+      needed
+    );
+    normalizedRightArticles = [...normalizedRightArticles, ...fillArticles];
+  }
+
+  // Calculate the final minimum length after equalization
+  const minLength = Math.min(
+    normalizedLeftArticles.length,
+    normalizedRightArticles.length
+  );
+
+  // If still no articles after all attempts, show FourArticleGrid
+  if (minLength === 0) {
+    const allArticles = [
+      ...normalizedLeftArticles,
+      ...normalizedRightArticles,
+      ...fallbackArticles,
+    ].filter(
+      (article, index, self) =>
+        index === self.findIndex((a) => a.id === article.id)
+    );
+
+    if (allArticles.length === 0) {
+      return <div className="tcal-empty">No articles available</div>;
+    }
+
+    return (
+      <FourArticleGrid
+        posts={allArticles}
+        categoryName={leftColumnTitle || rightColumnTitle}
+        showCategoryTitle={!!(leftColumnTitle || rightColumnTitle)}
+        numberOfRows={1}
+        className={`width-constrained ${className}`}
+      />
+    );
+  }
+
+  // Slice both arrays to minimum length to ensure equality
+  normalizedLeftArticles = normalizedLeftArticles.slice(0, minLength);
+  normalizedRightArticles = normalizedRightArticles.slice(0, minLength);
+
   const renderArticle = (
     article: EnhancedPost,
     isMainArticle: boolean = false
@@ -114,13 +234,6 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
     );
   };
 
-  if (
-    (!leftColumnArticles || leftColumnArticles.length === 0) &&
-    (!rightColumnArticles || rightColumnArticles.length === 0)
-  ) {
-    return <div className="tcal-empty">No articles available</div>;
-  }
-
   return (
     <div className={`two-column-article-layout ${className}`}>
       {/* Left Column */}
@@ -129,26 +242,26 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
           <h1 className="tcal-column-title">{leftColumnTitle}</h1>
         )}
         <div className="tcal-column-content">
-          {leftColumnArticles && leftColumnArticles.length > 0 && (
+          {normalizedLeftArticles && normalizedLeftArticles.length > 0 && (
             <>
               {showMainArticle ? (
                 <>
-                  {renderArticle(leftColumnArticles[0], true)}
-                  {leftColumnArticles.length > 1 && (
+                  {renderArticle(normalizedLeftArticles[0], true)}
+                  {normalizedLeftArticles.length > 1 && (
                     <div
                       className="tcal-article-divider"
                       aria-hidden="true"
                     ></div>
                   )}
                   <div className="tcal-secondary-articles">
-                    {leftColumnArticles
+                    {normalizedLeftArticles
                       .slice(1, 4)
                       .map((article) => renderArticle(article, false))}
                   </div>
                 </>
               ) : (
                 <div className="tcal-secondary-articles">
-                  {leftColumnArticles
+                  {normalizedLeftArticles
                     .slice(0, 4)
                     .map((article) => renderArticle(article, false))}
                 </div>
@@ -164,26 +277,26 @@ const TwoColumnArticleLayout: React.FC<TwoColumnArticleLayoutProps> = ({
           <h1 className="tcal-column-title">{rightColumnTitle}</h1>
         )}
         <div className="tcal-column-content">
-          {rightColumnArticles && rightColumnArticles.length > 0 && (
+          {normalizedRightArticles && normalizedRightArticles.length > 0 && (
             <>
               {showMainArticle ? (
                 <>
-                  {renderArticle(rightColumnArticles[0], true)}
-                  {rightColumnArticles.length > 1 && (
+                  {renderArticle(normalizedRightArticles[0], true)}
+                  {normalizedRightArticles.length > 1 && (
                     <div
                       className="tcal-article-divider"
                       aria-hidden="true"
                     ></div>
                   )}
                   <div className="tcal-secondary-articles">
-                    {rightColumnArticles
+                    {normalizedRightArticles
                       .slice(1, 4)
                       .map((article) => renderArticle(article, false))}
                   </div>
                 </>
               ) : (
                 <div className="tcal-secondary-articles">
-                  {rightColumnArticles
+                  {normalizedRightArticles
                     .slice(0, 4)
                     .map((article) => renderArticle(article, false))}
                 </div>

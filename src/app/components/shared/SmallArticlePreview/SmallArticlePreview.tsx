@@ -8,6 +8,7 @@ import {
   truncateText,
   getArticleTitle,
   getArticleLink,
+  formatDate,
 } from "../../../lib/utils";
 import OptimizedImage from "../OptimizedImage/OptimizedImage";
 import "./SmallArticlePreview.css";
@@ -19,6 +20,7 @@ export interface SmallArticlePreviewProps {
   imagePosition?: "left" | "right";
   variant?: "default" | "compact" | "sidebar" | "preview-grid";
   className?: string;
+  showDate?: boolean;
 }
 
 const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
@@ -28,14 +30,16 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
   imagePosition = "left",
   variant = "default",
   className = "",
+  showDate = false,
 }) => {
   const articleLink = getArticleLink(article);
   const rawTitle = getArticleTitle(article);
-  const title = truncateText(stripHtml(rawTitle), 80);
+  const title = truncateText(stripHtml(rawTitle), 60);
   const authorName = truncateText(
     (article?.author_name || "LASTNAME").toUpperCase(),
     25
   );
+  const formattedDate = article?.date ? formatDate(article.date) : "";
   const excerpt = truncateText(
     stripHtml(article?.excerpt?.rendered || ""),
     excerptLength
@@ -66,6 +70,9 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
       ></h4>
       <div className="small-article-meta">
         <span className="small-article-author">BY {authorName}</span>
+        {showDate && formattedDate && (
+          <span className="small-article-date">{formattedDate}</span>
+        )}
       </div>
       {variant !== "preview-grid" && (
         <div

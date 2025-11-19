@@ -113,21 +113,21 @@
 }
 
 .featured-author {
-  font-family: "Libre Franklin", sans-serif;
-  font-size: 1rem;
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 0.84px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.7);
 }
 
 .featured-date {
-  font-family: "Libre Franklin", sans-serif;
-  font-size: 1rem;
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 1.19px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #000;
 }
@@ -183,11 +183,11 @@
 }
 
 .list-author {
-  font-family: "Libre Franklin", sans-serif;
-  font-size: 1rem;
+  font-family: "Nicholas", "Playfair Display", serif;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 0.72px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.7);
   width: 242px;
@@ -341,7 +341,7 @@
 
   .featured-author,
   .featured-date {
-    font-size: 12px;
+    font-size: 0.625rem;
   }
 
   .list-title {
@@ -349,7 +349,7 @@
   }
 
   .list-author {
-    font-size: 11px;
+    font-size: 0.625rem;
   }
 }
 
@@ -404,7 +404,7 @@
   }
 
   .list-author {
-    font-size: 10px;
+    font-size: 0.625rem;
   }
 
   .horizontal-divider {
@@ -417,7 +417,7 @@
 
   .featured-author,
   .featured-date {
-    font-size: 11px;
+    font-size: 0.625rem;
   }
 }
 
@@ -448,7 +448,7 @@
   }
 
   .list-author {
-    font-size: 9px;
+    font-size: 0.625rem;
   }
 }
 

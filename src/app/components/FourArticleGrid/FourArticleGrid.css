@@ -214,7 +214,7 @@
 
 .four-article-grid-card .article-card-title {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: clamp(1.125rem, 2.5vw, 1.375rem); /* 18px - 22px responsive */
+  font-size: clamp(1.45rem, 1.55vw, 1.75rem);
   font-weight: 600;
   line-height: 1.25;
   color: var(--color-black);
@@ -229,7 +229,7 @@
   overflow: hidden;
 
   /* Fixed height to align all titles */
-  min-height: calc(1.125rem * 1.25 * 2); /* font-size * line-height * lines */
+  min-height: calc(1.45rem * 1.25 * 2); /* font-size * line-height * lines */
 }
 
 @media (min-width: 768px) {
@@ -237,7 +237,7 @@
     -webkit-line-clamp: 3;
     line-clamp: 3;
     min-height: calc(
-      1.375rem * 1.25 * 3
+      1.75rem * 1.25 * 3
     ); /* Update for larger font and 3 lines */
   }
 }
@@ -254,7 +254,7 @@
 
 .four-article-grid-card .article-card-author {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: clamp(0.6875rem, 1.5vw, 0.75rem); /* 11px - 12px responsive */
+  font-size: 0.825rem;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.7);
   letter-spacing: 0.045rem; /* 0.72px equivalent */
@@ -263,10 +263,10 @@
 
 .four-article-grid-card .article-card-excerpt {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: clamp(0.9375rem, 2vw, 1.125rem); /* 15px - 18px responsive */
+  font-size: clamp(0.975rem, 1.35vw, 1.45rem);
   font-weight: 400;
   line-height: 1.28; /* ~23px line height at 18px font size */
-  color: var(--color-black);
+  color: #555;
   margin-top: 0;
 
   /* Limit excerpt lines based on screen size */
@@ -307,11 +307,12 @@
 
 @media (min-width: 1600px) {
   .four-article-grid-card .article-card-title {
-    font-size: 1.5rem; /* 24px for very large screens */
+    font-size: clamp(1.45rem, 1.55vw, 1.75rem);
   }
 
   .four-article-grid-card .article-card-excerpt {
-    font-size: 1.25rem; /* 20px for very large screens */
+    font-size: clamp(0.975rem, 1.35vw, 1.45rem);
+    color: #555;
     -webkit-line-clamp: 8;
     line-clamp: 8;
     min-height: fit-content;
@@ -371,7 +372,9 @@
   color: var(--color-blue);
 }
 
-/* Constrained width modifier */
+/* Constrained width modifier - used on section landing pages */
 .four-article-grid.width-constrained {
   width: 85vw;
+  margin-left: auto;
+  margin-right: auto;
 }

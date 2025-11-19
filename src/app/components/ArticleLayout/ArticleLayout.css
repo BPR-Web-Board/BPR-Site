@@ -56,7 +56,7 @@
   .featured-article-wrapper
   .article-layout-featured
   .featured-article-title {
-  font-size: clamp(1.25rem, 2vw, 1.65rem) !important;
+  font-size: clamp(1.675rem, 2vw, 2.2rem) !important;
   line-height: 1.3 !important;
   margin: 0 0 0.5rem 0 !important;
 }
@@ -72,14 +72,15 @@
   .featured-article-wrapper
   .article-layout-featured
   .featured-article-author {
-  font-size: clamp(0.7rem, 0.85vw, 0.8rem) !important;
+  font-size: 0.825rem !important;
 }
 
 .article-layout
   .featured-article-wrapper
   .article-layout-featured
   .featured-article-excerpt {
-  font-size: clamp(0.875rem, 1vw, 1rem) !important;
+  font-size: clamp(0.975rem, 1.35vw, 1.45rem) !important;
+  color: #555 !important;
   line-height: 1.5 !important;
   margin: 0 !important;
 }
@@ -131,14 +132,16 @@
 }
 
 .article-layout .side-articles .article-layout-side .small-article-title {
-  font-size: clamp(0.9rem, 1.25vw, 1.05rem) !important;
+  font-size: clamp(1.45rem, 1.55vw, 1.75rem) !important;
+  font-weight: 600 !important;
   line-height: 1.3 !important;
   margin: 0 0 0.25rem 0 !important;
-  -webkit-line-clamp: 3;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
   overflow: hidden;
-  white-space: normal;
+  text-overflow: ellipsis;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  line-clamp: 3 !important;
 }
 
 .article-layout .side-articles .article-layout-side .small-article-meta {
@@ -146,11 +149,12 @@
 }
 
 .article-layout .side-articles .article-layout-side .small-article-author {
-  font-size: clamp(0.6rem, 0.75vw, 0.7rem) !important;
+  font-size: 0.825rem !important;
 }
 
 .article-layout .side-articles .article-layout-side .small-article-excerpt {
-  font-size: clamp(0.75rem, 0.9vw, 0.85rem) !important;
+  font-size: clamp(0.975rem, 1.15vw, 1.25rem) !important;
+  color: #555 !important;
   line-height: 1.4 !important;
   -webkit-line-clamp: 2;
   margin: 0 !important;
@@ -299,22 +303,32 @@
     .featured-article-wrapper
     .article-layout-featured
     .featured-article-title {
-    font-size: 1.15rem !important;
+    font-size: clamp(1.45rem, 1.55vw, 1.75rem) !important;
+    font-weight: 600 !important;
   }
 
   .article-layout
     .featured-article-wrapper
     .article-layout-featured
     .featured-article-excerpt {
-    font-size: 0.875rem !important;
+    font-size: clamp(0.975rem, 1.35vw, 1.45rem) !important;
+    color: #555 !important;
   }
 
   .article-layout .side-articles .article-layout-side .small-article-title {
-    font-size: 0.95rem !important;
+    font-size: clamp(1.45rem, 1.55vw, 1.75rem) !important;
+    font-weight: 600 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
   }
 
   .article-layout .side-articles .article-layout-side .small-article-excerpt {
-    font-size: 0.8rem !important;
+    font-size: clamp(0.975rem, 1.35vw, 1.45rem) !important;
+    color: #555 !important;
   }
 }
 

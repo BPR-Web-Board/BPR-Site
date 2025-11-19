@@ -118,12 +118,12 @@
 
 .hero-byline {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 400;
   line-height: normal;
-  letter-spacing: 0.72px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(13, 11, 0, 1);
+  color: rgba(0, 0, 0, 0.7);
   margin: 0;
 }
 
@@ -209,7 +209,7 @@
   }
 
   .hero-byline {
-    font-size: 11px;
+    font-size: 0.625rem;
   }
 }
 

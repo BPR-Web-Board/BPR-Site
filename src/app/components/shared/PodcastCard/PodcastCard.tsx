@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
 import { stripHtml, truncateText, getArticleTitle } from "../../../lib/utils";
 import OptimizedImage from "../OptimizedImage/OptimizedImage";
@@ -46,6 +47,9 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
     (podcast?.meta?.spotify_url as string) ||
     extractSpotifyUrl(podcast.content?.rendered || "");
 
+  // For compact variant, show play button on image; for standard/featured, show inline
+  const showPlayButtonOnImage = variant === "compact";
+
   const imageContent = showImage && (
     <div className={`podcast-card-image-container image-${imagePosition}`}>
       {podcast?.featured_media_obj?.source_url ? (
@@ -69,6 +73,15 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
           </svg>
         </div>
       )}
+      {spotifyLink && showPlayButtonOnImage && (
+        <div className={`podcast-play-button-overlay variant-${variant}`}>
+          <div className="podcast-play-button">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -83,10 +96,30 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         <span className="podcast-card-author">
           BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
         </span>
-        {podcastDuration && showDuration && (
+        {podcastDuration && showDuration && variant === "compact" && (
           <span className="podcast-card-duration">{podcastDuration}</span>
         )}
       </div>
+
+      {spotifyLink && !showPlayButtonOnImage && (
+        <div className="podcast-inline-player">
+          <div className="podcast-play-icon-inline">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+          {showDuration && (
+            <span className="podcast-duration-inline">
+              {podcastDuration || "Podcast"}
+            </span>
+          )}
+        </div>
+      )}
 
       {showExcerpt && (
         <div
@@ -113,10 +146,8 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
     </div>
   );
 
-  return (
-    <article
-      className={`podcast-card variant-${variant} image-position-${imagePosition} ${className}`}
-    >
+  const cardContent = (
+    <>
       {imagePosition === "top" && (
         <>
           {imageContent}
@@ -135,17 +166,45 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
           {imageContent}
         </>
       )}
+    </>
+  );
+
+  return (
+    <article
+      className={`podcast-card variant-${variant} image-position-${imagePosition} ${
+        spotifyLink ? "has-spotify" : ""
+      } ${className}`}
+    >
+      {spotifyLink ? (
+        <Link href={podcast.link} className="podcast-card-link">
+          {cardContent}
+        </Link>
+      ) : (
+        cardContent
+      )}
     </article>
   );
 };
 
 // Helper function to extract Spotify URL from post content
 function extractSpotifyUrl(content: string): string | undefined {
-  const spotifyRegex = /(?:https?:\/\/)?(?:www\.)?spotify\.com\/[^\s"<>)]+/g;
+  // Check for Spotify iframes first (most common in WordPress)
+  const iframeRegex =
+    /<iframe[^>]*src=["']([^"']*spotify\.com[^"']*)["'][^>]*>/i;
+  const iframeMatch = content.match(iframeRegex);
+  if (iframeMatch && iframeMatch[1]) {
+    return iframeMatch[1];
+  }
+
+  // Check for direct Spotify URLs (including open.spotify.com/embed/)
+  const spotifyRegex =
+    /(?:https?:\/\/)?(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/gi;
   const matches = content.match(spotifyRegex);
   if (matches && matches.length > 0) {
-    return matches[0].startsWith("http") ? matches[0] : `https://${matches[0]}`;
+    const url = matches[0];
+    return url.startsWith("http") ? url : `https://${url}`;
   }
+
   return undefined;
 }
 

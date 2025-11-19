@@ -96,7 +96,7 @@
     "Libre Franklin",
     sans-serif
   );
-  font-size: 0.75rem;
+  font-size: 0.825rem;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -133,9 +133,9 @@
     "Crimson Text",
     serif
   );
-  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  font-size: clamp(0.975rem, 1.35vw, 1.45rem);
   line-height: 1.55;
-  color: rgba(13, 11, 0, 0.85);
+  color: #555;
   grid-row: 1;
   grid-column: 2;
 }
@@ -209,7 +209,7 @@
     "Libre Franklin",
     sans-serif
   );
-  font-size: 0.7rem;
+  font-size: 0.825rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(13, 11, 0, 0.65);
@@ -229,10 +229,16 @@
 .article-split-secondary-title {
   margin: 0;
   font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-size: clamp(1.45rem, 1.55vw, 1.75rem);
   font-weight: 600;
   line-height: 1.35;
   color: var(--color-black, #0d0b00);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .article-split-secondary-title-link:hover .article-split-secondary-title {
@@ -246,7 +252,7 @@
     "Libre Franklin",
     sans-serif
   );
-  font-size: 0.75rem;
+  font-size: 0.825rem;
   letter-spacing: 0.08em;
   font-weight: 500;
   text-transform: uppercase;
@@ -311,10 +317,11 @@
   }
 
   .article-split-main-excerpt {
-    font-size: 0.9rem;
+    font-size: clamp(0.975rem, 1.35vw, 1.45rem);
+    color: #555;
   }
 
   .article-split-secondary-title {
-    font-size: 1rem;
+    font-size: clamp(1.45rem, 1.55vw, 1.75rem);
   }
 }

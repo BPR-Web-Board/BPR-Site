@@ -70,6 +70,12 @@
   margin: 0 0 0.5rem 0;
   color: #1f2937;
   transition: color 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .article-card-title:hover {
@@ -77,15 +83,15 @@
 }
 
 .article-card-title.variant-standard {
-  font-size: 1.125rem;
+  font-size: clamp(1.375rem, 2vw, 2rem);
 }
 
 .article-card-title.variant-compact {
-  font-size: 1rem;
+  font-size: clamp(1.375rem, 2vw, 2rem);
 }
 
 .article-card-title.variant-featured {
-  font-size: 1.5rem;
+  font-size: clamp(1.375rem, 2vw, 2rem);
 }
 
 /* Meta */
@@ -97,14 +103,15 @@
   font-family: "Nicholas", "Playfair Display", serif;
   font-size: 0.75rem;
   font-weight: 400;
-  color: #6b7280;
+  color: rgba(0, 0, 0, 0.7);
   letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* Excerpt */
 .article-card-excerpt {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 0.875rem;
+  font-size: clamp(0.875rem, 1.25vw, 1.25rem);
   font-weight: 400;
   line-height: 1.5;
   color: #4b5563;

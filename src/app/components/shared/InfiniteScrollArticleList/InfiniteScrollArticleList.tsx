@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { EnhancedPost } from "../../../lib/types";
-import SmallArticlePreview from "../SmallArticlePreview/SmallArticlePreview";
+import LargeArticlePreview from "../LargeArticlePreview/LargeArticlePreview";
 import "./InfiniteScrollArticleList.css";
 
 export interface InfiniteScrollArticleListProps {
@@ -91,6 +91,14 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
 
   return (
     <div className="infinite-scroll-container">
+      {/* Header */}
+      <div className="infinite-scroll-header">
+        <h2 className="infinite-scroll-title">Archive</h2>
+        <p className="infinite-scroll-description">
+          Explore more articles from our collection
+        </p>
+      </div>
+
       <div className="infinite-scroll-grid">
         {posts.map((post, index) => (
           <div
@@ -100,46 +108,29 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
               animationDelay: `${(index % perPage) * 50}ms`,
             }}
           >
-            <SmallArticlePreview
+            <LargeArticlePreview
               article={post}
-              excerptLength={120}
-              showImage={true}
-              imagePosition="left"
+              excerptLength={200}
               variant="default"
+              imagePosition={index % 4 < 2 ? "left" : "right"}
+              className="infinite-scroll-article-preview"
             />
           </div>
         ))}
       </div>
 
-      {/* Loading skeleton */}
+      {/* Loading spinner */}
       {loading && (
         <div className="infinite-scroll-loading">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="skeleton-article-row">
-              <div className="skeleton-image skeleton-pulse" />
-              <div className="skeleton-content">
-                <div
-                  className="skeleton-text skeleton-pulse"
-                  style={{ width: "90%" }}
-                />
-                <div
-                  className="skeleton-text skeleton-pulse"
-                  style={{ width: "70%" }}
-                />
-                <div
-                  className="skeleton-text skeleton-pulse"
-                  style={{ width: "50%" }}
-                />
-              </div>
-            </div>
-          ))}
+          <div className="loading-spinner"></div>
+          <p>Loading more articles...</p>
         </div>
       )}
 
       {/* Error state */}
       {error && (
         <div className="infinite-scroll-error">
-          <p>Failed to load more articles. Please try again.</p>
+          <p>Failed to load more articles: {error}</p>
           <button onClick={loadMore} className="retry-button">
             Retry
           </button>
@@ -149,7 +140,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
       {/* End of content */}
       {!hasMore && !loading && posts.length > 0 && (
         <div className="infinite-scroll-end">
-          <p>You&apos;ve reached the end of the articles.</p>
+          <p>You&apos;ve reached the end of the articles</p>
         </div>
       )}
 

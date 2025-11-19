@@ -39,45 +39,6 @@ const FourArticleGrid: React.FC<FourArticleGridProps> = ({
   // Take only the required number of posts (or however many are available)
   const displayArticles = posts.slice(0, totalArticlesNeeded);
 
-  // Fill with placeholders if we have fewer articles than needed
-  while (displayArticles.length < totalArticlesNeeded) {
-    const placeholderPost: EnhancedPost = {
-      id: -displayArticles.length - 1,
-      date: new Date().toISOString(),
-      date_gmt: new Date().toISOString(),
-      guid: {
-        rendered: "#",
-      },
-      modified: new Date().toISOString(),
-      modified_gmt: new Date().toISOString(),
-      slug: `placeholder-${displayArticles.length}`,
-      status: "publish" as const,
-      type: "post",
-      link: "#",
-      title: { rendered: "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing" },
-      content: {
-        rendered: "Lorem ipsum placeholder content...",
-        protected: false,
-      },
-      excerpt: {
-        rendered:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempordolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor....",
-        protected: false,
-      },
-      author: 1,
-      featured_media: 0,
-      format: "standard" as const,
-      meta: {},
-      categories: [],
-      tags: [],
-      author_name: "Lastname",
-      author_obj: null,
-      featured_media_obj: null,
-      categories_obj: [],
-    };
-    displayArticles.push(placeholderPost);
-  }
-
   return (
     <div className={`four-article-grid ${className}`}>
       {showCategoryTitle && categoryName && (
