@@ -89,7 +89,7 @@
 .author-byline,
 .illustrator-info {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 120%;
   letter-spacing: 0.05em;
@@ -100,7 +100,7 @@
 
 .article-date {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 120%;
   letter-spacing: 0.05em;
