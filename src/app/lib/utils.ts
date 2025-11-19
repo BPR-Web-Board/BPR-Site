@@ -53,10 +53,71 @@ export function getFeaturedImageUrl(post: any): string {
 
 /**
  * Generates the article link based on category and slug
+ * Maps category slugs to their proper parent sections
  */
 export function getArticleLink(post: any): string {
   if (post.id <= 0) return "#";
-  return `/${post.categories_obj?.[0]?.slug || "world"}/article/${post.slug}`;
+
+  const categorySlug = post.categories_obj?.[0]?.slug || "world";
+
+  // Define category to parent section mappings
+  const categoryMappings: { [key: string]: string } = {
+    // United States subsections
+    education: "united-states",
+    elections: "united-states",
+    environment: "united-states",
+    "foreign-policy": "united-states",
+    health: "united-states",
+    housing: "united-states",
+    law: "united-states",
+    "security-and-defense-usa": "united-states",
+
+    // World subsections
+    africa: "world",
+    "asia-pacific": "world",
+    europe: "world",
+    "latin-america": "world",
+    "middle-east": "world",
+    "south-america": "world",
+
+    // Multimedia subsections
+    bpradio: "multimedia",
+    data: "multimedia",
+    media: "multimedia",
+
+    // Interviews subsections
+    "professor-podcasts": "interviews",
+    "rhode-island-interviews": "interviews",
+    "us-interviews": "interviews",
+    "congress-interviews": "interviews",
+    "world-interviews": "interviews",
+
+    // Culture subsections
+    arts: "culture",
+    gender: "culture",
+    "health-culture": "culture",
+    "lgbtq-politics": "culture",
+    race: "culture",
+    religion: "culture",
+    science: "culture",
+    technology: "culture",
+
+    // Magazine
+    magazine: "magazine",
+  };
+
+  // Get parent section, default to the category slug itself if no mapping
+  const parentSection = categoryMappings[categorySlug] || categorySlug;
+
+  // For parent sections (united-states, world, interviews, multimedia, magazine), use section/article/slug
+  // For subsections, use parent/subsection/article/slug
+  if (parentSection === categorySlug) {
+    // This is a parent section
+    return `/${categorySlug}/article/${post.slug}`;
+  } else {
+    // This is a subsection, use parent/subsection/article/slug
+    return `/${parentSection}/${categorySlug}/article/${post.slug}`;
+  }
 }
 
 /**

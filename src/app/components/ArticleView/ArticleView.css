@@ -134,6 +134,21 @@
   margin: 0;
   border: none;
   padding: 0;
+  /* Ensure no clipping of the first letter on some fonts */
+  overflow: visible;
+  text-indent: 0;
+  letter-spacing: normal;
+  white-space: normal;
+  position: relative;
+  /* Prevent user-agent or inherited quote punctuation */
+  quotes: none;
+  font-variant-ligatures: none;
+}
+
+/* Explicitly disable any pseudo quote content */
+.sidebar-pull-quote::before,
+.sidebar-pull-quote::after {
+  content: none !important;
 }
 
 /* Right Main Content */
@@ -235,6 +250,7 @@
   margin-top: 80px;
   padding-top: 40px;
   border-top: 1px solid #000;
+  max-width: 100%;
 }
 
 /* Responsive Styles */
@@ -372,6 +388,7 @@
   }
 
   .article-related {
+    max-width: 100%;
     margin-top: 48px;
     padding-top: 24px;
   }

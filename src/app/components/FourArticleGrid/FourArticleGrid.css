@@ -1,6 +1,6 @@
 /* FourArticleGrid Component Styles - Supports multiple rows of 4 articles each */
 .four-article-grid {
-  width: 85vw;
+  width: 100%;
   max-width: 2600px;
   margin: 0 auto;
   padding: 2rem 0rem;
@@ -369,4 +369,9 @@
 
 .four-article-grid-card .article-card-title-link:focus .article-card-title {
   color: var(--color-blue);
+}
+
+/* Constrained width modifier */
+.four-article-grid.width-constrained {
+  width: 85vw;
 }

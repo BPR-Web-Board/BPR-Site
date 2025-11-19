@@ -40,25 +40,53 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
   maxArticles = 5,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const autoScrollRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Limit articles to maxArticles
   const articles = posts.slice(0, maxArticles);
 
-  const nextSlide = () => {
+  const nextSlide = React.useCallback(() => {
     setCurrentIndex((prevIndex) =>
       prevIndex === articles.length - 1 ? 0 : prevIndex + 1
     );
-  };
+  }, [articles.length]);
 
-  const prevSlide = () => {
+  const prevSlide = React.useCallback(() => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? articles.length - 1 : prevIndex - 1
     );
+  }, [articles.length]);
+
+  const resetAutoScroll = React.useCallback(() => {
+    if (autoScrollRef.current) {
+      clearInterval(autoScrollRef.current);
+    }
+    autoScrollRef.current = setInterval(nextSlide, 30000);
+  }, [nextSlide]);
+
+  const handleNext = () => {
+    nextSlide();
+    resetAutoScroll();
+  };
+
+  const handlePrev = () => {
+    prevSlide();
+    resetAutoScroll();
   };
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
+    resetAutoScroll();
   };
+
+  React.useEffect(() => {
+    resetAutoScroll();
+    return () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+      }
+    };
+  }, [resetAutoScroll]);
 
   if (!articles || articles.length === 0) {
     return (
@@ -74,31 +102,6 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
     );
   }
 
-  const currentArticle = articles[currentIndex];
-
-  if (!currentArticle) {
-    return (
-      <div className="article-carousel">
-        <div className="carousel-header">
-          <h2
-            className="carousel-title"
-            dangerouslySetInnerHTML={{ __html: title }}
-          />
-        </div>
-        <div className="carousel-error">No articles available</div>
-      </div>
-    );
-  }
-
-  const titleText =
-    typeof currentArticle.title === "object"
-      ? currentArticle.title.rendered
-      : currentArticle.title;
-  const excerptText =
-    typeof currentArticle.excerpt === "object"
-      ? currentArticle.excerpt.rendered
-      : currentArticle.excerpt;
-
   return (
     <div className="article-carousel">
       {/* Top divider line */}
@@ -106,54 +109,76 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
       <div className="carousel-top-divider"></div>
 
       {/* Article Content */}
-      <div className="carousel-content">
-        <div className="article-text-content">
-          <Link
-            href={`/${
-              currentArticle.categories_obj?.[0]?.slug || "world"
-            }/article/${currentArticle.slug}`}
-            className="article-link-carousel"
-          >
-            <h3
-              className="article-title-carousel"
-              dangerouslySetInnerHTML={{ __html: titleText }}
-            />
-          </Link>
+      <div className="carousel-viewport">
+        <div
+          className="carousel-track"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {articles.map((article, index) => {
+            const titleText =
+              typeof article.title === "object"
+                ? article.title.rendered
+                : article.title;
+            const excerptText =
+              typeof article.excerpt === "object"
+                ? article.excerpt.rendered
+                : article.excerpt;
 
-          <div className="article-meta-carousel">
-            <span className="article-author-carousel">
-              BY {(currentArticle.author_name || "LASTNAME").toUpperCase()}
-            </span>
-            <div className="meta-divider"></div>
-            <span className="article-date-carousel">
-              {formatDate(currentArticle.date).toUpperCase()}
-            </span>
-          </div>
+            return (
+              <div className="carousel-slide" key={index}>
+                <Link
+                  href={`/${
+                    article.categories_obj?.[0]?.slug || "world"
+                  }/article/${article.slug}`}
+                  style={{ display: "contents" }}
+                >
+                  <div className="carousel-content">
+                    <div className="article-text-content">
+                      <h3
+                        className="article-title-carousel"
+                        dangerouslySetInnerHTML={{ __html: titleText }}
+                      />
 
-          <div
-            className="article-excerpt-carousel"
-            dangerouslySetInnerHTML={{
-              __html: truncateText(excerptText, 400),
-            }}
-          />
-        </div>
+                      <div className="article-meta-carousel">
+                        <span className="article-author-carousel">
+                          BY {(article.author_name || "LASTNAME").toUpperCase()}
+                        </span>
+                        <div className="meta-divider"></div>
+                        <span className="article-date-carousel">
+                          {formatDate(article.date).toUpperCase()}
+                        </span>
+                      </div>
 
-        {/* Article Image */}
-        <div className="article-image-container-carousel">
-          {currentArticle.featured_media_obj?.source_url ? (
-            <OptimizedImage
-              src={currentArticle.featured_media_obj.source_url}
-              alt={stripHtml(titleText)}
-              width={714}
-              height={586}
-              className="article-image-carousel"
-              showPlaceholder={true}
-            />
-          ) : (
-            <div className="article-image-placeholder">
-              <span>No Image</span>
-            </div>
-          )}
+                      <div
+                        className="article-excerpt-carousel"
+                        dangerouslySetInnerHTML={{
+                          __html: truncateText(excerptText, 400),
+                        }}
+                      />
+                    </div>
+
+                    {/* Article Image */}
+                    <div className="article-image-container-carousel">
+                      {article.featured_media_obj?.source_url ? (
+                        <OptimizedImage
+                          src={article.featured_media_obj.source_url}
+                          alt={stripHtml(titleText)}
+                          width={714}
+                          height={586}
+                          className="article-image-carousel"
+                          showPlaceholder={true}
+                        />
+                      ) : (
+                        <div className="article-image-placeholder">
+                          <span>No Image</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -161,7 +186,7 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
       <div className="carousel-navigation">
         <button
           className="nav-button nav-prev"
-          onClick={prevSlide}
+          onClick={handlePrev}
           aria-label="Previous article"
         >
           <ChevronLeft size={24} />
@@ -182,7 +207,7 @@ const ArticleCarousel: React.FC<ArticleCarouselProps> = ({
 
         <button
           className="nav-button nav-next"
-          onClick={nextSlide}
+          onClick={handleNext}
           aria-label="Next article"
         >
           <ChevronRight size={24} />

@@ -85,9 +85,64 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   };
 
   const getArticleLink = (article: Article): string => {
-    return `/${article.categories_obj?.[0]?.slug || "world"}/article/${
-      article.slug
-    }`;
+    const categorySlug = article.categories_obj?.[0]?.slug || "world";
+
+    // Define category to parent section mappings
+    const categoryMappings: { [key: string]: string } = {
+      // United States subsections
+      education: "united-states",
+      elections: "united-states",
+      environment: "united-states",
+      "foreign-policy": "united-states",
+      health: "united-states",
+      housing: "united-states",
+      law: "united-states",
+      "security-and-defense-usa": "united-states",
+
+      // World subsections
+      africa: "world",
+      "asia-pacific": "world",
+      europe: "world",
+      "latin-america": "world",
+      "middle-east": "world",
+      "south-america": "world",
+
+      // Multimedia subsections
+      bpradio: "multimedia",
+      data: "multimedia",
+      media: "multimedia",
+
+      // Interviews subsections
+      "professor-podcasts": "interviews",
+      "rhode-island-interviews": "interviews",
+      "us-interviews": "interviews",
+      "congress-interviews": "interviews",
+      "world-interviews": "interviews",
+
+      // Culture subsections
+      arts: "culture",
+      gender: "culture",
+      "health-culture": "culture",
+      "lgbtq-politics": "culture",
+      race: "culture",
+      religion: "culture",
+      science: "culture",
+      technology: "culture",
+
+      // Magazine
+      magazine: "magazine",
+    };
+
+    // Get parent section, default to the category slug itself if no mapping
+    const parentSection = categoryMappings[categorySlug] || categorySlug;
+
+    // For parent sections, use section/article/slug
+    // For subsections, use parent/subsection/article/slug
+    if (parentSection === categorySlug) {
+      return `/${categorySlug}/article/${article.slug}`;
+    } else {
+      return `/${parentSection}/${categorySlug}/article/${article.slug}`;
+    }
   };
 
   return (

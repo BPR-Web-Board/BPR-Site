@@ -58,12 +58,10 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
 
   const textContent = (
     <div className="featured-article-content">
-      <Link href={articleLink} className="featured-article-title-link">
-        <h3
-          className="featured-article-title"
-          dangerouslySetInnerHTML={{ __html: title }}
-        />
-      </Link>
+      <h3
+        className="featured-article-title"
+        dangerouslySetInnerHTML={{ __html: title }}
+      />
 
       {variant === "preview-grid" ? (
         <>
@@ -98,24 +96,26 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
     <article
       className={`featured-article variant-${variant} image-${imagePosition} ${className}`}
     >
-      {imagePosition === "top" && (
-        <>
-          {imageContent}
-          {textContent}
-        </>
-      )}
-      {imagePosition === "left" && (
-        <>
-          {imageContent}
-          {textContent}
-        </>
-      )}
-      {imagePosition === "right" && (
-        <>
-          {textContent}
-          {imageContent}
-        </>
-      )}
+      <Link href={articleLink} style={{ display: "contents" }}>
+        {imagePosition === "top" && (
+          <>
+            {imageContent}
+            {textContent}
+          </>
+        )}
+        {imagePosition === "left" && (
+          <>
+            {imageContent}
+            {textContent}
+          </>
+        )}
+        {imagePosition === "right" && (
+          <>
+            {textContent}
+            {imageContent}
+          </>
+        )}
+      </Link>
     </article>
   );
 };

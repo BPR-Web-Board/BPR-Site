@@ -57,12 +57,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
   const textContent = (
     <div className="article-card-content">
-      <Link href={articleLink} className="article-card-title-link">
-        <h3
-          className={`article-card-title variant-${variant}`}
-          dangerouslySetInnerHTML={{ __html: title }}
-        ></h3>
-      </Link>
+      <h3
+        className={`article-card-title variant-${variant}`}
+        dangerouslySetInnerHTML={{ __html: title }}
+      ></h3>
 
       <div className="article-card-meta">
         <span className="article-card-author">
@@ -83,24 +81,26 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     <article
       className={`article-card variant-${variant} image-position-${imagePosition} ${className}`}
     >
-      {imagePosition === "top" && (
-        <>
-          {imageContent}
-          {textContent}
-        </>
-      )}
-      {imagePosition === "left" && (
-        <>
-          {imageContent}
-          {textContent}
-        </>
-      )}
-      {imagePosition === "right" && (
-        <>
-          {textContent}
-          {imageContent}
-        </>
-      )}
+      <Link href={articleLink} style={{ display: "contents" }}>
+        {imagePosition === "top" && (
+          <>
+            {imageContent}
+            {textContent}
+          </>
+        )}
+        {imagePosition === "left" && (
+          <>
+            {imageContent}
+            {textContent}
+          </>
+        )}
+        {imagePosition === "right" && (
+          <>
+            {textContent}
+            {imageContent}
+          </>
+        )}
+      </Link>
     </article>
   );
 };

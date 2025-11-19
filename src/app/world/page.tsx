@@ -2,6 +2,7 @@ import React from "react";
 import ArticleCarousel from "../components/ArticleCarousel";
 import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
+import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
 import ArticleSplitShowcase from "../components/ArticleSplitShowcase";
 import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
@@ -55,7 +56,7 @@ const worldCategory = categories.find((cat) => cat.slug === "world");
 
 const ensureContent = (
   primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[]
+  ...fallbacks: EnhancedPost[][]
 ): EnhancedPost[] => {
   if (primary && primary.length > 0) {
     return primary;
@@ -86,67 +87,78 @@ const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
   return combined;
 };
 
-const europeSpotlight = ensureContent(europePosts, worldPosts).slice(0, 7);
-const asiaPacificSpotlight = ensureContent(asiaPacificPosts, worldPosts).slice(
+const africaSpotlight = ensureContent(africaPosts, worldPosts).slice(0, 7);
+const europeColumn = ensureContent(europePosts, worldPosts).slice(0, 5);
+const middleEastColumn = ensureContent(middleEastPosts, worldPosts).slice(0, 5);
+const asiaPacificArticles = ensureContent(asiaPacificPosts, worldPosts).slice(
   0,
   4
 );
-const middleEastSpotlight = ensureContent(middleEastPosts, worldPosts).slice(
+const latinAmericaArticles = ensureContent(latinAmericaPosts, worldPosts).slice(
   0,
   5
 );
-const africaSpotlight = ensureContent(africaPosts, worldPosts).slice(0, 5);
-const americasPool = combineUniquePosts(
+const southAmericaArticles = ensureContent(southAmericaPosts, worldPosts).slice(
+  0,
+  4
+);
+const regionalPool = combineUniquePosts(
+  africaPosts,
+  asiaPacificPosts,
+  europePosts,
   latinAmericaPosts,
+  middleEastPosts,
   southAmericaPosts,
   worldPosts
 );
+const previewArticles = ensureContent(worldPosts).slice(0, 10);
 
 export default function WorldPage() {
   return (
     <main className="page-container">
       <div className="main-content">
         <Hero posts={worldPosts} preferredCategory="world" />
-
         <ArticleCarousel
           title="Global Briefing"
           posts={worldPosts}
           maxArticles={5}
         />
-
         <ArticleSplitShowcase
-          sectionTitle="Europe Spotlight"
-          posts={europeSpotlight}
-          mainPlacement="right"
-          highlightIndex={0}
+          sectionTitle="Africa Dispatch"
+          posts={africaSpotlight}
         />
-
+        <ArticleGrid posts={asiaPacificArticles} categoryName="Asia/Pacific" />
+        <ArticlePreviewGrid articles={previewArticles} />
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
-            leftColumnTitle="Middle East"
-            leftColumnArticles={middleEastSpotlight}
-            rightColumnTitle="Africa"
-            rightColumnArticles={africaSpotlight}
+            leftColumnTitle="Europe"
+            leftColumnArticles={europeColumn}
+            rightColumnTitle="Middle East"
+            rightColumnArticles={middleEastColumn}
           />
         </div>
-
-        <ArticleGrid
-          posts={asiaPacificSpotlight}
-          categoryName="Asia &amp; Pacific"
+        <Hero posts={worldPosts} preferredCategory="world" />
+        <ArticleLayout
+          posts={latinAmericaArticles}
+          categoryName="Latin America"
         />
-
+        <ArticleGrid
+          posts={southAmericaArticles}
+          categoryName="South America"
+        />
         <FourArticleGrid
-          posts={americasPool}
-          categoryName="Across the Americas"
+          posts={regionalPool}
+          categoryName="Regional Perspectives"
           showCategoryTitle={true}
           showBoundingLines={true}
           numberOfRows={1}
+          className="width-constrained"
         />
-
         <ArticleLayout
           posts={worldPosts.slice(0, 5)}
           categoryName={`${worldCategory?.name ?? "World"} Highlights`}
         />
+        <Hero posts={worldPosts} preferredCategory="world" />
       </div>
     </main>
   );

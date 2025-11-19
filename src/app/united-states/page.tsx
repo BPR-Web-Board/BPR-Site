@@ -64,7 +64,7 @@ const usaCategory = categories.find((cat) => cat.slug === "usa");
 
 const ensureContent = (
   primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[]
+  ...fallbacks: EnhancedPost[][]
 ): EnhancedPost[] => {
   if (primary && primary.length > 0) {
     return primary;
@@ -96,10 +96,7 @@ const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
 };
 
 const electionSpotlight = ensureContent(electionsPosts, usaPosts).slice(0, 7);
-const environmentColumn = ensureContent(
-  environmentPosts,
-  usaPosts
-).slice(0, 5);
+const environmentColumn = ensureContent(environmentPosts, usaPosts).slice(0, 5);
 const healthColumn = ensureContent(healthPosts, usaPosts).slice(0, 5);
 const educationArticles = ensureContent(educationPosts, usaPosts).slice(0, 4);
 const lawArticles = ensureContent(lawPosts, usaPosts).slice(0, 5);
@@ -115,21 +112,17 @@ export default function UnitedStatesPage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        <Hero posts={usaPosts} preferredCategory="usa" />
-
         <ArticlePreviewGrid articles={previewArticles} />
-
         <ArticleCarousel
           title="Domestic Briefing"
           posts={usaPosts}
           maxArticles={5}
         />
-
+        <Hero posts={usaPosts} preferredCategory="usa" />
         <ArticleSplitShowcase
           sectionTitle="Election Dispatch"
           posts={electionSpotlight}
         />
-
         <div className="two-column-layout-wrapper">
           <TwoColumnArticleLayout
             leftColumnTitle="Environment"
@@ -138,31 +131,26 @@ export default function UnitedStatesPage() {
             rightColumnArticles={healthColumn}
           />
         </div>
-
         <ArticleGrid posts={educationArticles} categoryName="Education" />
-
-        <ArticleLayout
-          posts={lawArticles}
-          categoryName="Law &amp; Justice"
-        />
-
+        <Hero posts={usaPosts} preferredCategory="usa" />s
+        <ArticleLayout posts={lawArticles} categoryName="Law &amp; Justice" />
         <FourArticleGrid
           posts={nationalSecurityPool}
           categoryName="National Security &amp; Foreign Policy"
           showCategoryTitle={true}
           showBoundingLines={true}
           numberOfRows={1}
+          className="width-constrained"
         />
-
         <ArticleGrid
           posts={housingArticles}
           categoryName="Housing &amp; Urban Affairs"
         />
-
         <ArticleLayout
           posts={usaPosts.slice(0, 5)}
           categoryName={`${usaCategory?.name ?? "United States"} Highlights`}
         />
+        <Hero posts={usaPosts} preferredCategory="usa" />
       </div>
     </main>
   );

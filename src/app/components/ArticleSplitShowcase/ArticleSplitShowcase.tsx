@@ -81,46 +81,48 @@ const ArticleSplitShowcase: React.FC<ArticleSplitShowcaseProps> = ({
 
     return (
       <article className="article-split-main-article">
-        <div className="article-split-main-content">
-          <div className="article-split-title-meta-container">
-            <Link href={articleLink} className="article-split-main-title-link">
+        <Link href={articleLink} style={{ display: "contents" }}>
+          <div className="article-split-main-content">
+            <div className="article-split-title-meta-container">
               <h2
                 className="article-split-main-title"
                 dangerouslySetInnerHTML={{ __html: mainTitle }}
               />
-            </Link>
-            <div className="article-split-main-meta">
-              <span className="article-split-main-author">BY {mainAuthor}</span>
-              {mainDate && (
-                <>
-                  <span className="article-split-meta-divider" />
-                  <span className="article-split-main-date">{mainDate}</span>
-                </>
-              )}
+              <div className="article-split-main-meta">
+                <span className="article-split-main-author">
+                  BY {mainAuthor}
+                </span>
+                {mainDate && (
+                  <>
+                    <span className="article-split-meta-divider" />
+                    <span className="article-split-main-date">{mainDate}</span>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-          <div
-            className="article-split-main-excerpt"
-            dangerouslySetInnerHTML={{ __html: mainExcerpt }}
-          />
-        </div>
-        <div className="article-split-main-image-wrapper">
-          {mainArticle?.featured_media_obj?.source_url ? (
-            <OptimizedImage
-              src={mainArticle.featured_media_obj.source_url}
-              alt={stripHtml(mainTitle)}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 45vw"
-              className="article-split-main-image"
-              priority
-              showPlaceholder={true}
+            <div
+              className="article-split-main-excerpt"
+              dangerouslySetInnerHTML={{ __html: mainExcerpt }}
             />
-          ) : (
-            <div className="article-split-main-image-placeholder">
-              <span>Image not available</span>
-            </div>
-          )}
-        </div>
+          </div>
+          <div className="article-split-main-image-wrapper">
+            {mainArticle?.featured_media_obj?.source_url ? (
+              <OptimizedImage
+                src={mainArticle.featured_media_obj.source_url}
+                alt={stripHtml(mainTitle)}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 45vw"
+                className="article-split-main-image"
+                priority
+                showPlaceholder={true}
+              />
+            ) : (
+              <div className="article-split-main-image-placeholder">
+                <span>Image not available</span>
+              </div>
+            )}
+          </div>
+        </Link>
       </article>
     );
   };
@@ -152,27 +154,24 @@ const ArticleSplitShowcase: React.FC<ArticleSplitShowcaseProps> = ({
 
           return (
             <article key={article.id} className="article-split-secondary-item">
-              <div className="article-split-secondary-header">
-                {articleDate && (
-                  <span className="article-split-secondary-date">
-                    {articleDate}
-                  </span>
-                )}
-              </div>
+              <Link href={articleLink} style={{ display: "contents" }}>
+                <div className="article-split-secondary-header">
+                  {articleDate && (
+                    <span className="article-split-secondary-date">
+                      {articleDate}
+                    </span>
+                  )}
+                </div>
 
-              <Link
-                href={articleLink}
-                className="article-split-secondary-title-link"
-              >
                 <h3
                   className="article-split-secondary-title"
                   dangerouslySetInnerHTML={{ __html: articleTitle }}
                 ></h3>
+                <div className="article-split-secondary-author">
+                  BY {authorName}
+                </div>
+                <div className="article-split-secondary-divider" />
               </Link>
-              <div className="article-split-secondary-author">
-                BY {authorName}
-              </div>
-              <div className="article-split-secondary-divider" />
             </article>
           );
         })}

@@ -70,6 +70,7 @@ export default function HomePage() {
             showCategoryTitle={false}
             numberOfRows={2}
             showBoundingLines={true}
+            className="width-constrained"
           />
         </div>
       </div>
@@ -88,6 +89,7 @@ export default function HomePage() {
             showCategoryTitle={false}
             numberOfRows={1}
             showBoundingLines={true}
+            className="width-constrained"
           />
         </div>
 
@@ -106,6 +108,7 @@ export default function HomePage() {
             showCategoryTitle={false}
             numberOfRows={1}
             showBoundingLines={true}
+            className="width-constrained"
           />
         </div>
 
@@ -123,6 +126,7 @@ export default function HomePage() {
             showCategoryTitle={false}
             numberOfRows={1}
             showBoundingLines={true}
+            className="width-constrained"
           />
         </div>
 

@@ -90,53 +90,53 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
       <div className="layout-container">
         {/* Featured Article */}
         <div className="featured-article">
-          <div className="featured-image-container">
-            {featuredArticle.featured_media_obj?.source_url ? (
-              <OptimizedImage
-                src={featuredArticle.featured_media_obj.source_url}
-                alt={stripHtml(featuredTitleText)}
-                width={673}
-                height={454}
-                className="featured-image"
-                showPlaceholder={true}
-              />
-            ) : (
-              <div className="featured-image-placeholder">
-                <span>No Image</span>
-              </div>
-            )}
-          </div>
+          <Link
+            href={`/${
+              featuredArticle.categories_obj?.[0]?.slug || "world"
+            }/article/${featuredArticle.slug}`}
+            style={{ display: "contents" }}
+          >
+            <div className="featured-image-container">
+              {featuredArticle.featured_media_obj?.source_url ? (
+                <OptimizedImage
+                  src={featuredArticle.featured_media_obj.source_url}
+                  alt={stripHtml(featuredTitleText)}
+                  width={673}
+                  height={454}
+                  className="featured-image"
+                  showPlaceholder={true}
+                />
+              ) : (
+                <div className="featured-image-placeholder">
+                  <span>No Image</span>
+                </div>
+              )}
+            </div>
 
-          <div className="featured-content">
-            <Link
-              href={`/${
-                featuredArticle.categories_obj?.[0]?.slug || "world"
-              }/article/${featuredArticle.slug}`}
-              className="featured-title-link"
-            >
+            <div className="featured-content">
               <h3
                 className="featured-title"
                 dangerouslySetInnerHTML={{ __html: featuredTitleText }}
               ></h3>
-            </Link>
 
-            <div className="featured-meta">
-              <span className="featured-author">
-                BY {(featuredArticle.author_name || "LASTNAME").toUpperCase()}
-              </span>
-              <span className="featured-date">
-                {formatDate(featuredArticle.date).toUpperCase()}
-              </span>
+              <div className="featured-meta">
+                <span className="featured-author">
+                  BY {(featuredArticle.author_name || "LASTNAME").toUpperCase()}
+                </span>
+                <span className="featured-date">
+                  {formatDate(featuredArticle.date).toUpperCase()}
+                </span>
+              </div>
+              {maxArticles > 5 && (
+                <div
+                  className="featured-excerpt"
+                  dangerouslySetInnerHTML={{
+                    __html: truncateText(featuredExcerptText, 400),
+                  }}
+                ></div>
+              )}
             </div>
-            {maxArticles > 5 && (
-              <div
-                className="featured-excerpt"
-                dangerouslySetInnerHTML={{
-                  __html: truncateText(featuredExcerptText, 400),
-                }}
-              ></div>
-            )}
-          </div>
+          </Link>
         </div>
 
         {/* Article List */}
@@ -149,25 +149,25 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
 
             return (
               <div key={article.id} className="list-article">
-                <div className="list-article-divider"></div>
-
                 <Link
                   href={`/${
                     article.categories_obj?.[0]?.slug || "world"
                   }/article/${article.slug}`}
-                  className="list-title-link"
+                  style={{ display: "contents" }}
                 >
+                  <div className="list-article-divider"></div>
+
                   <h4
                     className="list-title"
                     dangerouslySetInnerHTML={{
                       __html: truncateText(titleText, 100),
                     }}
                   ></h4>
-                </Link>
 
-                <div className="list-author">
-                  BY {(article.author_name || "LASTNAME").toUpperCase()}
-                </div>
+                  <div className="list-author">
+                    BY {(article.author_name || "LASTNAME").toUpperCase()}
+                  </div>
+                </Link>
               </div>
             );
           })}

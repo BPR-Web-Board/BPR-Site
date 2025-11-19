@@ -278,7 +278,7 @@
   .apg-right-column {
     order: 0;
     height: auto;
-    overflow: visible;
+    /* overflow: visible; */
   }
 
   /* Featured article first on mobile */

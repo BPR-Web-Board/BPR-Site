@@ -34,6 +34,25 @@ interface PullQuotePosition {
   topOffset: number;
 }
 
+// Clean up leading punctuation/quotes specifically for pull quotes
+function cleanPullQuote(text: string): string {
+  let t = stripHtml(text);
+
+  // Remove any leading quotation marks (straight or typographic)
+  t = t.replace(
+    /^["'\u2018\u2019\u201A\u201B\u201C\u201D\u201E\u201F\u00AB\u00BB\u2039\u203A\s]+/,
+    ""
+  );
+
+  // If text starts with a solitary punctuation like . , ; : ! ? followed by a space and then a letter, drop it
+  t = t.replace(/^[\.,;:!?]\s+(?=[A-Za-z])/, "");
+
+  // As a last guard, strip any remaining non-alphanumeric run at start if it precedes a letter/number
+  t = t.replace(/^[^A-Za-z0-9]+(?=[A-Za-z0-9])/, "");
+
+  return t.trim();
+}
+
 function extractContentBlocks(htmlContent: string): ContentBlock[] {
   // Define all quote patterns with their extraction logic
   const quotePatterns = [
@@ -291,7 +310,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
     if (element.type === "pullquote") {
       result.push({
         type: "pullquote",
-        content: stripHtml(element.text),
+        content: cleanPullQuote(element.text),
         index: currentIndex++,
         citation: element.citation,
       });
@@ -329,36 +348,30 @@ function stripHtml(html: string): string {
   let cleaned = html;
 
   // First strip HTML tags (including self-closing ones)
-  cleaned = cleaned.replace(/<[^>]*\/?>/g, "");
+  cleaned = cleaned.replace(/<[^>]*\/>?/g, "");
 
-  // Handle common HTML entities before general decoding
-  const entityMap: { [key: string]: string } = {
-    "&nbsp;": " ", // Non-breaking space -> regular space
-    "&ensp;": " ", // En space -> regular space
-    "&emsp;": " ", // Em space -> regular space
-    "&thinsp;": " ", // Thin space -> regular space
-    "&zwj;": "", // Zero-width joiner -> remove
-    "&zwnj;": "", // Zero-width non-joiner -> remove
-    "&shy;": "", // Soft hyphen -> remove
-    "&lrm;": "", // Left-to-right mark -> remove
-    "&rlm;": "", // Right-to-left mark -> remove
-    "&hellip;": "...", // Horizontal ellipsis
-    "&mdash;": "—", // Em dash
-    "&ndash;": "–", // En dash
-    "&ldquo;": "", // Left double quotation mark -> remove
-    "&rdquo;": "", // Right double quotation mark -> remove
-    "&lsquo;": "", // Left single quotation mark -> remove
-    "&rsquo;": "", // Right single quotation mark -> remove
-    "&bull;": "•", // Bullet point
-  };
+  // Decode HTML entities using he first (handles named & numeric)
+  cleaned = he.decode(cleaned);
 
-  // Replace specific entities
-  Object.entries(entityMap).forEach(([entity, replacement]) => {
-    cleaned = cleaned.replace(new RegExp(entity, "g"), replacement);
+  // Handle common invisible/spacing controls and punctuation after decoding
+  const replacements: Array<[RegExp, string]> = [
+    [
+      /\u00A0|\u2000|\u2001|\u2002|\u2003|\u2004|\u2005|\u2006|\u2007|\u2008|\u2009|\u200A/g,
+      " ",
+    ],
+    [/\u200B|\u200C|\u200D|\u00AD/g, ""], // zero-width joiners & soft hyphen
+    [/\u2026/g, "..."], // ellipsis
+    [/\u2014/g, "—"], // em dash
+    [/\u2013/g, "–"], // en dash
+  ];
+  replacements.forEach(([pattern, replacement]) => {
+    cleaned = cleaned.replace(pattern, replacement);
   });
 
-  // Decode remaining HTML entities using he library
-  cleaned = he.decode(cleaned);
+  // Remove leading/trailing typographic quotes (curly and straight)
+  cleaned = cleaned
+    .replace(/^[\s\u201C\u201D\u201E\u201F\u00AB\u00BB\u2039\u203A"']+/, "")
+    .replace(/[\s\u201C\u201D\u201E\u201F\u00AB\u00BB\u2039\u203A"']+$/, "");
 
   // Clean up WordPress-specific artifacts
   cleaned = cleaned
@@ -368,10 +381,6 @@ function stripHtml(html: string): string {
     .replace(/<!--\s*wp:.*?-->/g, "")
     // Remove other HTML comments
     .replace(/<!--.*?-->/g, "")
-    // Remove any remaining HTML entities that might have been missed
-    .replace(/&[a-zA-Z0-9#]+;/g, "")
-    // Remove straight quotation marks at the beginning and end
-    .replace(/^["'\s]+|["'\s]+$/g, "")
     // Clean up multiple whitespace characters
     .replace(/\s+/g, " ")
     // Remove leading/trailing whitespace
@@ -394,6 +403,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const [pullQuotePositions, setPullQuotePositions] = useState<
     PullQuotePosition[]
   >([]);
+  const [fetchedRelatedPosts, setFetchedRelatedPosts] = useState<
+    EnhancedPost[]
+  >([]);
   const contentElementRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -405,16 +417,56 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const rawContent =
     typeof post.content === "object" ? post.content.rendered : post.content;
 
+  // Fetch related posts if not provided
+  useEffect(() => {
+    if (
+      relatedPosts.length === 0 &&
+      post.categories &&
+      post.categories.length > 0
+    ) {
+      const categoryId = post.categories[0];
+      fetch(
+        `/api/related-posts?categoryId=${categoryId}&excludePostId=${post.id}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.posts) {
+            setFetchedRelatedPosts(data.posts);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch related posts:", err));
+    }
+  }, [post.id, post.categories, relatedPosts.length]);
+
   // Memoize contentBlocks to prevent infinite loop in useEffect
   const contentBlocks = useMemo(
     () => extractContentBlocks(rawContent),
     [rawContent]
   );
 
+  // Debug: print pull quotes and leading character codes
+  useEffect(() => {
+    const pullQuotes = contentBlocks.filter((b) => b.type === "pullquote");
+    if (pullQuotes.length) {
+      console.groupCollapsed(
+        `[ArticleView] Pull quotes (${pullQuotes.length}) — ${
+          post.id || titleText || "untitled"
+        }`
+      );
+      pullQuotes.forEach((q, idx) => {
+        const s = q.content as string;
+        const head = s.slice(0, 6);
+        const codes = head.split("").map((c) => c.charCodeAt(0));
+        console.log(`#${idx + 1}`, { text: s, head, codes });
+      });
+      console.groupEnd();
+    }
+  }, [contentBlocks, titleText, post]);
+
   // Get featured image details
   const featuredImage = post.featured_media_obj;
   const hasImage = !!(featuredImage && featuredImage.source_url);
-  const imageCaption = featuredImage?.caption?.rendered || "";
+  // const imageCaption = featuredImage?.caption?.rendered || ""; // unused
   const imageAlt = featuredImage?.alt_text || titleText;
 
   // Get author information
@@ -529,6 +581,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     });
   };
 
+  console.log("Related posts:", relatedPosts);
+
+  const postsToShow =
+    relatedPosts.length > 0 ? relatedPosts : fetchedRelatedPosts;
+
   return (
     <article className="article-view">
       {/* Top border line */}
@@ -608,9 +665,15 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         </div>
       </div>
 
-      {/* {relatedPosts.length > 0 && (
-      
-      )} */}
+      {postsToShow.length > 0 && (
+        <div className="article-related">
+          <FourArticleGrid
+            posts={postsToShow}
+            categoryName="Related Articles"
+            className="width-constrained"
+          />
+        </div>
+      )}
     </article>
   );
 };

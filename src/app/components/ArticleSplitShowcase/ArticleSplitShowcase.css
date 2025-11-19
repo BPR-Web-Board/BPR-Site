@@ -2,6 +2,7 @@
   width: 85vw;
   max-width: 2600px;
   margin: 0 auto;
+  margin-top: 2rem;
   padding: 0 clamp(1rem, 4vw, 2.5rem);
   padding-bottom: 2.5rem;
   display: flex;
@@ -14,16 +15,18 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: #000 1px solid;
 }
 
 .article-split-section-title {
-  font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
-  font-size: clamp(1.5rem, 2.5vw, 2.15rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: capitalize;
+  font-family: var(--font-primary-serif, "Playfair Display"), serif;
+  font-size: clamp(2.5rem, 4.5rem, 1.85rem);
+  font-weight: 600;
+  line-height: 1.2;
   margin: 0;
-  color: var(--color-black, #0d0b00);
+  color: #000;
+  transition: color 0.2s ease;
 }
 
 .article-split-grid {

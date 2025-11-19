@@ -60,12 +60,10 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
 
   const textContent = (
     <div className="small-article-content">
-      <Link href={articleLink} className="small-article-title-link">
-        <h4
-          className="small-article-title"
-          dangerouslySetInnerHTML={{ __html: title }}
-        ></h4>
-      </Link>
+      <h4
+        className="small-article-title"
+        dangerouslySetInnerHTML={{ __html: title }}
+      ></h4>
       <div className="small-article-meta">
         <span className="small-article-author">BY {authorName}</span>
       </div>
@@ -82,17 +80,19 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
     <article
       className={`small-article-preview variant-${variant} image-${imagePosition} ${className}`}
     >
-      {imagePosition === "left" ? (
-        <>
-          {imageContent}
-          {textContent}
-        </>
-      ) : (
-        <>
-          {textContent}
-          {imageContent}
-        </>
-      )}
+      <Link href={articleLink} style={{ display: "contents" }}>
+        {imagePosition === "left" ? (
+          <>
+            {imageContent}
+            {textContent}
+          </>
+        ) : (
+          <>
+            {textContent}
+            {imageContent}
+          </>
+        )}
+      </Link>
     </article>
   );
 };

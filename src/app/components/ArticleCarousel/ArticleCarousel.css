@@ -18,6 +18,25 @@
   --ac-image-aspect: 714 / 586; /* preserves the intended ratio without hard heights */
 }
 
+/* Viewport and Track for smooth scrolling */
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* Top divider line */
 .carousel-top-divider {
   width: 100%;
@@ -125,7 +144,7 @@
 
 .article-excerpt-carousel {
   font-family: "Nicholas", "Playfair Display", serif;
-  font-size: clamp(1.125rem, 1.75rem, 1.75rem);
+  font-size: clamp(1.125rem, 1.5rem, 1.75rem);
   font-weight: 400;
   line-height: 130%;
   color: #000;

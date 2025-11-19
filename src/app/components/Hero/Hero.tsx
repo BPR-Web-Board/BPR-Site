@@ -3,6 +3,7 @@ import Link from "next/link";
 import classNames from "classnames";
 import { EnhancedPost } from "../../lib/types";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
+import { getArticleLink } from "../../lib/utils";
 import "./Hero.css";
 
 export interface HeroProps {
@@ -90,18 +91,8 @@ const Hero: React.FC<HeroProps> = ({
     ? selectedPost.featured_media_obj!.alt_text || titleText || "Hero image"
     : "";
 
-  // Create article link
-  let section = "world";
-  if (
-    Array.isArray(selectedPost.categories) &&
-    selectedPost.categories.length > 0
-  ) {
-    const cat = selectedPost.categories_obj && selectedPost.categories_obj[0];
-    if (cat && cat.slug) {
-      section = cat.slug;
-    }
-  }
-  const href = `/${section}/article/${selectedPost.slug}`;
+  // Create article link using shared utility
+  const href = getArticleLink(selectedPost);
 
   return (
     <section className={classNames("hero-section", className)}>
