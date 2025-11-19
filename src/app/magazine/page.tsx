@@ -10,12 +10,13 @@ import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
+import { PageContentManager } from "../lib/contentManager";
 import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
 const [categories, magazinePostsRaw] = await Promise.all([
   getAllCategories(),
-  getPostsByCategorySlug("magazine", { per_page: 24 }),
+  getPostsByCategorySlug("magazine", { per_page: 30 }),
 ]);
 
 // Enhance all posts in parallel
@@ -25,91 +26,118 @@ const [magazinePosts] = await Promise.all([
 
 const magazineCategory = categories.find((cat) => cat.slug === "magazine");
 
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[][]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
+// Create content manager to prevent duplicate articles across all page components
+const contentManager = new PageContentManager();
 
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
-
-  return [];
-};
-
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
-
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
-
-  return combined;
-};
-
-const featuredSpotlight = ensureContent(magazinePosts).slice(0, 7);
-const latestColumn = ensureContent(magazinePosts).slice(7, 12);
-const archivesColumn = ensureContent(magazinePosts).slice(12, 17);
-const latestIssueArticles = ensureContent(magazinePosts).slice(0, 4);
-const featuredArticles = ensureContent(magazinePosts).slice(4, 9);
-const archivesArticles = ensureContent(magazinePosts).slice(9, 13);
-const magazinePool = combineUniquePosts(magazinePosts);
-const previewArticles = ensureContent(magazinePosts).slice(0, 10);
+// Select articles for each section in order of appearance on the page
+// This ensures no article appears twice on the magazine page
+const magazinePoolArticles = contentManager.selectArticles(magazinePosts, 4, {
+  allowPartial: true,
+});
+const featuredArticles = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const heroArticles = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const latestIssueArticles = contentManager.selectArticles(magazinePosts, 4, {
+  allowPartial: true,
+});
+const carouselArticles = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const featuredSpotlight = contentManager.selectArticles(magazinePosts, 7, {
+  allowPartial: true,
+});
+const previewArticles = contentManager.selectArticles(magazinePosts, 10, {
+  allowPartial: true,
+});
+const latestColumn = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const archivesColumn = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const heroArticles2 = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const archivesArticles = contentManager.selectArticles(magazinePosts, 4, {
+  allowPartial: true,
+});
+const magazineHighlights = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
+const heroArticles3 = contentManager.selectArticles(magazinePosts, 5, {
+  allowPartial: true,
+});
 
 export default function MagazinePage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        <FourArticleGrid
-          posts={magazinePool}
-          categoryName="Editorial Excellence"
-          showCategoryTitle={true}
-          showBoundingLines={true}
-          numberOfRows={1}
-          className="width-constrained"
-        />
-        <ArticleLayout
-          posts={featuredArticles}
-          categoryName="Featured Stories"
-        />
-        <Hero posts={magazinePosts} preferredCategory="magazine" />
-        <ArticleGrid posts={latestIssueArticles} categoryName="Latest Issue" />
-        <ArticleCarousel
-          title="Magazine Highlights"
-          posts={magazinePosts}
-          maxArticles={5}
-        />
-        <ArticleSplitShowcase
-          sectionTitle="Featured Articles"
-          posts={featuredSpotlight}
-        />
-        <ArticlePreviewGrid articles={previewArticles} />
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="Latest Issue"
-            leftColumnArticles={latestColumn}
-            rightColumnTitle="From the Archives"
-            rightColumnArticles={archivesColumn}
+        {magazinePoolArticles.length > 0 && (
+          <FourArticleGrid
+            posts={magazinePoolArticles}
+            categoryName="Editorial Excellence"
+            showCategoryTitle={true}
+            showBoundingLines={true}
+            numberOfRows={1}
+            className="width-constrained"
           />
-        </div>
-        <Hero posts={magazinePosts} preferredCategory="magazine" />
-        <ArticleGrid posts={archivesArticles} categoryName="Archives" />
-        <ArticleLayout
-          posts={magazinePosts.slice(0, 5)}
-          categoryName={`${magazineCategory?.name ?? "Magazine"} Highlights`}
-        />
-        <Hero posts={magazinePosts} preferredCategory="magazine" />
+        )}
+        {featuredArticles.length > 0 && (
+          <ArticleLayout
+            posts={featuredArticles}
+            categoryName="Featured Stories"
+          />
+        )}
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} preferredCategory="magazine" />
+        )}
+        {latestIssueArticles.length > 0 && (
+          <ArticleGrid posts={latestIssueArticles} categoryName="Latest Issue" />
+        )}
+        {carouselArticles.length > 0 && (
+          <ArticleCarousel
+            title="Magazine Highlights"
+            posts={carouselArticles}
+            maxArticles={5}
+          />
+        )}
+        {featuredSpotlight.length > 0 && (
+          <ArticleSplitShowcase
+            sectionTitle="Featured Articles"
+            posts={featuredSpotlight}
+          />
+        )}
+        {previewArticles.length > 0 && (
+          <ArticlePreviewGrid articles={previewArticles} />
+        )}
+        {(latestColumn.length > 0 || archivesColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Latest Issue"
+              leftColumnArticles={latestColumn}
+              rightColumnTitle="From the Archives"
+              rightColumnArticles={archivesColumn}
+            />
+          </div>
+        )}
+        {heroArticles2.length > 0 && (
+          <Hero posts={heroArticles2} preferredCategory="magazine" />
+        )}
+        {archivesArticles.length > 0 && (
+          <ArticleGrid posts={archivesArticles} categoryName="Archives" />
+        )}
+        {magazineHighlights.length > 0 && (
+          <ArticleLayout
+            posts={magazineHighlights}
+            categoryName={`${magazineCategory?.name ?? "Magazine"} Highlights`}
+          />
+        )}
+        {heroArticles3.length > 0 && (
+          <Hero posts={heroArticles3} preferredCategory="magazine" />
+        )}
       </div>
     </main>
   );

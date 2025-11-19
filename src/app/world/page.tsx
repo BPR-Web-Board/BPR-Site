@@ -10,6 +10,7 @@ import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
+import { PageContentManager } from "../lib/contentManager";
 import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
@@ -54,55 +55,64 @@ const [
 
 const worldCategory = categories.find((cat) => cat.slug === "world");
 
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[][]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
+// Create content manager to prevent duplicate articles across all page components
+const contentManager = new PageContentManager();
 
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
+// Select articles for each section in order of appearance on the page
+// This ensures no article appears twice on the world page
+const heroArticles = contentManager.selectArticles(worldPosts, 5, {
+  allowPartial: true,
+});
+const carouselArticles = contentManager.selectArticles(worldPosts, 5, {
+  allowPartial: true,
+});
 
-  return [];
-};
+// Africa Dispatch section
+const africaPool = contentManager.ensureContent(africaPosts, worldPosts);
+const africaSpotlight = contentManager.selectArticles(africaPool, 7, {
+  allowPartial: true,
+});
 
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
+// Asia/Pacific section
+const asiaPacificPool = contentManager.ensureContent(asiaPacificPosts, worldPosts);
+const asiaPacificArticles = contentManager.selectArticles(asiaPacificPool, 4, {
+  allowPartial: true,
+});
 
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
+// Preview Grid
+const previewArticles = contentManager.selectArticles(worldPosts, 10, {
+  allowPartial: true,
+});
 
-  return combined;
-};
+// Two Column Layout - Europe and Middle East
+const europePool = contentManager.ensureContent(europePosts, worldPosts);
+const europeColumn = contentManager.selectArticles(europePool, 5, {
+  allowPartial: true,
+});
+const middleEastPool = contentManager.ensureContent(middleEastPosts, worldPosts);
+const middleEastColumn = contentManager.selectArticles(middleEastPool, 5, {
+  allowPartial: true,
+});
 
-const africaSpotlight = ensureContent(africaPosts, worldPosts).slice(0, 7);
-const europeColumn = ensureContent(europePosts, worldPosts).slice(0, 5);
-const middleEastColumn = ensureContent(middleEastPosts, worldPosts).slice(0, 5);
-const asiaPacificArticles = ensureContent(asiaPacificPosts, worldPosts).slice(
-  0,
-  4
-);
-const latinAmericaArticles = ensureContent(latinAmericaPosts, worldPosts).slice(
-  0,
-  5
-);
-const southAmericaArticles = ensureContent(southAmericaPosts, worldPosts).slice(
-  0,
-  4
-);
-const regionalPool = combineUniquePosts(
+// Second Hero
+const heroArticles2 = contentManager.selectArticles(worldPosts, 5, {
+  allowPartial: true,
+});
+
+// Latin America section
+const latinAmericaPool = contentManager.ensureContent(latinAmericaPosts, worldPosts);
+const latinAmericaArticles = contentManager.selectArticles(latinAmericaPool, 5, {
+  allowPartial: true,
+});
+
+// South America section
+const southAmericaPool = contentManager.ensureContent(southAmericaPosts, worldPosts);
+const southAmericaArticles = contentManager.selectArticles(southAmericaPool, 4, {
+  allowPartial: true,
+});
+
+// Regional Pool - combines all regional posts for the grid
+const regionalPool = contentManager.combineUniquePosts(
   africaPosts,
   asiaPacificPosts,
   europePosts,
@@ -111,54 +121,90 @@ const regionalPool = combineUniquePosts(
   southAmericaPosts,
   worldPosts
 );
-const previewArticles = ensureContent(worldPosts).slice(0, 10);
+const regionalPoolArticles = contentManager.selectArticles(regionalPool, 4, {
+  allowPartial: true,
+});
+
+// World highlights
+const worldHighlights = contentManager.selectArticles(worldPosts, 5, {
+  allowPartial: true,
+});
+
+// Third Hero
+const heroArticles3 = contentManager.selectArticles(worldPosts, 5, {
+  allowPartial: true,
+});
 
 export default function WorldPage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        <Hero posts={worldPosts} preferredCategory="world" />
-        <ArticleCarousel
-          title="Global Briefing"
-          posts={worldPosts}
-          maxArticles={5}
-        />
-        <ArticleSplitShowcase
-          sectionTitle="Africa Dispatch"
-          posts={africaSpotlight}
-        />
-        <ArticleGrid posts={asiaPacificArticles} categoryName="Asia/Pacific" />
-        <ArticlePreviewGrid articles={previewArticles} />
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="Europe"
-            leftColumnArticles={europeColumn}
-            rightColumnTitle="Middle East"
-            rightColumnArticles={middleEastColumn}
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} preferredCategory="world" />
+        )}
+        {carouselArticles.length > 0 && (
+          <ArticleCarousel
+            title="Global Briefing"
+            posts={carouselArticles}
+            maxArticles={5}
           />
-        </div>
-        <Hero posts={worldPosts} preferredCategory="world" />
-        <ArticleLayout
-          posts={latinAmericaArticles}
-          categoryName="Latin America"
-        />
-        <ArticleGrid
-          posts={southAmericaArticles}
-          categoryName="South America"
-        />
-        <FourArticleGrid
-          posts={regionalPool}
-          categoryName="Regional Perspectives"
-          showCategoryTitle={true}
-          showBoundingLines={true}
-          numberOfRows={1}
-          className="width-constrained"
-        />
-        <ArticleLayout
-          posts={worldPosts.slice(0, 5)}
-          categoryName={`${worldCategory?.name ?? "World"} Highlights`}
-        />
-        <Hero posts={worldPosts} preferredCategory="world" />
+        )}
+        {africaSpotlight.length > 0 && (
+          <ArticleSplitShowcase
+            sectionTitle="Africa Dispatch"
+            posts={africaSpotlight}
+          />
+        )}
+        {asiaPacificArticles.length > 0 && (
+          <ArticleGrid posts={asiaPacificArticles} categoryName="Asia/Pacific" />
+        )}
+        {previewArticles.length > 0 && (
+          <ArticlePreviewGrid articles={previewArticles} />
+        )}
+        {(europeColumn.length > 0 || middleEastColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Europe"
+              leftColumnArticles={europeColumn}
+              rightColumnTitle="Middle East"
+              rightColumnArticles={middleEastColumn}
+            />
+          </div>
+        )}
+        {heroArticles2.length > 0 && (
+          <Hero posts={heroArticles2} preferredCategory="world" />
+        )}
+        {latinAmericaArticles.length > 0 && (
+          <ArticleLayout
+            posts={latinAmericaArticles}
+            categoryName="Latin America"
+          />
+        )}
+        {southAmericaArticles.length > 0 && (
+          <ArticleGrid
+            posts={southAmericaArticles}
+            categoryName="South America"
+          />
+        )}
+        {regionalPoolArticles.length > 0 && (
+          <FourArticleGrid
+            posts={regionalPoolArticles}
+            categoryName="Regional Perspectives"
+            showCategoryTitle={true}
+            showBoundingLines={true}
+            numberOfRows={1}
+            className="width-constrained"
+          />
+        )}
+        {worldHighlights.length > 0 && (
+          <ArticleLayout
+            posts={worldHighlights}
+            categoryName={`${worldCategory?.name ?? "World"} Highlights`}
+          />
+        )}
+        {heroArticles3.length > 0 && (
+          <Hero posts={heroArticles3} preferredCategory="world" />
+        )}
       </div>
     </main>
   );

@@ -5,6 +5,7 @@ import {
   getPostsByCategorySlug,
 } from "../lib/wordpress";
 import { enhancePosts } from "../lib/enhancePost";
+import { PageContentManager } from "../lib/contentManager";
 import FeaturedPodcast from "../components/FeaturedPodcast";
 import PodcastGrid from "../components/PodcastGrid";
 import "./podcasts.css";
@@ -45,13 +46,38 @@ export default async function PodcastsPage() {
     const enhancedUS = await enhancePosts(usPodcasts, allCategories);
     const enhancedMagazine = await enhancePosts(magazinePodcasts, allCategories);
 
+    // Create content manager to prevent duplicate podcasts across all page sections
+    const contentManager = new PageContentManager();
+
+    // Select podcasts for each section in order of appearance
+    // This ensures no podcast appears twice on the page
+
     // Get featured podcast (latest from BPR Radio)
+    const featuredPodcastArray = contentManager.selectArticles(
+      enhancedBprRadio,
+      1,
+      { allowPartial: true }
+    );
     const featuredPodcast =
-      enhancedBprRadio.length > 0 ? enhancedBprRadio[0] : null;
+      featuredPodcastArray.length > 0 ? featuredPodcastArray[0] : null;
 
     // Get related podcasts for "Beyond the Article" section
-    const relatedPodcasts =
-      enhancedBprRadio.length > 1 ? enhancedBprRadio.slice(1, 5) : [];
+    const relatedPodcasts = contentManager.selectArticles(enhancedBprRadio, 4, {
+      allowPartial: true,
+    });
+
+    // Select unique podcasts for each category section
+    const worldPodcastsUnique = contentManager.selectArticles(enhancedWorld, 8, {
+      allowPartial: true,
+    });
+    const usPodcastsUnique = contentManager.selectArticles(enhancedUS, 8, {
+      allowPartial: true,
+    });
+    const magazinePodcastsUnique = contentManager.selectArticles(
+      enhancedMagazine,
+      8,
+      { allowPartial: true }
+    );
 
     return (
       <div className="podcasts-page">
@@ -92,10 +118,10 @@ export default async function PodcastsPage() {
         )}
 
         {/* World Podcasts Section */}
-        {enhancedWorld.length > 0 && (
+        {worldPodcastsUnique.length > 0 && (
           <section className="podcasts-section">
             <PodcastGrid
-              podcasts={enhancedWorld}
+              podcasts={worldPodcastsUnique}
               title="World"
               numberOfRows={1}
               className="podcasts-world-grid"
@@ -104,10 +130,10 @@ export default async function PodcastsPage() {
         )}
 
         {/* US Podcasts Section */}
-        {enhancedUS.length > 0 && (
+        {usPodcastsUnique.length > 0 && (
           <section className="podcasts-section">
             <PodcastGrid
-              podcasts={enhancedUS}
+              podcasts={usPodcastsUnique}
               title="US"
               numberOfRows={1}
               className="podcasts-us-grid"
@@ -116,10 +142,10 @@ export default async function PodcastsPage() {
         )}
 
         {/* Magazine Podcasts Section */}
-        {enhancedMagazine.length > 0 && (
+        {magazinePodcastsUnique.length > 0 && (
           <section className="podcasts-section">
             <PodcastGrid
-              podcasts={enhancedMagazine}
+              podcasts={magazinePodcastsUnique}
               title="Magazine"
               numberOfRows={1}
               className="podcasts-magazine-grid"

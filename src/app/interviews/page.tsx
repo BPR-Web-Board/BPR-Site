@@ -10,6 +10,7 @@ import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
+import { PageContentManager } from "../lib/contentManager";
 import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
@@ -50,115 +51,174 @@ const [
 
 const interviewsCategory = categories.find((cat) => cat.slug === "interviews");
 
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[][]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
+// Create content manager to prevent duplicate articles across all page components
+const contentManager = new PageContentManager();
 
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
+// Select articles for each section in order of appearance on the page
+// This ensures no article appears twice on the interviews page
 
-  return [];
-};
-
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
-
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
-
-  return combined;
-};
-
-const professorSpotlight = ensureContent(
+// Professor Podcasts section
+const professorPool = contentManager.ensureContent(
   professorPodcastsPosts,
   interviewsPosts
-).slice(0, 7);
-const rhodeIslandColumn = ensureContent(
-  rhodeIslandPosts,
-  interviewsPosts
-).slice(0, 5);
-const usInterviewsColumn = ensureContent(
-  usInterviewsPosts,
-  interviewsPosts
-).slice(0, 5);
-const congressArticles = ensureContent(congressPosts, interviewsPosts).slice(
-  0,
-  4
 );
-const worldInterviewsArticles = ensureContent(
+const professorSpotlight = contentManager.selectArticles(professorPool, 7, {
+  allowPartial: true,
+});
+
+// Congress section
+const congressPool = contentManager.ensureContent(congressPosts, interviewsPosts);
+const congressArticles = contentManager.selectArticles(congressPool, 4, {
+  allowPartial: true,
+});
+
+// Hero
+const heroArticles = contentManager.selectArticles(interviewsPosts, 5, {
+  allowPartial: true,
+});
+
+// Preview Grid
+const previewArticles = contentManager.selectArticles(interviewsPosts, 10, {
+  allowPartial: true,
+});
+
+// World Interviews section
+const worldInterviewsPool = contentManager.ensureContent(
   worldInterviewsPosts,
   interviewsPosts
-).slice(0, 5);
-const politicalPool = combineUniquePosts(
+);
+const worldInterviewsArticles = contentManager.selectArticles(
+  worldInterviewsPool,
+  5,
+  { allowPartial: true }
+);
+
+// Two Column Layout - Rhode Island and US Interviews
+const rhodeIslandPool = contentManager.ensureContent(
+  rhodeIslandPosts,
+  interviewsPosts
+);
+const rhodeIslandColumn = contentManager.selectArticles(rhodeIslandPool, 5, {
+  allowPartial: true,
+});
+const usInterviewsPool = contentManager.ensureContent(
+  usInterviewsPosts,
+  interviewsPosts
+);
+const usInterviewsColumn = contentManager.selectArticles(usInterviewsPool, 5, {
+  allowPartial: true,
+});
+
+// Carousel
+const carouselArticles = contentManager.selectArticles(interviewsPosts, 5, {
+  allowPartial: true,
+});
+
+// Political Pool
+const politicalPool = contentManager.combineUniquePosts(
   congressPosts,
   usInterviewsPosts,
   rhodeIslandPosts,
   interviewsPosts
 );
-const previewArticles = ensureContent(interviewsPosts).slice(0, 10);
+const politicalPoolArticles = contentManager.selectArticles(politicalPool, 4, {
+  allowPartial: true,
+});
+
+// Second Hero
+const heroArticles2 = contentManager.selectArticles(interviewsPosts, 5, {
+  allowPartial: true,
+});
+
+// Academic Perspectives (from professor podcasts)
+const academicPerspectives = contentManager.selectArticles(
+  professorPodcastsPosts,
+  4,
+  { allowPartial: true }
+);
+
+// Interview Highlights
+const interviewHighlights = contentManager.selectArticles(interviewsPosts, 5, {
+  allowPartial: true,
+});
+
+// Third Hero
+const heroArticles3 = contentManager.selectArticles(interviewsPosts, 5, {
+  allowPartial: true,
+});
 
 export default function InterviewsPage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        <ArticleSplitShowcase
-          sectionTitle="Professor Podcasts"
-          posts={professorSpotlight}
-        />
-        <ArticleGrid posts={congressArticles} categoryName="Congress" />
-        <Hero posts={interviewsPosts} preferredCategory="interviews" />
-        <ArticlePreviewGrid articles={previewArticles} />
-        <ArticleLayout
-          posts={worldInterviewsArticles}
-          categoryName="World Interviews"
-        />
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="Rhode Island"
-            leftColumnArticles={rhodeIslandColumn}
-            rightColumnTitle="U.S. Interviews"
-            rightColumnArticles={usInterviewsColumn}
+        {professorSpotlight.length > 0 && (
+          <ArticleSplitShowcase
+            sectionTitle="Professor Podcasts"
+            posts={professorSpotlight}
           />
-        </div>
-        <ArticleCarousel
-          title="Interview Highlights"
-          posts={interviewsPosts}
-          maxArticles={5}
-        />
-        <FourArticleGrid
-          posts={politicalPool}
-          categoryName="Political Conversations"
-          showCategoryTitle={true}
-          showBoundingLines={true}
-          numberOfRows={1}
-          className="width-constrained"
-        />
-        <Hero posts={interviewsPosts} preferredCategory="interviews" />
-        <ArticleGrid
-          posts={professorPodcastsPosts.slice(0, 4)}
-          categoryName="Academic Perspectives"
-        />
-        <ArticleLayout
-          posts={interviewsPosts.slice(0, 5)}
-          categoryName={`${
-            interviewsCategory?.name ?? "Interviews"
-          } Highlights`}
-        />
-        <Hero posts={interviewsPosts} preferredCategory="interviews" />
+        )}
+        {congressArticles.length > 0 && (
+          <ArticleGrid posts={congressArticles} categoryName="Congress" />
+        )}
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} preferredCategory="interviews" />
+        )}
+        {previewArticles.length > 0 && (
+          <ArticlePreviewGrid articles={previewArticles} />
+        )}
+        {worldInterviewsArticles.length > 0 && (
+          <ArticleLayout
+            posts={worldInterviewsArticles}
+            categoryName="World Interviews"
+          />
+        )}
+        {(rhodeIslandColumn.length > 0 || usInterviewsColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Rhode Island"
+              leftColumnArticles={rhodeIslandColumn}
+              rightColumnTitle="U.S. Interviews"
+              rightColumnArticles={usInterviewsColumn}
+            />
+          </div>
+        )}
+        {carouselArticles.length > 0 && (
+          <ArticleCarousel
+            title="Interview Highlights"
+            posts={carouselArticles}
+            maxArticles={5}
+          />
+        )}
+        {politicalPoolArticles.length > 0 && (
+          <FourArticleGrid
+            posts={politicalPoolArticles}
+            categoryName="Political Conversations"
+            showCategoryTitle={true}
+            showBoundingLines={true}
+            numberOfRows={1}
+            className="width-constrained"
+          />
+        )}
+        {heroArticles2.length > 0 && (
+          <Hero posts={heroArticles2} preferredCategory="interviews" />
+        )}
+        {academicPerspectives.length > 0 && (
+          <ArticleGrid
+            posts={academicPerspectives}
+            categoryName="Academic Perspectives"
+          />
+        )}
+        {interviewHighlights.length > 0 && (
+          <ArticleLayout
+            posts={interviewHighlights}
+            categoryName={`${
+              interviewsCategory?.name ?? "Interviews"
+            } Highlights`}
+          />
+        )}
+        {heroArticles3.length > 0 && (
+          <Hero posts={heroArticles3} preferredCategory="interviews" />
+        )}
       </div>
     </main>
   );
