@@ -3,7 +3,7 @@ import { Playfair_Display, Libre_Franklin } from "next/font/google";
 import "./globals.css";
 import NavigationBar from "./components/NavigationBar";
 import Footer from "./components/Footer";
-import Script from "next/script";
+// ...existing code...
 
 // Load Google Fonts as fallbacks for Adobe Fonts
 const playfairDisplay = Playfair_Display({
