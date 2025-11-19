@@ -16,18 +16,9 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   categoryName,
   maxArticles = 4,
 }) => {
-  // Ensure we have at least 4 articles - should be handled by content manager
+  // Skip rendering if we don't have at least 4 articles
   if (!posts || posts.length < 4) {
-    return (
-      <div className="article-grid">
-        <div className="grid-header">
-          <h2 className="grid-title">{categoryName || "Articles"}</h2>
-        </div>
-        <div className="grid-error">
-          Insufficient articles available (need 4, have {posts?.length || 0})
-        </div>
-      </div>
-    );
+    return null;
   }
 
   // Use exactly 4 articles
