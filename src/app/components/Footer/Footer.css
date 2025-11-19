@@ -6,6 +6,15 @@
   color: white;
   width: 100%;
   padding: 1.5rem; /* Reduced padding to make the footer smaller */
+  /* Align footer base typography with site */
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .footer-container {
@@ -54,6 +63,9 @@
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 0.7rem;
+  /* Use primary serif for section headings to match nav/title style */
+  font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
+  letter-spacing: 1px;
 }
 
 .link-list {
@@ -66,12 +78,22 @@
 
 .link-list li {
   font-size: 0.85rem;
+  /* Use primary sans for link items/body */
+  font-family: var(
+    --font-primary-sans,
+    "FranklinGothic URW",
+    "Libre Franklin",
+    sans-serif
+  );
+  font-weight: 400;
 }
 
 .footer-link {
   transition: color 0.2s ease;
   text-decoration: none;
   color: white;
+  /* Slightly stronger weight for legibility, consistent with UI text */
+  font-weight: 500;
 }
 
 .footer-link:hover {
