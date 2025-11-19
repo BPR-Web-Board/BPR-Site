@@ -42,7 +42,7 @@ export async function generateMetadata({
         modifiedTime: post.modified,
       },
     };
-  } catch (error) {
+  } catch {
     return {
       title: "Article Not Found - Brown Political Review",
       description: "The requested article could not be found.",

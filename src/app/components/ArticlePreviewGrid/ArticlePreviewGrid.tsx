@@ -30,7 +30,7 @@ const ArticlePreviewGrid: React.FC<ArticlePreviewGridProps> = ({
     <div className={`article-preview-grid ${className}`}>
       {/* Left Column - Medium Articles */}
       <div className="apg-left-column">
-        {leftArticles.map((article, index) => (
+        {leftArticles.map((article) => (
           <div key={article.id} className="apg-medium-article">
             <SmallArticlePreview
               article={article}
@@ -56,7 +56,7 @@ const ArticlePreviewGrid: React.FC<ArticlePreviewGridProps> = ({
 
       {/* Right Column - Small Sidebar Articles */}
       <div className="apg-right-column">
-        {rightArticles.map((article, index) => (
+        {rightArticles.map((article) => (
           <div key={article.id} className="apg-sidebar-article">
             <SmallArticlePreview
               article={article}

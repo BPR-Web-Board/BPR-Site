@@ -10,7 +10,6 @@ import {
 export interface OptimizedImageProps extends Omit<ImageProps, "onError" | "onLoad" | "loading"> {
   fallbackSrc?: string;
   showPlaceholder?: boolean;
-  placeholderClassName?: string;
   loading?: "lazy" | "eager";
 }
 
@@ -25,7 +24,6 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   alt,
   fallbackSrc,
   showPlaceholder = true,
-  placeholderClassName = "image-placeholder",
   className = "",
   loading,
   ...props
@@ -58,9 +56,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   }
 
   // Build image props - only include loading if priority is not set and loading is provided
-  const imageProps: any = {
+  const imageProps: ImageProps = {
     src: imageSrc,
-    alt,
+    alt: alt || "",
     className: `${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`,
     onError: handleError,
     onLoad: handleLoad,
@@ -72,10 +70,11 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
   // Only add loading prop if priority is not set (Next.js doesn't allow both)
   if (!props.priority && loading) {
-    imageProps.loading = loading;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (imageProps as any).loading = loading;
   }
 
-  return <Image {...imageProps} />;
+  return <Image {...imageProps} alt={alt || ""} />;
 };
 
 export default OptimizedImage;

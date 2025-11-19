@@ -1,4 +1,5 @@
 // Shared utility functions used across components
+import type { EnhancedPost, Category, Post } from "./types";
 
 /**
  * Formats a date string to a readable format
@@ -31,14 +32,14 @@ export function truncateText(text: string, maxLength: number): string {
 /**
  * Gets the article title from a post object, handling both string and object formats
  */
-export function getArticleTitle(post: any): string {
+export function getArticleTitle(post: Post | EnhancedPost): string {
   return typeof post.title === "object" ? post.title.rendered : post.title;
 }
 
 /**
  * Gets the article excerpt from a post object, handling both string and object formats
  */
-export function getArticleExcerpt(post: any): string {
+export function getArticleExcerpt(post: Post | EnhancedPost): string {
   const excerpt =
     typeof post.excerpt === "object" ? post.excerpt.rendered : post.excerpt;
   return stripHtml(excerpt);
@@ -47,18 +48,18 @@ export function getArticleExcerpt(post: any): string {
 /**
  * Gets the featured image URL from a post object
  */
-export function getFeaturedImageUrl(post: any): string {
-  return post.featured_media_obj?.source_url || "";
+export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
+  return (post as EnhancedPost).featured_media_obj?.source_url || "";
 }
 
 /**
  * Generates the article link based on category and slug
  * Maps category slugs to their proper parent sections
  */
-export function getArticleLink(post: any): string {
+export function getArticleLink(post: Post | EnhancedPost): string {
   if (post.id <= 0) return "#";
 
-  const categorySlug = post.categories_obj?.[0]?.slug || "world";
+  const categorySlug = (post as EnhancedPost).categories_obj?.[0]?.slug || "world";
 
   // Define category to parent section mappings
   const categoryMappings: { [key: string]: string } = {
@@ -136,8 +137,8 @@ export function getArticleLink(post: any): string {
  * // Articles tagged with both "usa" and "world" only appear in "usa" section
  */
 export function deduplicateArticlesBySections(
-  sectionsData: Array<{ categorySlug: string; posts: any[] }>
-): Array<{ categorySlug: string; posts: any[] }> {
+  sectionsData: Array<{ categorySlug: string; posts: EnhancedPost[] }>
+): Array<{ categorySlug: string; posts: EnhancedPost[] }> {
   const usedPostIds = new Set<number>();
 
   return sectionsData.map((section) => {
@@ -161,10 +162,10 @@ export function deduplicateArticlesBySections(
  * Useful for enforcing that articles render under a specific category section
  */
 export function filterPostsByCategory(
-  posts: any[],
+  posts: EnhancedPost[],
   categorySlug: string
-): any[] {
+): EnhancedPost[] {
   return posts.filter((post) =>
-    post.categories_obj?.some((cat: any) => cat.slug === categorySlug)
+    post.categories_obj?.some((cat: Category) => cat.slug === categorySlug)
   );
 }

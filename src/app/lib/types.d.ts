@@ -41,7 +41,7 @@ export type Post = {
     | "status"
     | "video"
     | "audio";
-  meta: any; // Changed from any[] to any to support both array and object forms
+  meta: Record<string, unknown>; // Changed to Record to support both array and object forms
   categories: number[];
   tags: number[];
   // Add new properties as optional to avoid TypeScript errors
@@ -59,7 +59,7 @@ export type Category = {
   slug: string;
   taxonomy: "category";
   parent: number;
-  meta: any[];
+  meta: unknown[];
 };
 
 export type Tag = {
@@ -70,7 +70,7 @@ export type Tag = {
   name: string;
   slug: string;
   taxonomy: "post_tag";
-  meta: any[];
+  meta: unknown[];
 };
 
 export type Page = {
@@ -104,7 +104,7 @@ export type Page = {
   comment_status: "open" | "closed";
   ping_status: "open" | "closed";
   template: string;
-  meta: any[];
+  meta: unknown[];
 };
 
 export type Author = {
@@ -117,7 +117,7 @@ export type Author = {
   avatar_urls: {
     [key: string]: string;
   };
-  meta: any[];
+  meta: unknown[];
 };
 
 export type BlockType = {
@@ -129,21 +129,15 @@ export type BlockType = {
   category: string;
   keywords: string[];
   parent: string[];
-  supports: {
-    [key: string]: any;
-  };
+  supports: Record<string, unknown>;
   styles: {
     name: string;
     label: string;
     isDefault: boolean;
   }[];
   textdomain: string;
-  example: {
-    [key: string]: any;
-  };
-  attributes: {
-    [key: string]: any;
-  };
+  example: Record<string, unknown>;
+  attributes: Record<string, unknown>;
   provides_context: {
     [key: string]: string;
   };
@@ -157,9 +151,7 @@ export type BlockType = {
 export type EditorBlock = {
   id: string;
   name: string;
-  attributes: {
-    [key: string]: any;
-  };
+  attributes: Record<string, unknown>;
   innerBlocks: EditorBlock[];
   innerHTML: string;
   innerContent: string[];
@@ -273,7 +265,7 @@ export interface ArticleProps {
 }
 
 export interface ArticleRendererProps {
-  post: any; // WordPress post type
+  post: Post | EnhancedPost; // WordPress post type
   className?: string;
 }
 
@@ -313,7 +305,7 @@ export interface ArticleMetaProps {
 
 // Post meta data type
 export interface PostMeta {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface EnhancedPost extends Omit<Post, "meta"> {

@@ -12,14 +12,14 @@ import { PageContentManager } from "./lib/contentManager";
 // import Footer from "./components/Footer";
 
 // Fetch all data in parallel for optimal performance
-const [posts, categories, usaPosts, worldPosts, culturePosts, policyPosts] =
+const [posts, categories, usaPosts, worldPosts, culturePosts] =
   await Promise.all([
     getAllPosts(),
     getAllCategories(),
     getPostsByCategorySlug("usa", { per_page: 20 }),
     getPostsByCategorySlug("world", { per_page: 20 }),
     getPostsByCategorySlug("culture", { per_page: 15 }),
-    getPostsByCategorySlug("law", { per_page: 10 }), // Law/Justice for policy content
+    // getPostsByCategorySlug("law", { per_page: 10 }), // Law/Justice for policy content - reserved for future use
   ]);
 
 // Enhance all posts in parallel for optimal performance
@@ -28,13 +28,12 @@ const [
   enhancedUsaPosts,
   enhancedWorldPosts,
   enhancedCulturePosts,
-  enhancedPolicyPosts,
 ] = await Promise.all([
   enhancePosts(posts.slice(0, 25), categories),
   enhancePosts(usaPosts, categories),
   enhancePosts(worldPosts, categories),
   enhancePosts(culturePosts, categories),
-  enhancePosts(policyPosts, categories),
+  // enhancePosts(policyPosts, categories), // Reserved for future use
 ]);
 
 // Create content manager to prevent duplicate articles across all page components

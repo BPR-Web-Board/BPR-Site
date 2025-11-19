@@ -11,7 +11,6 @@ import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
-import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
 const [

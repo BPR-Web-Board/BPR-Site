@@ -8,15 +8,15 @@ import type { EnhancedPost } from "../../lib/types";
 import "../../mainStyle.css";
 
 interface SubsectionPageProps {
-  params: {
+  params: Promise<{
     subsection: string;
-  };
+  }>;
 }
 
 export default async function CultureSubsectionPage({
   params,
 }: SubsectionPageProps) {
-  const { subsection } = params;
+  const { subsection } = await params;
 
   // Fetch categories first to enhance posts
   const categories = await getAllCategories();

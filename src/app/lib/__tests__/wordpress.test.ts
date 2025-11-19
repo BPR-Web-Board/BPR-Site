@@ -3,27 +3,15 @@ import {
   getPostById,
   getPostBySlug,
   getAllCategories,
-  getCategoryById,
-  getCategoryBySlug,
   getPostsByCategory,
   getAllTags,
-  getTagById,
-  getTagBySlug,
   getPostsByTag,
-  getAllPages,
-  getPageById,
-  getPageBySlug,
   getAllAuthors,
-  getAuthorById,
-  getAuthorBySlug,
   getPostsByAuthor,
-  getPostsByAuthorSlug,
-  getPostsByCategorySlug,
-  getPostsByTagSlug,
   getFeaturedMediaById,
   api,
 } from "../wordpress";
-import { Post, Category, Tag, Page, Author, FeaturedMedia } from "../types";
+import { Post, Category, Tag, Author, FeaturedMedia } from "../types";
 
 // Helper function to create mock post data
 const createMockPost = (id: number): Post => ({

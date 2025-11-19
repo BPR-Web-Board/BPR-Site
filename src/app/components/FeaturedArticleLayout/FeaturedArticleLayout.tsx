@@ -141,7 +141,7 @@ const FeaturedArticleLayout: React.FC<FeaturedArticleLayoutProps> = ({
 
         {/* Article List */}
         <div className="article-list">
-          {listArticles.map((article, index) => {
+          {listArticles.map((article) => {
             const titleText =
               typeof article.title === "object"
                 ? article.title.rendered

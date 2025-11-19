@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import "./NavigationBar.css";
 import MegaMenu from "./MegaMenu";
 
@@ -55,10 +56,6 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       }
     };
   }, [hoverTimeout]);
-
-  const handleDropdownToggle = (dropdown: string) => {
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
-  };
 
   const handleMouseEnter = (dropdown: string) => {
     // Clear any existing timeout
@@ -335,7 +332,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
               <div className="logo-divider right-divider"></div>
             </>
           )}
-          <a href="/" className="logo-link">
+          <Link href="/" className="logo-link">
             <Image
               src="/logo/logo.svg"
               alt="Brown Political Review"
@@ -344,7 +341,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
               className="logo"
               priority
             />
-          </a>
+          </Link>
         </div>
 
         {/* Right Menu Items */}
