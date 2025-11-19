@@ -96,14 +96,20 @@ export const getCategoryById = withCache(
 
 export const getCategoryBySlug = withCache(
   "getCategoryBySlug",
-  async (slug: string): Promise<Category> => {
-    const { data } = await api.get<Category[]>("/wp-json/wp/v2/categories", {
-      params: { slug },
-    });
-    if (!data || data.length === 0) {
-      throw new Error(`Category with slug "${slug}" not found`);
+  async (slug: string): Promise<Category | null> => {
+    try {
+      const { data } = await api.get<Category[]>("/wp-json/wp/v2/categories", {
+        params: { slug },
+      });
+      if (!data || data.length === 0) {
+        console.warn(`Category with slug "${slug}" not found`);
+        return null;
+      }
+      return data[0];
+    } catch (error) {
+      console.warn(`Failed to fetch category "${slug}":`, error);
+      return null;
     }
-    return data[0];
   },
   CACHE_TTL.CATEGORIES
 );
@@ -263,6 +269,10 @@ export const getPostsByCategorySlug = withCache(
   ): Promise<Post[]> => {
     try {
       const category = await getCategoryBySlug(categorySlug);
+      if (!category) {
+        // Category doesn't exist, return empty array silently
+        return [];
+      }
       const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
         params: {
           categories: category.id,
