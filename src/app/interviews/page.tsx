@@ -53,6 +53,16 @@ const interviewsCategory = categories.find((cat) => cat.slug === "interviews");
 // Create content manager to prevent duplicate articles across all page components
 const contentManager = new PageContentManager();
 
+// Create a global fallback pool for filling gaps
+const globalFallbackPool = contentManager.combineUniquePosts(
+  interviewsPosts,
+  professorPodcastsPosts,
+  rhodeIslandPosts,
+  usInterviewsPosts,
+  congressPosts,
+  worldInterviewsPosts
+);
+
 // Select articles for each section in order of appearance on the page
 // This ensures no article appears twice on the interviews page
 
@@ -65,14 +75,16 @@ const professorSpotlight = contentManager.selectArticles(professorPool, 7, {
   allowPartial: true,
 });
 
-// Congress section
+// Congress section - ensure exactly 4 articles
 const congressPool = contentManager.ensureContent(
   congressPosts,
   interviewsPosts
 );
-const congressArticles = contentManager.selectArticles(congressPool, 4, {
-  allowPartial: true,
-});
+const congressArticles = contentManager.fillToCount(
+  congressPool,
+  4,
+  globalFallbackPool
+);
 
 // Hero
 const heroArticles = contentManager.selectArticles(interviewsPosts, 5, {
@@ -132,11 +144,11 @@ const heroArticles2 = contentManager.selectArticles(interviewsPosts, 5, {
   allowPartial: true,
 });
 
-// Academic Perspectives (from professor podcasts)
-const academicPerspectives = contentManager.selectArticles(
+// Academic Perspectives (from professor podcasts) - ensure exactly 4 articles
+const academicPerspectives = contentManager.fillToCount(
   professorPodcastsPosts,
   4,
-  { allowPartial: true }
+  globalFallbackPool
 );
 
 // Interview Highlights
@@ -159,9 +171,7 @@ export default function InterviewsPage() {
             posts={professorSpotlight}
           />
         )}
-        {congressArticles.length > 0 && (
-          <ArticleGrid posts={congressArticles} categoryName="Congress" />
-        )}
+        <ArticleGrid posts={congressArticles} categoryName="Congress" />
         {heroArticles.length > 0 && (
           <Hero posts={heroArticles} preferredCategory="interviews" />
         )}
@@ -207,12 +217,10 @@ export default function InterviewsPage() {
         {heroArticles2.length > 0 && (
           <Hero posts={heroArticles2} preferredCategory="interviews" />
         )}
-        {academicPerspectives.length > 0 && (
-          <ArticleGrid
-            posts={academicPerspectives}
-            categoryName="Academic Perspectives"
-          />
-        )}
+        <ArticleGrid
+          posts={academicPerspectives}
+          categoryName="Academic Perspectives"
+        />
         {interviewHighlights.length > 0 && (
           <ArticleLayout
             posts={interviewHighlights}

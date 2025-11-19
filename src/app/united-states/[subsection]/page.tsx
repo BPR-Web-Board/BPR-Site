@@ -4,6 +4,7 @@ import ArticleGrid from "../../components/ArticleGrid";
 import InfiniteScrollArticleList from "../../components/shared/InfiniteScrollArticleList";
 import { enhancePosts } from "../../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../../lib/wordpress";
+import { PageContentManager } from "../../lib/contentManager";
 import type { EnhancedPost } from "../../lib/types";
 import "../../mainStyle.css";
 
@@ -41,20 +42,27 @@ export default async function UnitedStatesSubsectionPage({
   const subsectionCategory = categories.find((cat) => cat.slug === subsection);
   const categoryName = subsectionCategory?.name || subsection;
 
-  // Fallback helper to ensure we have content
-  const ensureContent = (
-    primary: EnhancedPost[],
-    fallbackCount: number
-  ): EnhancedPost[] => {
-    if (primary && primary.length >= fallbackCount) {
-      return primary.slice(0, fallbackCount);
-    }
-    // If not enough posts, return what we have
-    return primary;
-  };
+  // Create content manager to prevent duplicate articles across all page components
+  const contentManager = new PageContentManager();
 
-  const displayCarouselPosts = ensureContent(carouselPosts, 5);
-  const displayGridPosts = ensureContent(gridPosts, 8);
+  // Create a global fallback pool for filling gaps
+  const globalFallbackPool = contentManager.combineUniquePosts(
+    carouselPosts,
+    gridPosts,
+    infiniteScrollPosts
+  );
+
+  // Select articles for each section in order
+  const displayCarouselPosts = contentManager.selectArticles(carouselPosts, 5, {
+    allowPartial: true,
+  });
+
+  // Grid section - ensure exactly 8 articles
+  const displayGridPosts = contentManager.fillToCount(
+    gridPosts,
+    8,
+    globalFallbackPool
+  );
 
   return (
     <main className="page-container">
@@ -69,13 +77,11 @@ export default async function UnitedStatesSubsectionPage({
         )}
 
         {/* Article Grid - 2 rows x 4 columns = 8 posts */}
-        {displayGridPosts.length > 0 && (
-          <ArticleGrid
-            posts={displayGridPosts}
-            categoryName={categoryName}
-            maxArticles={8}
-          />
-        )}
+        <ArticleGrid
+          posts={displayGridPosts}
+          categoryName={categoryName}
+          maxArticles={8}
+        />
 
         {/* Infinite Scroll Article List - Remaining posts */}
         {infiniteScrollPosts.length > 0 && (

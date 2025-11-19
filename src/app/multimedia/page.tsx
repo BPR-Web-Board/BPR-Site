@@ -41,6 +41,14 @@ const multimediaCategory = categories.find((cat) => cat.slug === "multimedia");
 // Create content manager to prevent duplicate articles across all page components
 const contentManager = new PageContentManager();
 
+// Create a global fallback pool for filling gaps
+const globalFallbackPool = contentManager.combineUniquePosts(
+  multimediaPosts,
+  bpradioPosts,
+  dataPosts,
+  mediaPosts
+);
+
 // Select articles for each section in order of appearance on the page
 // This ensures no article appears twice on the multimedia page
 
@@ -59,11 +67,13 @@ const heroArticles = contentManager.selectArticles(multimediaPosts, 5, {
   allowPartial: true,
 });
 
-// BPRadio section
+// BPRadio section - ensure exactly 4 articles
 const bpradioPool = contentManager.ensureContent(bpradioPosts, multimediaPosts);
-const bpradioArticles = contentManager.selectArticles(bpradioPool, 4, {
-  allowPartial: true,
-});
+const bpradioArticles = contentManager.fillToCount(
+  bpradioPool,
+  4,
+  globalFallbackPool
+);
 
 // Carousel
 const carouselArticles = contentManager.selectArticles(multimediaPosts, 5, {
@@ -90,10 +100,12 @@ const heroArticles2 = contentManager.selectArticles(multimediaPosts, 5, {
   allowPartial: true,
 });
 
-// Media section
-const mediaArticles = contentManager.selectArticles(mediaPool, 4, {
-  allowPartial: true,
-});
+// Media section - ensure exactly 4 articles
+const mediaArticles = contentManager.fillToCount(
+  mediaPool,
+  4,
+  globalFallbackPool
+);
 
 // Multimedia Collection Pool
 const multimediaPool = contentManager.combineUniquePosts(
@@ -140,9 +152,7 @@ export default function MultimediaPage() {
         {heroArticles.length > 0 && (
           <Hero posts={heroArticles} preferredCategory="multimedia" />
         )}
-        {bpradioArticles.length > 0 && (
-          <ArticleGrid posts={bpradioArticles} categoryName="BPRadio" />
-        )}
+        <ArticleGrid posts={bpradioArticles} categoryName="BPRadio" />
         {carouselArticles.length > 0 && (
           <ArticleCarousel
             title="Multimedia Showcase"
@@ -168,9 +178,7 @@ export default function MultimediaPage() {
         {heroArticles2.length > 0 && (
           <Hero posts={heroArticles2} preferredCategory="multimedia" />
         )}
-        {mediaArticles.length > 0 && (
-          <ArticleGrid posts={mediaArticles} categoryName="Media" />
-        )}
+        <ArticleGrid posts={mediaArticles} categoryName="Media" />
         {multimediaPoolArticles.length > 0 && (
           <FourArticleGrid
             posts={multimediaPoolArticles}

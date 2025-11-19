@@ -16,57 +16,22 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   categoryName,
   maxArticles = 4,
 }) => {
-  if (!posts || posts.length === 0) {
+  // Ensure we have at least 4 articles - should be handled by content manager
+  if (!posts || posts.length < 4) {
     return (
       <div className="article-grid">
         <div className="grid-header">
           <h2 className="grid-title">{categoryName || "Articles"}</h2>
         </div>
-        <div className="grid-error">No articles available</div>
+        <div className="grid-error">
+          Insufficient articles available (need 4, have {posts?.length || 0})
+        </div>
       </div>
     );
   }
 
-  // Ensure we have exactly 4 articles, fill with placeholders if needed
-  const displayArticles = [...posts.slice(0, maxArticles)];
-
-  while (displayArticles.length < 4) {
-    const placeholderPost: EnhancedPost = {
-      id: -displayArticles.length - 1,
-      date: new Date().toISOString(),
-      date_gmt: new Date().toISOString(),
-      guid: {
-        rendered: "#",
-      },
-      modified: new Date().toISOString(),
-      modified_gmt: new Date().toISOString(),
-      slug: `placeholder-${displayArticles.length}`,
-      status: "publish" as const,
-      type: "post",
-      link: "#",
-      title: { rendered: "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing" },
-      content: {
-        rendered: "Lorem ipsum placeholder content...",
-        protected: false,
-      },
-      excerpt: {
-        rendered:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempordolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor....",
-        protected: false,
-      },
-      author: 1,
-      featured_media: 0,
-      format: "standard" as const,
-      meta: {},
-      categories: [],
-      tags: [],
-      author_name: "Lastname",
-      author_obj: null,
-      featured_media_obj: null,
-      categories_obj: [],
-    };
-    displayArticles.push(placeholderPost);
-  }
+  // Use exactly 4 articles
+  const displayArticles = posts.slice(0, Math.min(maxArticles, 4));
 
   return (
     <div className="article-grid">

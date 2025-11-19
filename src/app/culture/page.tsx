@@ -80,11 +80,22 @@ const artsSpotlight = contentManager.selectArticles(artsPool, 7, {
   allowPartial: true,
 });
 
-// LGBTQ+ Politics section
+// Create a global fallback pool for filling gaps
+const globalFallbackPool = contentManager.combineUniquePosts(
+  culturePosts,
+  artsPosts,
+  genderPosts,
+  healthCulturePosts,
+  lgbtqPosts,
+  racePosts,
+  religionPosts,
+  sciencePosts,
+  technologyPosts
+);
+
+// LGBTQ+ Politics section - ensure exactly 4 articles
 const lgbtqPool = contentManager.ensureContent(lgbtqPosts, culturePosts);
-const lgbtqArticles = contentManager.selectArticles(lgbtqPool, 4, {
-  allowPartial: true,
-});
+const lgbtqArticles = contentManager.fillToCount(lgbtqPool, 4, globalFallbackPool);
 
 // Preview Grid
 const previewArticles = contentManager.selectArticles(culturePosts, 10, {
@@ -112,32 +123,26 @@ const religionArticles = contentManager.selectArticles(religionPool, 5, {
   allowPartial: true,
 });
 
-// Science section
+// Science section - ensure exactly 4 articles
 const sciencePool = contentManager.ensureContent(sciencePosts, culturePosts);
-const scienceArticles = contentManager.selectArticles(sciencePool, 4, {
-  allowPartial: true,
-});
+const scienceArticles = contentManager.fillToCount(sciencePool, 4, globalFallbackPool);
 
-// Technology section
+// Technology section - ensure exactly 4 articles
 const technologyPool = contentManager.ensureContent(
   technologyPosts,
   culturePosts
 );
-const technologyArticles = contentManager.selectArticles(technologyPool, 4, {
-  allowPartial: true,
-});
+const technologyArticles = contentManager.fillToCount(technologyPool, 4, globalFallbackPool);
 
-// Health & Culture section
+// Health & Culture section - ensure exactly 4 articles
 const healthCulturePool = contentManager.ensureContent(
   healthCulturePosts,
   culturePosts
 );
-const healthCultureArticles = contentManager.selectArticles(
+const healthCultureArticles = contentManager.fillToCount(
   healthCulturePool,
   4,
-  {
-    allowPartial: true,
-  }
+  globalFallbackPool
 );
 
 // Culture Pool - combines all subsections for the grid
@@ -186,9 +191,7 @@ export default function CulturePage() {
             posts={artsSpotlight}
           />
         )}
-        {lgbtqArticles.length > 0 && (
-          <ArticleGrid posts={lgbtqArticles} categoryName="LGBTQ+ Politics" />
-        )}
+        <ArticleGrid posts={lgbtqArticles} categoryName="LGBTQ+ Politics" />
         {previewArticles.length > 0 && (
           <ArticlePreviewGrid articles={previewArticles} />
         )}
@@ -211,18 +214,12 @@ export default function CulturePage() {
         {religionArticles.length > 0 && (
           <ArticleLayout posts={religionArticles} categoryName="Religion" />
         )}
-        {scienceArticles.length > 0 && (
-          <ArticleGrid posts={scienceArticles} categoryName="Science" />
-        )}
-        {technologyArticles.length > 0 && (
-          <ArticleGrid posts={technologyArticles} categoryName="Technology" />
-        )}
-        {healthCultureArticles.length > 0 && (
-          <ArticleGrid
-            posts={healthCultureArticles}
-            categoryName="Health & Culture"
-          />
-        )}
+        <ArticleGrid posts={scienceArticles} categoryName="Science" />
+        <ArticleGrid posts={technologyArticles} categoryName="Technology" />
+        <ArticleGrid
+          posts={healthCultureArticles}
+          categoryName="Health & Culture"
+        />
         {culturePoolArticles.length > 0 && (
           <FourArticleGrid
             posts={culturePoolArticles}
