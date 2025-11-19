@@ -58,6 +58,17 @@ const worldCategory = categories.find((cat) => cat.slug === "world");
 // Create content manager to prevent duplicate articles across all page components
 const contentManager = new PageContentManager();
 
+// Create a global fallback pool for filling gaps
+const globalFallbackPool = contentManager.combineUniquePosts(
+  worldPosts,
+  africaPosts,
+  asiaPacificPosts,
+  europePosts,
+  latinAmericaPosts,
+  middleEastPosts,
+  southAmericaPosts
+);
+
 // Select articles for each section in order of appearance on the page
 // This ensures no article appears twice on the world page
 const heroArticles = contentManager.selectArticles(worldPosts, 5, {
@@ -73,14 +84,16 @@ const africaSpotlight = contentManager.selectArticles(africaPool, 7, {
   allowPartial: true,
 });
 
-// Asia/Pacific section
+// Asia/Pacific section - ensure exactly 4 articles
 const asiaPacificPool = contentManager.ensureContent(
   asiaPacificPosts,
   worldPosts
 );
-const asiaPacificArticles = contentManager.selectArticles(asiaPacificPool, 4, {
-  allowPartial: true,
-});
+const asiaPacificArticles = contentManager.fillToCount(
+  asiaPacificPool,
+  4,
+  globalFallbackPool
+);
 
 // Preview Grid
 const previewArticles = contentManager.selectArticles(worldPosts, 10, {
@@ -118,17 +131,15 @@ const latinAmericaArticles = contentManager.selectArticles(
   }
 );
 
-// South America section
+// South America section - ensure exactly 4 articles
 const southAmericaPool = contentManager.ensureContent(
   southAmericaPosts,
   worldPosts
 );
-const southAmericaArticles = contentManager.selectArticles(
+const southAmericaArticles = contentManager.fillToCount(
   southAmericaPool,
   4,
-  {
-    allowPartial: true,
-  }
+  globalFallbackPool
 );
 
 // Regional Pool - combines all regional posts for the grid
@@ -175,12 +186,10 @@ export default function WorldPage() {
             posts={africaSpotlight}
           />
         )}
-        {asiaPacificArticles.length > 0 && (
-          <ArticleGrid
-            posts={asiaPacificArticles}
-            categoryName="Asia/Pacific"
-          />
-        )}
+        <ArticleGrid
+          posts={asiaPacificArticles}
+          categoryName="Asia/Pacific"
+        />
         {previewArticles.length > 0 && (
           <ArticlePreviewGrid articles={previewArticles} />
         )}
@@ -206,12 +215,10 @@ export default function WorldPage() {
             categoryName="Latin America"
           />
         )}
-        {southAmericaArticles.length > 0 && (
-          <ArticleGrid
-            posts={southAmericaArticles}
-            categoryName="South America"
-          />
-        )}
+        <ArticleGrid
+          posts={southAmericaArticles}
+          categoryName="South America"
+        />
         {regionalPoolArticles.length > 0 && (
           <FourArticleGrid
             posts={regionalPoolArticles}

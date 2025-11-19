@@ -66,6 +66,19 @@ const usaCategory = categories.find((cat) => cat.slug === "usa");
 // Create content manager to prevent duplicate articles across all page components
 const contentManager = new PageContentManager();
 
+// Create a global fallback pool for filling gaps
+const globalFallbackPool = contentManager.combineUniquePosts(
+  usaPosts,
+  electionsPosts,
+  educationPosts,
+  environmentPosts,
+  healthPosts,
+  lawPosts,
+  housingPosts,
+  foreignPolicyPosts,
+  securityPosts
+);
+
 // Select articles for each section in order of appearance on the page
 // This ensures no article appears twice on the United States page
 const previewArticles = contentManager.selectArticles(usaPosts, 10, {
@@ -97,11 +110,13 @@ const healthColumn = contentManager.selectArticles(healthPool, 5, {
   allowPartial: true,
 });
 
-// Education section
+// Education section - ensure exactly 4 articles
 const educationPool = contentManager.ensureContent(educationPosts, usaPosts);
-const educationArticles = contentManager.selectArticles(educationPool, 4, {
-  allowPartial: true,
-});
+const educationArticles = contentManager.fillToCount(
+  educationPool,
+  4,
+  globalFallbackPool
+);
 
 // Second Hero
 const heroArticles2 = contentManager.selectArticles(usaPosts, 5, {
@@ -126,11 +141,13 @@ const nationalSecurityArticles = contentManager.selectArticles(
   { allowPartial: true }
 );
 
-// Housing & Urban Affairs section
+// Housing & Urban Affairs section - ensure exactly 4 articles
 const housingPool = contentManager.ensureContent(housingPosts, usaPosts);
-const housingArticles = contentManager.selectArticles(housingPool, 4, {
-  allowPartial: true,
-});
+const housingArticles = contentManager.fillToCount(
+  housingPool,
+  4,
+  globalFallbackPool
+);
 
 // USA Highlights
 const usaHighlights = contentManager.selectArticles(usaPosts, 5, {
@@ -178,9 +195,7 @@ export default function UnitedStatesPage() {
             />
           </div>
         )}
-        {educationArticles.length > 0 && (
-          <ArticleGrid posts={educationArticles} categoryName="Education" />
-        )}
+        <ArticleGrid posts={educationArticles} categoryName="Education" />
         {heroArticles2.length > 0 && (
           <Hero posts={heroArticles2} preferredCategory="usa" />
         )}
@@ -197,12 +212,10 @@ export default function UnitedStatesPage() {
             className="width-constrained"
           />
         )}
-        {housingArticles.length > 0 && (
-          <ArticleGrid
-            posts={housingArticles}
-            categoryName="Housing &amp; Urban Affairs"
-          />
-        )}
+        <ArticleGrid
+          posts={housingArticles}
+          categoryName="Housing &amp; Urban Affairs"
+        />
         {usaHighlights.length > 0 && (
           <ArticleLayout
             posts={usaHighlights}

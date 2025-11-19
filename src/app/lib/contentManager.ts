@@ -190,4 +190,62 @@ export class PageContentManager {
   getAvailable(pool: EnhancedPost[]): EnhancedPost[] {
     return pool.filter((post) => !this.usedArticleIds.has(post.id));
   }
+
+  /**
+   * Selects exactly `count` articles by first using the primary pool,
+   * then randomly filling any gaps from the fallback pool.
+   * This ensures components always get the minimum number of articles they need,
+   * without showing placeholder/Lorem Ipsum content.
+   *
+   * @param primaryPool - Preferred article source (e.g., category-specific articles)
+   * @param count - Exact number of articles needed
+   * @param fallbackPool - Global pool to randomly select from if primary doesn't have enough
+   * @returns Array of exactly `count` articles (or all available if insufficient total)
+   *
+   * @example
+   * ```typescript
+   * // Ensure ArticleGrid gets 4 articles for Professor Podcast section
+   * const professorArticles = contentManager.fillToCount(
+   *   professorPodcastPosts,
+   *   4,
+   *   allArticles  // If only 2 Professor Podcast articles, randomly pick 2 from allArticles
+   * );
+   * ```
+   */
+  fillToCount(
+    primaryPool: EnhancedPost[],
+    count: number,
+    fallbackPool: EnhancedPost[]
+  ): EnhancedPost[] {
+    const selected: EnhancedPost[] = [];
+
+    // First, try to select from primary pool
+    const availablePrimary = primaryPool.filter(
+      (post) => !this.usedArticleIds.has(post.id)
+    );
+    const fromPrimary = availablePrimary.slice(0, count);
+    fromPrimary.forEach((post) => {
+      this.usedArticleIds.add(post.id);
+      selected.push(post);
+    });
+
+    // If we still need more articles, randomly select from fallback pool
+    const needed = count - selected.length;
+    if (needed > 0) {
+      const availableFallback = fallbackPool.filter(
+        (post) => !this.usedArticleIds.has(post.id)
+      );
+
+      // Shuffle the fallback pool to get random articles
+      const shuffled = [...availableFallback].sort(() => Math.random() - 0.5);
+      const fromFallback = shuffled.slice(0, needed);
+
+      fromFallback.forEach((post) => {
+        this.usedArticleIds.add(post.id);
+        selected.push(post);
+      });
+    }
+
+    return selected;
+  }
 }
