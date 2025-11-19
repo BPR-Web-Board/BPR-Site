@@ -268,8 +268,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({ className = "" }) => {
       href: "/magazine",
       megaMenu: [
         { label: "Latest Issue", href: "/magazine" },
-        { label: "Archives", href: "/magazine/archives" },
-        { label: "Pitch", href: "/magazine/pitch" },
+        { label: "Archive", href: "/magazine/archive" },
       ],
     },
     {
