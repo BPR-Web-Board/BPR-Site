@@ -8,7 +8,7 @@ import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
 import { getAllCategories } from "./lib/wordpress";
 import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
-import { deduplicateArticlesBySections } from "./lib/utils";
+import { PageContentManager } from "./lib/contentManager";
 // import Footer from "./components/Footer";
 
 // Fetch all data in parallel for optimal performance
@@ -16,10 +16,10 @@ const [posts, categories, usaPosts, worldPosts, culturePosts, policyPosts] =
   await Promise.all([
     getAllPosts(),
     getAllCategories(),
-    getPostsByCategorySlug("usa", { per_page: 15 }),
-    getPostsByCategorySlug("world", { per_page: 15 }),
-    getPostsByCategorySlug("culture", { per_page: 10 }),
-    getPostsByCategorySlug("law", { per_page: 8 }), // Law/Justice for policy content
+    getPostsByCategorySlug("usa", { per_page: 20 }),
+    getPostsByCategorySlug("world", { per_page: 20 }),
+    getPostsByCategorySlug("culture", { per_page: 15 }),
+    getPostsByCategorySlug("law", { per_page: 10 }), // Law/Justice for policy content
   ]);
 
 // Enhance all posts in parallel for optimal performance
@@ -30,113 +30,161 @@ const [
   enhancedCulturePosts,
   enhancedPolicyPosts,
 ] = await Promise.all([
-  enhancePosts(posts.slice(0, 20), categories),
+  enhancePosts(posts.slice(0, 25), categories),
   enhancePosts(usaPosts, categories),
   enhancePosts(worldPosts, categories),
   enhancePosts(culturePosts, categories),
   enhancePosts(policyPosts, categories),
 ]);
 
-// Create sections with category priority (order matters for deduplication)
-const sectionsData = [
-  { categorySlug: "usa", posts: enhancedUsaPosts },
-  { categorySlug: "world", posts: enhancedWorldPosts },
-  { categorySlug: "culture", posts: enhancedCulturePosts },
-  { categorySlug: "law", posts: enhancedPolicyPosts },
-];
+// Create content manager to prevent duplicate articles across all page components
+const contentManager = new PageContentManager();
 
-// Deduplicate articles across sections
-// This ensures an article tagged with multiple categories only appears once
-const deduplicatedSections = deduplicateArticlesBySections(sectionsData);
+// Select articles for each section in order of appearance on the page
+// This ensures no article appears twice on the homepage
+const heroArticles = contentManager.selectArticles(enhancedPosts, 5, {
+  allowPartial: true,
+});
+const previewArticles = contentManager.selectArticles(enhancedPosts, 10, {
+  allowPartial: true,
+});
 
-// Extract deduplicated posts by category
-const usaPostsDedup = deduplicatedSections[0].posts;
-const worldPostsDedup = deduplicatedSections[1].posts;
-const culturePostsDedup = deduplicatedSections[2].posts;
-const policyPostsDedup = deduplicatedSections[3].posts;
+// USA Section - combine all USA posts and select unique articles
+const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
+const usaFeaturedGrid = contentManager.selectArticles(usaPool, 8, {
+  allowPartial: true,
+});
+const usaLeftColumn = contentManager.selectArticles(usaPool, 4, {
+  allowPartial: true,
+});
+const usaRightColumn = contentManager.selectArticles(usaPool, 4, {
+  allowPartial: true,
+});
+const usaBottomGrid = contentManager.selectArticles(usaPool, 4, {
+  allowPartial: true,
+});
+
+// World Section
+const worldPool = contentManager.ensureContent(enhancedWorldPosts, enhancedPosts);
+const worldHeroArticles = contentManager.selectArticles(worldPool, 5, {
+  allowPartial: true,
+});
+const worldLayoutArticles = contentManager.selectArticles(worldPool, 5, {
+  allowPartial: true,
+});
+const worldGrid = contentManager.selectArticles(worldPool, 4, {
+  allowPartial: true,
+});
+
+// Culture Section
+const culturePool = contentManager.ensureContent(
+  enhancedCulturePosts,
+  enhancedPosts
+);
+const cultureLeftColumn = contentManager.selectArticles(culturePool, 3, {
+  allowPartial: true,
+});
+const cultureRightColumn = contentManager.selectArticles(culturePool, 5, {
+  allowPartial: true,
+});
+const cultureGrid = contentManager.selectArticles(culturePool, 4, {
+  allowPartial: true,
+});
 
 export default function HomePage() {
   return (
     <div className="page-container">
       <div className="featured-content">
         {/* Main hero - shows the most recent featured post with priority loading */}
-        <Hero posts={enhancedPosts} priority={true} />
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} priority={true} />
+        )}
         <div className="article-layout-wrapper">
-          <ArticlePreviewGrid articles={enhancedPosts.slice(0, 10)} />
+          {previewArticles.length > 0 && (
+            <ArticlePreviewGrid articles={previewArticles} />
+          )}
           {/* USA Section - 2 rows of 4 articles each */}
-          <FourArticleGrid
-            posts={usaPostsDedup}
-            categoryName="USA"
-            showCategoryTitle={false}
-            numberOfRows={2}
-            showBoundingLines={true}
-            className="width-constrained"
-          />
+          {usaFeaturedGrid.length > 0 && (
+            <FourArticleGrid
+              posts={usaFeaturedGrid}
+              categoryName="USA"
+              showCategoryTitle={false}
+              numberOfRows={2}
+              showBoundingLines={true}
+              className="width-constrained"
+            />
+          )}
         </div>
       </div>
       <div className="main-content">
         {/* Section 1: USA News */}
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="USA News"
-            rightColumnTitle="Latest Updates"
-            leftColumnArticles={usaPostsDedup.slice(0, 4)}
-            rightColumnArticles={usaPostsDedup.slice(4, 8)}
-          />
-          <FourArticleGrid
-            posts={usaPostsDedup}
-            categoryName="USA"
-            showCategoryTitle={false}
-            numberOfRows={1}
-            showBoundingLines={true}
-            className="width-constrained"
-          />
-        </div>
+        {(usaLeftColumn.length > 0 || usaRightColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="USA News"
+              rightColumnTitle="Latest Updates"
+              leftColumnArticles={usaLeftColumn}
+              rightColumnArticles={usaRightColumn}
+            />
+            {usaBottomGrid.length > 0 && (
+              <FourArticleGrid
+                posts={usaBottomGrid}
+                categoryName="USA"
+                showCategoryTitle={false}
+                numberOfRows={1}
+                showBoundingLines={true}
+                className="width-constrained"
+              />
+            )}
+          </div>
+        )}
 
         {/* Hero for World section - loads lazily as user scrolls */}
-        <Hero posts={worldPostsDedup} />
+        {worldHeroArticles.length > 0 && <Hero posts={worldHeroArticles} />}
 
         {/* Section 2: World News */}
-        <div className="two-column-layout-wrapper">
-          <ArticleLayout
-            posts={worldPostsDedup.slice(0, 5)}
-            categoryName="World"
-          />
-          <FourArticleGrid
-            posts={worldPostsDedup}
-            categoryName="World"
-            showCategoryTitle={false}
-            numberOfRows={1}
-            showBoundingLines={true}
-            className="width-constrained"
-          />
-        </div>
+        {(worldLayoutArticles.length > 0 || worldGrid.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            {worldLayoutArticles.length > 0 && (
+              <ArticleLayout
+                posts={worldLayoutArticles}
+                categoryName="World"
+              />
+            )}
+            {worldGrid.length > 0 && (
+              <FourArticleGrid
+                posts={worldGrid}
+                categoryName="World"
+                showCategoryTitle={false}
+                numberOfRows={1}
+                showBoundingLines={true}
+                className="width-constrained"
+              />
+            )}
+          </div>
+        )}
 
         {/* Section 3: Culture & Arts */}
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="Culture"
-            rightColumnTitle="Arts & Entertainment"
-            leftColumnArticles={culturePostsDedup.slice(0, 3)}
-            rightColumnArticles={culturePostsDedup.slice(3, 8)}
-          />
-          <FourArticleGrid
-            posts={culturePostsDedup}
-            categoryName="Culture"
-            showCategoryTitle={false}
-            numberOfRows={1}
-            showBoundingLines={true}
-            className="width-constrained"
-          />
-        </div>
-
-        {/* Section 4: Policy & Law */}
-        {/* <div className="two-column-layout-wrapper">
-          <ArticleLayout
-            posts={policyPostsDedup.slice(0, 5)}
-            categoryName="Law & Policy"
-          />
-        </div> */}
+        {(cultureLeftColumn.length > 0 || cultureRightColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Culture"
+              rightColumnTitle="Arts & Entertainment"
+              leftColumnArticles={cultureLeftColumn}
+              rightColumnArticles={cultureRightColumn}
+            />
+            {cultureGrid.length > 0 && (
+              <FourArticleGrid
+                posts={cultureGrid}
+                categoryName="Culture"
+                showCategoryTitle={false}
+                numberOfRows={1}
+                showBoundingLines={true}
+                className="width-constrained"
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

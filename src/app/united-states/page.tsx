@@ -10,6 +10,7 @@ import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
 import { enhancePosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
+import { PageContentManager } from "../lib/contentManager";
 import type { EnhancedPost } from "../lib/types";
 
 // Fetch all data in parallel for optimal performance
@@ -62,95 +63,149 @@ const [
 
 const usaCategory = categories.find((cat) => cat.slug === "usa");
 
-const ensureContent = (
-  primary: EnhancedPost[],
-  ...fallbacks: EnhancedPost[][]
-): EnhancedPost[] => {
-  if (primary && primary.length > 0) {
-    return primary;
-  }
+// Create content manager to prevent duplicate articles across all page components
+const contentManager = new PageContentManager();
 
-  for (const fallback of fallbacks) {
-    if (fallback && fallback.length > 0) {
-      return fallback;
-    }
-  }
+// Select articles for each section in order of appearance on the page
+// This ensures no article appears twice on the United States page
+const previewArticles = contentManager.selectArticles(usaPosts, 10, {
+  allowPartial: true,
+});
+const carouselArticles = contentManager.selectArticles(usaPosts, 5, {
+  allowPartial: true,
+});
+const heroArticles = contentManager.selectArticles(usaPosts, 5, {
+  allowPartial: true,
+});
 
-  return [];
-};
+// Election Dispatch section
+const electionPool = contentManager.ensureContent(electionsPosts, usaPosts);
+const electionSpotlight = contentManager.selectArticles(electionPool, 7, {
+  allowPartial: true,
+});
 
-const combineUniquePosts = (...lists: EnhancedPost[][]): EnhancedPost[] => {
-  const seen = new Set<number>();
-  const combined: EnhancedPost[] = [];
+// Two Column Layout - Environment and Health
+const environmentPool = contentManager.ensureContent(environmentPosts, usaPosts);
+const environmentColumn = contentManager.selectArticles(environmentPool, 5, {
+  allowPartial: true,
+});
+const healthPool = contentManager.ensureContent(healthPosts, usaPosts);
+const healthColumn = contentManager.selectArticles(healthPool, 5, {
+  allowPartial: true,
+});
 
-  lists.forEach((list) => {
-    list.forEach((post) => {
-      if (!seen.has(post.id)) {
-        seen.add(post.id);
-        combined.push(post);
-      }
-    });
-  });
+// Education section
+const educationPool = contentManager.ensureContent(educationPosts, usaPosts);
+const educationArticles = contentManager.selectArticles(educationPool, 4, {
+  allowPartial: true,
+});
 
-  return combined;
-};
+// Second Hero
+const heroArticles2 = contentManager.selectArticles(usaPosts, 5, {
+  allowPartial: true,
+});
 
-const electionSpotlight = ensureContent(electionsPosts, usaPosts).slice(0, 7);
-const environmentColumn = ensureContent(environmentPosts, usaPosts).slice(0, 5);
-const healthColumn = ensureContent(healthPosts, usaPosts).slice(0, 5);
-const educationArticles = ensureContent(educationPosts, usaPosts).slice(0, 4);
-const lawArticles = ensureContent(lawPosts, usaPosts).slice(0, 5);
-const housingArticles = ensureContent(housingPosts, usaPosts).slice(0, 4);
-const nationalSecurityPool = combineUniquePosts(
+// Law & Justice section
+const lawPool = contentManager.ensureContent(lawPosts, usaPosts);
+const lawArticles = contentManager.selectArticles(lawPool, 5, {
+  allowPartial: true,
+});
+
+// National Security & Foreign Policy Pool
+const nationalSecurityPool = contentManager.combineUniquePosts(
   foreignPolicyPosts,
   securityPosts,
   usaPosts
 );
-const previewArticles = ensureContent(usaPosts).slice(0, 10);
+const nationalSecurityArticles = contentManager.selectArticles(
+  nationalSecurityPool,
+  4,
+  { allowPartial: true }
+);
+
+// Housing & Urban Affairs section
+const housingPool = contentManager.ensureContent(housingPosts, usaPosts);
+const housingArticles = contentManager.selectArticles(housingPool, 4, {
+  allowPartial: true,
+});
+
+// USA Highlights
+const usaHighlights = contentManager.selectArticles(usaPosts, 5, {
+  allowPartial: true,
+});
+
+// Third Hero
+const heroArticles3 = contentManager.selectArticles(usaPosts, 5, {
+  allowPartial: true,
+});
 
 export default function UnitedStatesPage() {
   return (
     <main className="page-container">
       <div className="main-content">
-        <ArticlePreviewGrid articles={previewArticles} />
-        <ArticleCarousel
-          title="Domestic Briefing"
-          posts={usaPosts}
-          maxArticles={5}
-        />
-        <Hero posts={usaPosts} preferredCategory="usa" />
-        <ArticleSplitShowcase
-          sectionTitle="Election Dispatch"
-          posts={electionSpotlight}
-        />
-        <div className="two-column-layout-wrapper">
-          <TwoColumnArticleLayout
-            leftColumnTitle="Environment"
-            leftColumnArticles={environmentColumn}
-            rightColumnTitle="Health"
-            rightColumnArticles={healthColumn}
+        {previewArticles.length > 0 && (
+          <ArticlePreviewGrid articles={previewArticles} />
+        )}
+        {carouselArticles.length > 0 && (
+          <ArticleCarousel
+            title="Domestic Briefing"
+            posts={carouselArticles}
+            maxArticles={5}
           />
-        </div>
-        <ArticleGrid posts={educationArticles} categoryName="Education" />
-        <Hero posts={usaPosts} preferredCategory="usa" />s
-        <ArticleLayout posts={lawArticles} categoryName="Law &amp; Justice" />
-        <FourArticleGrid
-          posts={nationalSecurityPool}
-          categoryName="National Security &amp; Foreign Policy"
-          showCategoryTitle={true}
-          showBoundingLines={true}
-          numberOfRows={1}
-          className="width-constrained"
-        />
-        <ArticleGrid
-          posts={housingArticles}
-          categoryName="Housing &amp; Urban Affairs"
-        />
-        <ArticleLayout
-          posts={usaPosts.slice(0, 5)}
-          categoryName={`${usaCategory?.name ?? "United States"} Highlights`}
-        />
-        <Hero posts={usaPosts} preferredCategory="usa" />
+        )}
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} preferredCategory="usa" />
+        )}
+        {electionSpotlight.length > 0 && (
+          <ArticleSplitShowcase
+            sectionTitle="Election Dispatch"
+            posts={electionSpotlight}
+          />
+        )}
+        {(environmentColumn.length > 0 || healthColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Environment"
+              leftColumnArticles={environmentColumn}
+              rightColumnTitle="Health"
+              rightColumnArticles={healthColumn}
+            />
+          </div>
+        )}
+        {educationArticles.length > 0 && (
+          <ArticleGrid posts={educationArticles} categoryName="Education" />
+        )}
+        {heroArticles2.length > 0 && (
+          <Hero posts={heroArticles2} preferredCategory="usa" />
+        )}
+        {lawArticles.length > 0 && (
+          <ArticleLayout posts={lawArticles} categoryName="Law &amp; Justice" />
+        )}
+        {nationalSecurityArticles.length > 0 && (
+          <FourArticleGrid
+            posts={nationalSecurityArticles}
+            categoryName="National Security &amp; Foreign Policy"
+            showCategoryTitle={true}
+            showBoundingLines={true}
+            numberOfRows={1}
+            className="width-constrained"
+          />
+        )}
+        {housingArticles.length > 0 && (
+          <ArticleGrid
+            posts={housingArticles}
+            categoryName="Housing &amp; Urban Affairs"
+          />
+        )}
+        {usaHighlights.length > 0 && (
+          <ArticleLayout
+            posts={usaHighlights}
+            categoryName={`${usaCategory?.name ?? "United States"} Highlights`}
+          />
+        )}
+        {heroArticles3.length > 0 && (
+          <Hero posts={heroArticles3} preferredCategory="usa" />
+        )}
       </div>
     </main>
   );
