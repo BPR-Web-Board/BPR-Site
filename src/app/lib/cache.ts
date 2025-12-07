@@ -22,6 +22,15 @@ class WordPressCache {
   private redisClient: RedisClientType | null = null;
   private redisConnecting: boolean = false;
   private redisConnectionFailed: boolean = false;
+  
+  // Hit-rate tracking metrics
+  private metrics = {
+    redisHits: 0,
+    memoryHits: 0,
+    misses: 0,
+    errors: 0,
+    lastReset: Date.now(),
+  };
 
   constructor(config: Partial<CacheConfig> = {}) {
     this.config = {
@@ -143,11 +152,12 @@ class WordPressCache {
       try {
         const cached = await redis.get(key);
         if (cached) {
-          // Removed console.log for production performance
+          this.metrics.redisHits++;  // Track Redis hit
           return JSON.parse(cached);
         }
       } catch (error) {
         console.error("Redis GET error:", error);
+        this.metrics.errors++;
         // Fall through to memory cache
       }
     }
@@ -157,10 +167,11 @@ class WordPressCache {
 
     if (!entry || !this.isValid(entry)) {
       this.memoryCache.delete(key);
+      this.metrics.misses++;  // Track cache miss
       return null;
     }
 
-    // Removed console.log for production performance
+    this.metrics.memoryHits++;  // Track memory hit
     return entry.data as T;
   }
 
@@ -255,7 +266,7 @@ class WordPressCache {
   }
 
   /**
-   * Get cache statistics
+   * Get cache statistics including real hit-rate metrics
    */
   async getStats() {
     let validEntries = 0;
@@ -286,14 +297,55 @@ class WordPressCache {
       }
     }
 
+    // Calculate hit-rate metrics
+    const totalRequests = this.metrics.redisHits + this.metrics.memoryHits + this.metrics.misses;
+    const totalHits = this.metrics.redisHits + this.metrics.memoryHits;
+    const overallHitRate = totalRequests > 0 ? (totalHits / totalRequests) * 100 : 0;
+    const redisCoverage = totalRequests > 0 ? (this.metrics.redisHits / totalRequests) * 100 : 0;
+    const memoryCoverage = totalRequests > 0 ? (this.metrics.memoryHits / totalRequests) * 100 : 0;
+    const missRate = totalRequests > 0 ? (this.metrics.misses / totalRequests) * 100 : 0;
+    
+    const uptimeSeconds = (Date.now() - this.metrics.lastReset) / 1000;
+    const requestsPerSecond = uptimeSeconds > 0 ? totalRequests / uptimeSeconds : 0;
+
     return {
+      performance: {
+        totalRequests,
+        totalHits,
+        totalMisses: this.metrics.misses,
+        errors: this.metrics.errors,
+        overallHitRate: parseFloat(overallHitRate.toFixed(2)),
+        missRate: parseFloat(missRate.toFixed(2)),
+        requestsPerSecond: parseFloat(requestsPerSecond.toFixed(2)),
+        uptimeSeconds: Math.floor(uptimeSeconds),
+      },
+      breakdown: {
+        redisHits: this.metrics.redisHits,
+        memoryHits: this.metrics.memoryHits,
+        redisCoverage: parseFloat(redisCoverage.toFixed(2)),
+        memoryCoverage: parseFloat(memoryCoverage.toFixed(2)),
+      },
       memory: {
         totalEntries: this.memoryCache.size,
         validEntries,
         expiredEntries,
-        hitRate: validEntries / this.memoryCache.size || 0,
+        maxSize: this.config.maxSize,
+        utilizationPercent: parseFloat(((this.memoryCache.size / this.config.maxSize) * 100).toFixed(2)),
       },
       redis: redisStats,
+    };
+  }
+
+  /**
+   * Reset hit-rate metrics
+   */
+  resetMetrics(): void {
+    this.metrics = {
+      redisHits: 0,
+      memoryHits: 0,
+      misses: 0,
+      errors: 0,
+      lastReset: Date.now(),
     };
   }
 

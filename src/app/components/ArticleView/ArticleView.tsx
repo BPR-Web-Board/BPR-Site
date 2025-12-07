@@ -480,10 +480,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const imageAlt = featuredImage?.alt_text || titleText;
 
   // Get author information
-  const authorName = post.author_name || post.author_obj?.name || "ANNIKA REFF";
+  const authorName =
+    post.author_name || post.author_obj?.name || "Unknown Author";
 
   // Extract illustrator from content
-  const illustrator = extractIllustrator(rawContent) || "JACOB GONG";
+  const illustrator = extractIllustrator(rawContent) || null;
 
   // Calculate pull quote positions after component mounts and on resize
   useEffect(() => {
@@ -635,9 +636,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         <aside className="article-sidebar" ref={sidebarRef}>
           <div className="author-info">
             <div className="author-byline">BY {authorName.toUpperCase()}</div>
-            <div className="illustrator-info">
-              ILLUSTRATION BY {illustrator.toUpperCase()}
-            </div>
+            {illustrator && (
+              <div className="illustrator-info">
+                ILLUSTRATION BY {illustrator.toUpperCase()}
+              </div>
+            )}
             <div className="article-date">
               {formatDate(post.date).toUpperCase()}
             </div>
