@@ -24,7 +24,6 @@ interface ContentBlock {
     width: number;
     height: number;
     caption?: string;
-    credit?: string;
     link?: string;
   };
 }
@@ -160,7 +159,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
 
         // Check for caption (figcaption)
         const captionMatch = content.match(
-          /<figcaption[^>]*>(.*?)<\/figcaption>/s
+          /\u003cfigcaption[^\u003e]*\u003e(.*?)\u003c\/figcaption\u003e/s
         );
 
         if (srcMatch) {
@@ -170,7 +169,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
             width: widthMatch ? parseInt(widthMatch[1]) : 800,
             height: heightMatch ? parseInt(heightMatch[1]) : 600,
             caption: captionMatch
-              ? captionMatch[1].replace(/<[^>]*>/g, "").trim()
+              ? captionMatch[1].replace(/\u003c[^\u003e]*\u003e/g, "").trim()
               : undefined,
             link: linkMatch ? he.decode(linkMatch[1]) : undefined,
           };
@@ -192,9 +191,9 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
         const widthMatch = img.match(/width="(\d+)"/);
         const heightMatch = img.match(/height="(\d+)"/);
 
-        const linkMatch = content.match(/<a[^>]*href="([^"]+)"[^>]*>/);
+        const linkMatch = content.match(/\u003ca[^\u003e]*href="([^"]+)"[^\u003e]*\u003e/);
         const captionMatch = content.match(
-          /<figcaption[^>]*>(.*?)<\/figcaption>/s
+          /\u003cfigcaption[^\u003e]*\u003e(.*?)\u003c\/figcaption\u003e/s
         );
 
         if (srcMatch) {
@@ -204,7 +203,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
             width: widthMatch ? parseInt(widthMatch[1]) : 800,
             height: heightMatch ? parseInt(heightMatch[1]) : 600,
             caption: captionMatch
-              ? captionMatch[1].replace(/<[^>]*>/g, "").trim()
+              ? captionMatch[1].replace(/\u003c[^\u003e]*\u003e/g, "").trim()
               : undefined,
             link: linkMatch ? he.decode(linkMatch[1]) : undefined,
           };
@@ -399,12 +398,7 @@ function stripHtml(html: string): string {
   return cleaned;
 }
 
-// Helper function to extract illustrator from content
-function extractIllustrator(content: string): string | null {
-  const illustratorRegex = /illustration\s+by\s+([^<\n]+)/i;
-  const match = content.match(illustratorRegex);
-  return match ? match[1].trim() : null;
-}
+
 
 const ArticleView: React.FC<ArticleViewProps> = ({
   post,
@@ -483,8 +477,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const authorName =
     post.author_name || post.author_obj?.name || "Unknown Author";
 
-  // Extract illustrator from content
-  const illustrator = extractIllustrator(rawContent) || null;
+
 
   // Calculate pull quote positions after component mounts and on resize
   useEffect(() => {
@@ -582,9 +575,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             {imageData.caption && (
               <div className="image-caption">{imageData.caption}</div>
             )}
-            {imageData.credit && (
-              <div className="image-credit">{imageData.credit}</div>
-            )}
           </div>
         );
       }
@@ -636,11 +626,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         <aside className="article-sidebar" ref={sidebarRef}>
           <div className="author-info">
             <div className="author-byline">BY {authorName.toUpperCase()}</div>
-            {illustrator && (
-              <div className="illustrator-info">
-                ILLUSTRATION BY {illustrator.toUpperCase()}
-              </div>
-            )}
             <div className="article-date">
               {formatDate(post.date).toUpperCase()}
             </div>

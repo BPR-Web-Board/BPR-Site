@@ -30,7 +30,7 @@
 
 /* Article Title - Nicholas font, 64px, Bold, Letter spacing 3.2px */
 .article-title-view {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: "FranklinGothic URW", "Playfair Display", serif;
   font-size: 4rem;
   font-weight: 700;
   line-height: 130%; /* 83.2px */
@@ -169,7 +169,6 @@
 
 /* Article Content */
 .article-content {
-  font-family: "Crimson Text", "Playfair Display", serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 130%; /* 31.2px */
