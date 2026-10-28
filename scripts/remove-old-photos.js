@@ -58,7 +58,6 @@ async function wp(path, auth, options = {}) {
   return { data: await res.json(), headers: res.headers };
 }
 
-// Confirm the credentials work and the account can edit posts / delete media
 async function checkConnection(opts, auth) {
   console.log(`Connecting to ${WORDPRESS_URL}...`);
 
@@ -88,7 +87,6 @@ async function checkConnection(opts, auth) {
   console.log("Account has permission to edit posts" + (opts.deleteMedia ? " and delete media\n" : "\n"));
 }
 
-// Fetch every post published before the cutoff, with raw (editable) content
 async function getOldPosts(before, auth) {
   const posts = [];
   const beforeIso = new Date(before).toISOString();
@@ -108,7 +106,6 @@ async function getOldPosts(before, auth) {
   return posts;
 }
 
-// Remove Gutenberg image/gallery blocks, figures with images, and stray <img> tags
 function stripImages(html) {
   return html
     .replace(/<!-- wp:(image|gallery)[\s\S]*?<!-- \/wp:\1 -->\s*/g, "")
@@ -166,7 +163,6 @@ async function main() {
     if (!opts.apply) continue;
 
     try {
-      // Update the post first so it never points at deleted media
       if (hasFeatured || contentChanged) {
         await wp(`/posts/${post.id}`, auth, {
           method: "POST",
