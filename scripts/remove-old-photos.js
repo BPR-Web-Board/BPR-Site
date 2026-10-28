@@ -3,22 +3,11 @@
 /**
  * Remove Old Photos Script
  *
- * Strips photos from WordPress articles published before a cutoff date.
- * The articles themselves are kept; only images are removed:
- *   - the featured image is unset
- *   - image blocks / <img> tags are removed from the post content
- *   - (optional, --delete-media) the image files attached to the post are
- *     permanently deleted from the media library
- *
- * Runs as a dry run by default and changes nothing until --apply is passed.
- *
- * Requires a WordPress Application Password (Users > Profile > Application Passwords):
- *   WP_USERNAME=...  WP_APP_PASSWORD="xxxx xxxx xxxx xxxx"
- *
- * Usage:
- *   node scripts/remove-old-photos.js --before 2020-01-01             # dry run
- *   node scripts/remove-old-photos.js --before 2020-01-01 --apply     # update posts
- *   node scripts/remove-old-photos.js --before 2020-01-01 --apply --delete-media
+ * Run this to remove all images from posts published before a certain date:
+ * WP_USERNAME=your-wp-username WP_APP_PASSWORD="abcd efgh ijkl mnop qrst uvwx" node scripts/remove-old-photos.js --before 2020-01-01 --apply
+ * 
+ * Run this to test connection:
+ * WP_USERNAME=your-wp-username WP_APP_PASSWORD="abcd efgh ijkl mnop qrst uvwx" node scripts/remove-old-photos.js --before 2020-01-01
  */
 
 const WORDPRESS_URL = (
