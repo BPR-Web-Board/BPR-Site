@@ -8,9 +8,11 @@ export default {
   ],
   theme: {
     extend: {
+      spacing: Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map(step => [step, `var(--space-${step})`])),
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "var(--surface)",
+        foreground: "var(--text-primary)",
+        muted: "var(--text-muted)",
       },
       fontFamily: {
         serif: [

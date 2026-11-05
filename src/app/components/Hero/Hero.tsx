@@ -1,16 +1,22 @@
-import React from "react";
+
+import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../shared/CategoryPills/CategoryPills";
+import React, { ReactNode } from "react";
 import Link from "next/link";
 import classNames from "classnames";
 import { EnhancedPost } from "../../lib/types";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
-import { getArticleLink } from "../../lib/utils";
+import { getAuthorName, getArticleLink, formatArchiveDate } from "../../lib/utils";
+import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import "./Hero.css";
 
 export interface HeroProps {
   posts: EnhancedPost[];
   className?: string;
   preferredCategory?: string; // Optional: prefer posts from a specific category
-  priority?: boolean; // Optional: use priority loading for the image (default: false)
+  priority?: boolean;
+  topChrome?: ReactNode;
 }
 
 const Hero: React.FC<HeroProps> = ({
@@ -18,6 +24,7 @@ const Hero: React.FC<HeroProps> = ({
   className = "",
   preferredCategory,
   priority = false,
+  topChrome,
 }) => {
   // Filter posts that have featured images
   const postsWithImages = posts.filter(
@@ -25,24 +32,10 @@ const Hero: React.FC<HeroProps> = ({
   );
 
   if (postsWithImages.length === 0) {
-    return (
-      <div
-        className="hero-error-container"
-        style={{
-          height: "400px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f5f5f5",
-          color: "#666",
-        }}
-      >
-        <div className="text-center">
-          <h2>Hero Content Unavailable</h2>
-          <p>No posts with featured images available.</p>
-        </div>
-      </div>
-    );
+    return <>
+      {topChrome}
+      <FourArticleGrid posts={posts} showCategoryTitle={false} numberOfRows={Math.ceil(posts.length / 4)} className="width-constrained" />
+    </>;
   }
 
   // If preferredCategory is specified, try to find a post from that category first
@@ -73,13 +66,8 @@ const Hero: React.FC<HeroProps> = ({
       : String(selectedPost.excerpt || "").replace(/<[^>]*>/g, "");
 
   const author =
-    selectedPost.author_name || selectedPost.author_obj?.name || "STAFF WRITER";
-
-  // Get category name (assuming first category is primary)
-  const categoryName =
-    selectedPost.categories_obj && selectedPost.categories_obj.length > 0
-      ? selectedPost.categories_obj[0].name.toUpperCase()
-      : "FEATURED";
+    getAuthorName(selectedPost);
+  const formattedDate = formatArchiveDate(selectedPost.date || "");
 
   // Get featured image
   const hasImage = !!(
@@ -95,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({
   const href = getArticleLink(selectedPost);
 
   return (
-    <section className={classNames("hero-section", className)}>
+    <section className={classNames("hero-section", className, topChrome && "hero-section--with-chrome")}>
       <div className="hero-background">
         {hasImage && imageUrl ? (
           <OptimizedImage
@@ -115,16 +103,16 @@ const Hero: React.FC<HeroProps> = ({
         <div className="hero-gradient-overlay" />
       </div>
 
+      {topChrome ? <div className="hero-top-chrome">{topChrome}</div> : null}
+
       <div className="hero-content">
         <div className="hero-text-container">
           <div className="hero-attributes">
-            <div className="hero-category">{categoryName}</div>
+            <CategoryPills categories={selectedPost.categories_obj} />
 
             <Link href={href} className="hero-link">
               <h1
-                className="hero-title"
-                dangerouslySetInnerHTML={{ __html: titleText }}
-              />
+                className="hero-title"><ArticleTitle html={titleText} /></h1>
             </Link>
           </div>
           <div className="hero-meta">
@@ -133,7 +121,13 @@ const Hero: React.FC<HeroProps> = ({
               dangerouslySetInnerHTML={{ __html: excerptText }}
             />
 
-            <div className="hero-byline">BY {author.toUpperCase()}</div>
+            <div className="hero-byline">
+              <span className="hero-byline-author">{author.toUpperCase()}</span>
+              {formattedDate ? <>
+                <span className="hero-byline-divider" aria-hidden="true">·</span>
+                <time className="hero-byline-date" dateTime={selectedPost.date}>{formattedDate}</time>
+              </> : null}
+            </div>
           </div>
         </div>
       </div>

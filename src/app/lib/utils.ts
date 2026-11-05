@@ -1,6 +1,14 @@
 // Shared utility functions used across components
 import type { EnhancedPost, Category, Post } from "./types";
 
+export function getAuthorName(post: { author_name?: string; author_obj?: { name: string } | null }): string {
+  for (const value of [post.author_name, post.author_obj?.name]) {
+    const name = value?.trim();
+    if (name && !/^(last\s*name|unknown(?: author)?|staff writer)$/i.test(name)) return name;
+  }
+  return "Anonymous";
+}
+
 /**
  * Formats a date string to a readable format
  */
@@ -56,10 +64,8 @@ export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
  * Generates the article link based on category and slug
  * Maps category slugs to their proper parent sections
  */
-export function getArticleLink(post: Post | EnhancedPost): string {
+export function getArticleLink(post: { id: number; slug: string; categories_obj?: Array<{ slug: string }> }): string {
   if (post.id <= 0) return "#";
-
-  const categorySlug = (post as EnhancedPost).categories_obj?.[0]?.slug || "world";
 
   // Define category to parent section mappings
   const categoryMappings: { [key: string]: string } = {
@@ -89,6 +95,7 @@ export function getArticleLink(post: Post | EnhancedPost): string {
     // Interviews subsections
     "professor-podcasts": "interviews",
     "rhode-island-interviews": "interviews",
+    "ri-interviews": "interviews",
     "us-interviews": "interviews",
     "congress-interviews": "interviews",
     "world-interviews": "interviews",
@@ -107,18 +114,14 @@ export function getArticleLink(post: Post | EnhancedPost): string {
     magazine: "magazine",
   };
 
-  // Get parent section, default to the category slug itself if no mapping
-  const parentSection = categoryMappings[categorySlug] || categorySlug;
-
-  // For parent sections (united-states, world, interviews, multimedia, magazine), use section/article/slug
-  // For subsections, use parent/subsection/article/slug
-  if (parentSection === categorySlug) {
-    // This is a parent section
-    return `/${categorySlug}/article/${post.slug}`;
-  } else {
-    // This is a subsection, use parent/subsection/article/slug
-    return `/${parentSection}/${categorySlug}/article/${post.slug}`;
-  }
+  const sections = ["magazine", "multimedia", "interviews", "united-states", "world", "culture"];
+  const aliases: Record<string, string> = { usa: "united-states", mag: "magazine" };
+  const slugs = (post.categories_obj || []).map(({ slug }) => aliases[slug] || slug);
+  const section = sections.find((name) => slugs.includes(name))
+    || sections.find((name) => slugs.some((slug) => categoryMappings[slug] === name))
+    || "world";
+  const subsection = slugs.filter((slug) => slug !== section && categoryMappings[slug] === section).sort()[0];
+  return `/${section}${subsection ? `/${subsection}` : ""}/article/${encodeURIComponent(post.slug)}`;
 }
 
 /**
@@ -168,4 +171,22 @@ export function filterPostsByCategory(
   return posts.filter((post) =>
     post.categories_obj?.some((cat: Category) => cat.slug === categorySlug)
   );
+}
+
+
+export function uniqueArticles<T extends { id: number }>(...groups: T[][]): T[] {
+  const seen = new Set<number>();
+  return groups.flat().filter(article => {
+    if (seen.has(article.id)) return false;
+    seen.add(article.id);
+    return true;
+  });
+}
+
+export function formatArchiveDate(value: string): string {
+  const day = value.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  if (!day) return "";
+  const date = new Date(`${day}T00:00:00Z`);
+  if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== day) return "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).toUpperCase();
 }

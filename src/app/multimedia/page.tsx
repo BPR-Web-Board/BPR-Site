@@ -1,5 +1,5 @@
 import React from "react";
-import ArticleCarousel from "../components/ArticleCarousel";
+import ArticleSpotlight from "../components/ArticleSpotlight";
 import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
 import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
@@ -8,131 +8,133 @@ import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
-import { enhancePosts } from "../lib/enhancePost";
+import { enhancePreviewPosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
 
-// Fetch all data in parallel for optimal performance
-const [
-  categories,
-  multimediaPostsRaw,
-  bpradioPostsRaw,
-  dataPostsRaw,
-  mediaPostsRaw,
-] = await Promise.all([
-  getAllCategories(),
-  getPostsByCategorySlug("multimedia", { per_page: 24 }),
-  getPostsByCategorySlug("bpradio", { per_page: 8 }),
-  getPostsByCategorySlug("data", { per_page: 8 }),
-  getPostsByCategorySlug("media", { per_page: 8 }),
-]);
+export const revalidate = 1800;
 
-// Enhance all posts in parallel
-const [multimediaPosts, bpradioPosts, dataPosts, mediaPosts] =
-  await Promise.all([
-    enhancePosts(multimediaPostsRaw, categories),
-    enhancePosts(bpradioPostsRaw, categories),
-    enhancePosts(dataPostsRaw, categories),
-    enhancePosts(mediaPostsRaw, categories),
+export default async function MultimediaPage() {
+  // Fetch all data in parallel for optimal performance
+  const [
+    categories,
+    multimediaPostsRaw,
+    bpradioPostsRaw,
+    dataPostsRaw,
+    mediaPostsRaw,
+  ] = await Promise.all([
+    getAllCategories(),
+    getPostsByCategorySlug("multimedia", { per_page: 24 }),
+    getPostsByCategorySlug("bpradio", { per_page: 8 }),
+    getPostsByCategorySlug("data", { per_page: 8 }),
+    getPostsByCategorySlug("media", { per_page: 8 }),
   ]);
 
-const multimediaCategory = categories.find((cat) => cat.slug === "multimedia");
+  // Enhance all posts in parallel
+  const [multimediaPosts, bpradioPosts, dataPosts, mediaPosts] =
+    await Promise.all([
+      enhancePreviewPosts(multimediaPostsRaw, categories),
+      enhancePreviewPosts(bpradioPostsRaw, categories),
+      enhancePreviewPosts(dataPostsRaw, categories),
+      enhancePreviewPosts(mediaPostsRaw, categories),
+    ]);
 
-// Create content manager to prevent duplicate articles across all page components
-const contentManager = new PageContentManager();
+  const multimediaCategory = categories.find((cat) => cat.slug === "multimedia");
 
-// Create a global fallback pool for filling gaps
-const globalFallbackPool = contentManager.combineUniquePosts(
-  multimediaPosts,
-  bpradioPosts,
-  dataPosts,
-  mediaPosts
-);
+  // Create content manager to prevent duplicate articles across all page components
+  const contentManager = new PageContentManager();
 
-// Select articles for each section in order of appearance on the page
-// This ensures no article appears twice on the multimedia page
+  // Create a global fallback pool for filling gaps
+  const globalFallbackPool = contentManager.combineUniquePosts(
+    multimediaPosts,
+    bpradioPosts,
+    dataPosts,
+    mediaPosts
+  );
 
-// Two Column Layout - Data and Media
-const dataPool = contentManager.ensureContent(dataPosts, multimediaPosts);
-const dataColumn = contentManager.selectArticles(dataPool, 5, {
-  allowPartial: true,
-});
-const mediaPool = contentManager.ensureContent(mediaPosts, multimediaPosts);
-const mediaColumn = contentManager.selectArticles(mediaPool, 5, {
-  allowPartial: true,
-});
+  // Select articles for each section in order of appearance on the page
+  // This ensures no article appears twice on the multimedia page
 
-// Hero
-const heroArticles = contentManager.selectArticles(multimediaPosts, 5, {
-  allowPartial: true,
-});
-
-// BPRadio section - ensure exactly 4 articles
-const bpradioPool = contentManager.ensureContent(bpradioPosts, multimediaPosts);
-const bpradioArticles = contentManager.fillToCount(
-  bpradioPool,
-  4,
-  globalFallbackPool
-);
-
-// Carousel
-const carouselArticles = contentManager.selectArticles(multimediaPosts, 5, {
-  allowPartial: true,
-});
-
-// Data & Analysis section
-const dataArticles = contentManager.selectArticles(dataPool, 5, {
-  allowPartial: true,
-});
-
-// BPRadio Features section
-const bpradioSpotlight = contentManager.selectArticles(bpradioPool, 7, {
-  allowPartial: true,
-});
-
-// Preview Grid
-const previewArticles = contentManager.selectArticles(multimediaPosts, 10, {
-  allowPartial: true,
-});
-
-// Second Hero
-const heroArticles2 = contentManager.selectArticles(multimediaPosts, 5, {
-  allowPartial: true,
-});
-
-// Media section - ensure exactly 4 articles
-const mediaArticles = contentManager.fillToCount(
-  mediaPool,
-  4,
-  globalFallbackPool
-);
-
-// Multimedia Collection Pool
-const multimediaPool = contentManager.combineUniquePosts(
-  bpradioPosts,
-  dataPosts,
-  mediaPosts,
-  multimediaPosts
-);
-const multimediaPoolArticles = contentManager.selectArticles(
-  multimediaPool,
-  4,
-  {
+  // Two Column Layout - Data and Media
+  const dataPool = contentManager.ensureContent(dataPosts, multimediaPosts);
+  const dataColumn = contentManager.selectArticles(dataPool, 5, {
     allowPartial: true,
-  }
-);
+  });
+  const mediaPool = contentManager.ensureContent(mediaPosts, multimediaPosts);
+  const mediaColumn = contentManager.selectArticles(mediaPool, 5, {
+    allowPartial: true,
+  });
 
-// Multimedia Highlights
-const multimediaHighlights = contentManager.selectArticles(multimediaPosts, 5, {
-  allowPartial: true,
-});
+  // Hero
+  const heroArticles = contentManager.selectArticles(multimediaPosts, 5, {
+    allowPartial: true,
+  });
 
-// Third Hero
-const heroArticles3 = contentManager.selectArticles(multimediaPosts, 5, {
-  allowPartial: true,
-});
+  // BPRadio section - ensure exactly 4 articles
+  const bpradioPool = contentManager.ensureContent(bpradioPosts, multimediaPosts);
+  const bpradioArticles = contentManager.fillToCount(
+    bpradioPool,
+    4,
+    globalFallbackPool
+  );
 
-export default function MultimediaPage() {
+  const spotlightArticles = contentManager.selectArticles(multimediaPosts, 5, {
+    allowPartial: true,
+  });
+
+  // Data & Analysis section
+  const dataArticles = contentManager.selectArticles(dataPool, 5, {
+    allowPartial: true,
+  });
+
+  // BPRadio Features section
+  const bpradioSpotlight = contentManager.selectArticles(bpradioPool, 7, {
+    allowPartial: true,
+  });
+
+  // Preview Grid
+  const previewArticles = contentManager.selectArticles(multimediaPosts, 10, {
+    allowPartial: true,
+  });
+
+  // Second Hero
+  const heroArticles2 = contentManager.selectArticles(multimediaPosts, 5, {
+    allowPartial: true,
+  });
+
+  // Media section - ensure exactly 4 articles
+  const mediaArticles = contentManager.fillToCount(
+    mediaPool,
+    4,
+    globalFallbackPool
+  );
+
+  // Multimedia Collection Pool
+  const multimediaPool = contentManager.combineUniquePosts(
+    bpradioPosts,
+    dataPosts,
+    mediaPosts,
+    multimediaPosts
+  );
+  const multimediaPoolArticles = contentManager.selectArticles(
+    multimediaPool,
+    4,
+    {
+      allowPartial: true,
+    }
+  );
+
+  // Multimedia Highlights
+  const multimediaHighlights = contentManager.selectArticles(multimediaPosts, 5, {
+    allowPartial: true,
+  });
+
+  // Third Hero
+  const heroArticles3 = contentManager.selectArticles(multimediaPosts, 5, {
+    allowPartial: true,
+  });
+
+
   return (
     <main className="page-container">
       <div className="main-content">
@@ -153,10 +155,10 @@ export default function MultimediaPage() {
           <Hero posts={heroArticles} preferredCategory="multimedia" />
         )}
         <ArticleGrid posts={bpradioArticles} categoryName="BPRadio" />
-        {carouselArticles.length > 0 && (
-          <ArticleCarousel
+        {spotlightArticles.length > 0 && (
+          <ArticleSpotlight
             title="Multimedia Showcase"
-            posts={carouselArticles}
+            posts={spotlightArticles}
             maxArticles={5}
           />
         )}
@@ -184,7 +186,6 @@ export default function MultimediaPage() {
             posts={multimediaPoolArticles}
             categoryName="Multimedia Collection"
             showCategoryTitle={true}
-            showBoundingLines={true}
             numberOfRows={1}
             className="width-constrained"
           />

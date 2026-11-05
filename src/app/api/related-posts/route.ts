@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPostsByCategory, getAllCategories } from "@/app/lib/wordpress";
-import { enhancePosts } from "@/app/lib/enhancePost";
+import { enhancePreviewPosts } from "@/app/lib/enhancePost";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const excludeId = excludePostId ? parseInt(excludePostId) : undefined;
 
     // Fetch articles and categories
-    // We fetch categories too because enhancePosts needs them
+    // We fetch categories too because enhancePreviewPosts needs them
     const [posts, categories] = await Promise.all([
       getPostsByCategory(catId),
       getAllCategories(),
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     const limitedPosts = filteredPosts.slice(0, 4);
 
     // Enhance posts
-    const enhancedPosts = await enhancePosts(limitedPosts, categories);
+    const enhancedPosts = await enhancePreviewPosts(limitedPosts, categories);
 
     return NextResponse.json({ posts: enhancedPosts });
   } catch (error) {

@@ -1,15 +1,20 @@
-"use client";
+
+import ArticleTitle from "../ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../CategoryPills/CategoryPills";
 
 import React from "react";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
-import {
+import { getAuthorName,
   stripHtml,
   truncateText,
   getArticleTitle,
   getArticleLink,
+  formatArchiveDate,
 } from "../../../lib/utils";
-import OptimizedImage from "../OptimizedImage/OptimizedImage";
+import ArticleMedia from "../ArticleMedia/ArticleMedia";
+import { getMediaPreview } from "../../../lib/mediaPreview";
 import "./FeaturedArticle.css";
 
 export interface FeaturedArticleProps {
@@ -31,70 +36,40 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
 }) => {
   const articleLink = getArticleLink(article);
   const title = getArticleTitle(article);
+  const formattedDate = formatArchiveDate(article.date || "");
   const excerpt = truncateText(
     stripHtml(article?.excerpt?.rendered || ""),
     excerptLength
   );
 
-  const imageContent = showImage && (
+  const imageContent = showImage && (!!article.featured_media_obj?.source_url || !!getMediaPreview(article)) && (
     <div className="featured-article-image-container">
-      {article?.featured_media_obj?.source_url ? (
-        <OptimizedImage
-          src={article.featured_media_obj.source_url}
-          alt={stripHtml(title)}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="featured-article-image"
-          priority
-          showPlaceholder={true}
-        />
-      ) : (
-        <div className="featured-article-image-placeholder">
-          <span>Image not available</span>
-        </div>
-      )}
+      <ArticleMedia article={article} className="featured-article-image" sizes="(max-width: 768px) 100vw, 50vw" priority />
     </div>
   );
 
   const textContent = (
-    <div className="featured-article-content">
+    <div className="featured-article-content article-card-content-stack">
       <h3
-        className="featured-article-title"
-        dangerouslySetInnerHTML={{ __html: title }}
-      />
+        className="featured-article-title"><ArticleTitle html={title} /></h3>
 
-      {variant === "preview-grid" ? (
-        <>
-          <div className="featured-article-meta">
-            <span className="featured-article-author">
-              {(article?.author_name || "LASTNAME").toUpperCase()}
-            </span>
-          </div>
-          <div
-            className="featured-article-excerpt"
-            dangerouslySetInnerHTML={{ __html: excerpt }}
-          />
-        </>
-      ) : (
-        <>
-          <div className="featured-article-meta">
-            <span className="featured-article-author">
-              BY {(article?.author_name || "LASTNAME").toUpperCase()}
-            </span>
-          </div>
-
-          <div
-            className="featured-article-excerpt"
-            dangerouslySetInnerHTML={{ __html: excerpt }}
-          />
-        </>
-      )}
+      <div className="article-byline-group">
+        <div className="featured-article-meta">
+          <span className="featured-article-author">{getAuthorName(article).toUpperCase()}</span>
+          {formattedDate ? <>
+            <span className="featured-article-meta-divider" aria-hidden="true">·</span>
+            <time className="featured-article-date" dateTime={article.date}>{formattedDate}</time>
+          </> : null}
+        </div>
+        <CategoryPills categories={article.categories_obj} />
+      </div>
+      <div className="featured-article-excerpt" dangerouslySetInnerHTML={{ __html: excerpt }} />
     </div>
   );
 
   return (
     <article
-      className={`featured-article variant-${variant} image-${imagePosition} ${className}`}
+      className={`article-card-frame featured-article variant-${variant} image-${imagePosition} ${className}`}
     >
       <Link href={articleLink} style={{ display: "contents" }}>
         {imagePosition === "top" && (

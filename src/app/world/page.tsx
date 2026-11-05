@@ -1,5 +1,5 @@
 import React from "react";
-import ArticleCarousel from "../components/ArticleCarousel";
+import ArticleSpotlight from "../components/ArticleSpotlight";
 import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
 import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
@@ -8,174 +8,177 @@ import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
-import { enhancePosts } from "../lib/enhancePost";
+import { enhancePreviewPosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
 
-// Fetch all data in parallel for optimal performance
-const [
-  categories,
-  worldPostsRaw,
-  europePostsRaw,
-  asiaPacificPostsRaw,
-  middleEastPostsRaw,
-  africaPostsRaw,
-  latinAmericaPostsRaw,
-  southAmericaPostsRaw,
-] = await Promise.all([
-  getAllCategories(),
-  getPostsByCategorySlug("world", { per_page: 24 }),
-  getPostsByCategorySlug("europe", { per_page: 8 }),
-  getPostsByCategorySlug("asia-pacific", { per_page: 8 }),
-  getPostsByCategorySlug("middle-east", { per_page: 8 }),
-  getPostsByCategorySlug("africa", { per_page: 8 }),
-  getPostsByCategorySlug("latin-america", { per_page: 8 }),
-  getPostsByCategorySlug("south-america", { per_page: 8 }),
-]);
+export const revalidate = 1800;
 
-// Enhance all posts in parallel
-const [
-  worldPosts,
-  europePosts,
-  asiaPacificPosts,
-  middleEastPosts,
-  africaPosts,
-  latinAmericaPosts,
-  southAmericaPosts,
-] = await Promise.all([
-  enhancePosts(worldPostsRaw, categories),
-  enhancePosts(europePostsRaw, categories),
-  enhancePosts(asiaPacificPostsRaw, categories),
-  enhancePosts(middleEastPostsRaw, categories),
-  enhancePosts(africaPostsRaw, categories),
-  enhancePosts(latinAmericaPostsRaw, categories),
-  enhancePosts(southAmericaPostsRaw, categories),
-]);
+export default async function WorldPage() {
+  // Fetch all data in parallel for optimal performance
+  const [
+    categories,
+    worldPostsRaw,
+    europePostsRaw,
+    asiaPacificPostsRaw,
+    middleEastPostsRaw,
+    africaPostsRaw,
+    latinAmericaPostsRaw,
+    southAmericaPostsRaw,
+  ] = await Promise.all([
+    getAllCategories(),
+    getPostsByCategorySlug("world", { per_page: 24 }),
+    getPostsByCategorySlug("europe", { per_page: 8 }),
+    getPostsByCategorySlug("asia-pacific", { per_page: 8 }),
+    getPostsByCategorySlug("middle-east", { per_page: 8 }),
+    getPostsByCategorySlug("africa", { per_page: 8 }),
+    getPostsByCategorySlug("latin-america", { per_page: 8 }),
+    getPostsByCategorySlug("south-america", { per_page: 8 }),
+  ]);
 
-const worldCategory = categories.find((cat) => cat.slug === "world");
+  // Enhance all posts in parallel
+  const [
+    worldPosts,
+    europePosts,
+    asiaPacificPosts,
+    middleEastPosts,
+    africaPosts,
+    latinAmericaPosts,
+    southAmericaPosts,
+  ] = await Promise.all([
+    enhancePreviewPosts(worldPostsRaw, categories),
+    enhancePreviewPosts(europePostsRaw, categories),
+    enhancePreviewPosts(asiaPacificPostsRaw, categories),
+    enhancePreviewPosts(middleEastPostsRaw, categories),
+    enhancePreviewPosts(africaPostsRaw, categories),
+    enhancePreviewPosts(latinAmericaPostsRaw, categories),
+    enhancePreviewPosts(southAmericaPostsRaw, categories),
+  ]);
 
-// Create content manager to prevent duplicate articles across all page components
-const contentManager = new PageContentManager();
+  const worldCategory = categories.find((cat) => cat.slug === "world");
 
-// Create a global fallback pool for filling gaps
-const globalFallbackPool = contentManager.combineUniquePosts(
-  worldPosts,
-  africaPosts,
-  asiaPacificPosts,
-  europePosts,
-  latinAmericaPosts,
-  middleEastPosts,
-  southAmericaPosts
-);
+  // Create content manager to prevent duplicate articles across all page components
+  const contentManager = new PageContentManager();
 
-// Select articles for each section in order of appearance on the page
-// This ensures no article appears twice on the world page
-const heroArticles = contentManager.selectArticles(worldPosts, 5, {
-  allowPartial: true,
-});
-const carouselArticles = contentManager.selectArticles(worldPosts, 5, {
-  allowPartial: true,
-});
+  // Create a global fallback pool for filling gaps
+  const globalFallbackPool = contentManager.combineUniquePosts(
+    worldPosts,
+    africaPosts,
+    asiaPacificPosts,
+    europePosts,
+    latinAmericaPosts,
+    middleEastPosts,
+    southAmericaPosts
+  );
 
-// Africa Dispatch section
-const africaPool = contentManager.ensureContent(africaPosts, worldPosts);
-const africaSpotlight = contentManager.selectArticles(africaPool, 7, {
-  allowPartial: true,
-});
-
-// Asia/Pacific section - ensure exactly 4 articles
-const asiaPacificPool = contentManager.ensureContent(
-  asiaPacificPosts,
-  worldPosts
-);
-const asiaPacificArticles = contentManager.fillToCount(
-  asiaPacificPool,
-  4,
-  globalFallbackPool
-);
-
-// Preview Grid
-const previewArticles = contentManager.selectArticles(worldPosts, 10, {
-  allowPartial: true,
-});
-
-// Two Column Layout - Europe and Middle East
-const europePool = contentManager.ensureContent(europePosts, worldPosts);
-const europeColumn = contentManager.selectArticles(europePool, 5, {
-  allowPartial: true,
-});
-const middleEastPool = contentManager.ensureContent(
-  middleEastPosts,
-  worldPosts
-);
-const middleEastColumn = contentManager.selectArticles(middleEastPool, 5, {
-  allowPartial: true,
-});
-
-// Second Hero
-const heroArticles2 = contentManager.selectArticles(worldPosts, 5, {
-  allowPartial: true,
-});
-
-// Latin America section
-const latinAmericaPool = contentManager.ensureContent(
-  latinAmericaPosts,
-  worldPosts
-);
-const latinAmericaArticles = contentManager.selectArticles(
-  latinAmericaPool,
-  5,
-  {
+  // Select articles for each section in order of appearance on the page
+  // This ensures no article appears twice on the world page
+  const heroArticles = contentManager.selectArticles(worldPosts, 5, {
     allowPartial: true,
-  }
-);
+  });
+  const spotlightArticles = contentManager.selectArticles(worldPosts, 5, {
+    allowPartial: true,
+  });
 
-// South America section - ensure exactly 4 articles
-const southAmericaPool = contentManager.ensureContent(
-  southAmericaPosts,
-  worldPosts
-);
-const southAmericaArticles = contentManager.fillToCount(
-  southAmericaPool,
-  4,
-  globalFallbackPool
-);
+  // Africa Dispatch section
+  const africaPool = contentManager.ensureContent(africaPosts, worldPosts);
+  const africaSpotlight = contentManager.selectArticles(africaPool, 7, {
+    allowPartial: true,
+  });
 
-// Regional Pool - combines all regional posts for the grid
-const regionalPool = contentManager.combineUniquePosts(
-  africaPosts,
-  asiaPacificPosts,
-  europePosts,
-  latinAmericaPosts,
-  middleEastPosts,
-  southAmericaPosts,
-  worldPosts
-);
-const regionalPoolArticles = contentManager.selectArticles(regionalPool, 4, {
-  allowPartial: true,
-});
+  // Asia/Pacific section - ensure exactly 4 articles
+  const asiaPacificPool = contentManager.ensureContent(
+    asiaPacificPosts,
+    worldPosts
+  );
+  const asiaPacificArticles = contentManager.fillToCount(
+    asiaPacificPool,
+    4,
+    globalFallbackPool
+  );
 
-// World highlights
-const worldHighlights = contentManager.selectArticles(worldPosts, 5, {
-  allowPartial: true,
-});
+  // Preview Grid
+  const previewArticles = contentManager.selectArticles(worldPosts, 10, {
+    allowPartial: true,
+  });
 
-// Third Hero
-const heroArticles3 = contentManager.selectArticles(worldPosts, 5, {
-  allowPartial: true,
-});
+  // Two Column Layout - Europe and Middle East
+  const europePool = contentManager.ensureContent(europePosts, worldPosts);
+  const europeColumn = contentManager.selectArticles(europePool, 5, {
+    allowPartial: true,
+  });
+  const middleEastPool = contentManager.ensureContent(
+    middleEastPosts,
+    worldPosts
+  );
+  const middleEastColumn = contentManager.selectArticles(middleEastPool, 5, {
+    allowPartial: true,
+  });
 
-export default function WorldPage() {
+  // Second Hero
+  const heroArticles2 = contentManager.selectArticles(worldPosts, 5, {
+    allowPartial: true,
+  });
+
+  // Latin America section
+  const latinAmericaPool = contentManager.ensureContent(
+    latinAmericaPosts,
+    worldPosts
+  );
+  const latinAmericaArticles = contentManager.selectArticles(
+    latinAmericaPool,
+    6,
+    {
+      allowPartial: true,
+    }
+  );
+
+  // South America section - ensure exactly 4 articles
+  const southAmericaPool = contentManager.ensureContent(
+    southAmericaPosts,
+    worldPosts
+  );
+  const southAmericaArticles = contentManager.fillToCount(
+    southAmericaPool,
+    4,
+    globalFallbackPool
+  );
+
+  // Regional Pool - combines all regional posts for the grid
+  const regionalPool = contentManager.combineUniquePosts(
+    africaPosts,
+    asiaPacificPosts,
+    europePosts,
+    latinAmericaPosts,
+    middleEastPosts,
+    southAmericaPosts,
+    worldPosts
+  );
+  const regionalPoolArticles = contentManager.selectArticles(regionalPool, 4, {
+    allowPartial: true,
+  });
+
+  // World highlights
+  const worldHighlights = contentManager.selectArticles(worldPosts, 6, {
+    allowPartial: true,
+  });
+
+  // Third Hero
+  const heroArticles3 = contentManager.selectArticles(worldPosts, 5, {
+    allowPartial: true,
+  });
+
+
   return (
     <main className="page-container">
       <div className="main-content">
         {heroArticles.length > 0 && (
           <Hero posts={heroArticles} preferredCategory="world" />
         )}
-        {carouselArticles.length > 0 && (
-          <ArticleCarousel
+        {spotlightArticles.length > 0 && (
+          <ArticleSpotlight
             title="Global Briefing"
-            posts={carouselArticles}
+            posts={spotlightArticles}
             maxArticles={5}
           />
         )}
@@ -223,7 +226,6 @@ export default function WorldPage() {
             posts={regionalPoolArticles}
             categoryName="Regional Perspectives"
             showCategoryTitle={true}
-            showBoundingLines={true}
             numberOfRows={1}
             className="width-constrained"
           />

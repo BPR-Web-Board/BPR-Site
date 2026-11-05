@@ -58,6 +58,9 @@ export async function POST(request: NextRequest) {
       case "posts":
         await cacheInvalidation.invalidatePosts();
         break;
+      case "pages":
+        await cacheInvalidation.invalidatePages();
+        break;
       case "categories":
         await cacheInvalidation.invalidateCategories();
         break;
@@ -81,14 +84,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(path);
       console.log(`Revalidated path: ${path}`);
     } else {
-      // Revalidate common paths
-      revalidatePath("/");
-      revalidatePath("/components-demo");
-      revalidatePath("/world");
-      revalidatePath("/united-states");
-      revalidatePath("/magazine");
-      revalidatePath("/interviews");
-      console.log("Revalidated common paths");
+      revalidatePath("/", "layout");
     }
 
     // You can also use revalidateTag if you've tagged your data fetches
@@ -140,6 +136,6 @@ export async function GET(request: NextRequest) {
     configured: true,
     authenticated: true,
     message: "Revalidation endpoint is ready",
-    availableTypes: ["posts", "categories", "tags", "authors", "media", "all"],
+    availableTypes: ["posts", "pages", "categories", "tags", "authors", "media", "all"],
   });
 }

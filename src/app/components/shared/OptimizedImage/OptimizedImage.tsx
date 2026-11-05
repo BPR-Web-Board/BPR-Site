@@ -10,6 +10,7 @@ import {
 export interface OptimizedImageProps extends Omit<ImageProps, "onError" | "onLoad" | "loading"> {
   fallbackSrc?: string;
   showPlaceholder?: boolean;
+  errorFallback?: React.ReactNode;
   loading?: "lazy" | "eager";
 }
 
@@ -24,6 +25,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   alt,
   fallbackSrc,
   showPlaceholder = true,
+  errorFallback,
   className = "",
   loading,
   ...props
@@ -73,6 +75,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (imageProps as any).loading = loading;
   }
+
+  if (imageError && errorFallback) return <>{errorFallback}</>;
 
   return <Image {...imageProps} alt={alt || ""} />;
 };

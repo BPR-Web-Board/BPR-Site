@@ -1,21 +1,23 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { EnhancedPost } from "../../lib/types";
-import LargeArticlePreview from "../../components/shared/LargeArticlePreview/LargeArticlePreview";
-import "../../mainStyle.css";
-import "./archive.css";
+import { uniqueArticles } from "../../../lib/utils";
+import { EnhancedPost } from "../../../lib/types";
+import LargeArticlePreview from "../../../components/shared/LargeArticlePreview/LargeArticlePreview";
+import LoadingStatus from "../../../components/shared/LoadingStatus/LoadingStatus";
 
-export default function MagazineArchivePage() {
+export default function ArticleArchivePage() {
   const [articles, setArticles] = useState<EnhancedPost[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const requestPending = useRef(false);
 
   const loadMoreArticles = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (requestPending.current || loading || !hasMore) return;
+    requestPending.current = true;
 
     setLoading(true);
     setError(null);
@@ -42,7 +44,7 @@ export default function MagazineArchivePage() {
           return postDate < sixMonthsAgo;
         });
 
-        setArticles((prev) => [...prev, ...olderArticles]);
+        setArticles((prev) => uniqueArticles(prev, olderArticles));
         setPage((prev) => prev + 1);
 
         // If we got fewer than requested, we've reached the end
@@ -56,6 +58,7 @@ export default function MagazineArchivePage() {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error loading articles:", err);
     } finally {
+      requestPending.current = false;
       setLoading(false);
     }
   }, [page, loading, hasMore]);
@@ -81,7 +84,7 @@ export default function MagazineArchivePage() {
         observer.unobserve(currentTarget);
       }
     };
-  }, [loadMoreArticles, hasMore, loading]);
+  }, [loadMoreArticles, hasMore, loading, error]);
 
   // Initial load
   useEffect(() => {
@@ -90,20 +93,11 @@ export default function MagazineArchivePage() {
   }, []);
 
   return (
-    <main className="page-container">
-      <div className="archive-content">
-        {/* Header */}
-        <div className="archive-header">
-          <h1 className="archive-title">Magazine Archive</h1>
-          <p className="archive-description">
-            Explore our collection of magazine articles from earlier issues
-          </p>
-        </div>
-
+    <section aria-label="Articles" className="archive-articles">
         {/* Articles Grid */}
-        <div className="archive-grid">
+        <div className="archive-grid" aria-busy={loading}>
           {articles.map((article, index) => (
-            <div key={`${article.id}-${index}`} className="archive-grid-item">
+            <div key={article.id} className="archive-grid-item">
               <LargeArticlePreview
                 article={article}
                 excerptLength={200}
@@ -115,41 +109,27 @@ export default function MagazineArchivePage() {
           ))}
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="archive-loading">
-            <div className="loading-spinner"></div>
-            <p>Loading more articles...</p>
-          </div>
-        )}
+        {loading && <LoadingStatus />}
 
         {/* Error State */}
         {error && (
-          <div className="archive-error">
+          <div className="site-state site-state-error" role="alert">
             <p>Error loading articles: {error}</p>
-            <button onClick={loadMoreArticles} className="retry-button">
+            <button onClick={loadMoreArticles} className="site-action">
               Retry
             </button>
           </div>
         )}
 
-        {/* End of Content */}
-        {!hasMore && articles.length > 0 && (
-          <div className="archive-end">
-            <p>You&apos;ve reached the end of our magazine archive</p>
-          </div>
-        )}
-
         {/* No Articles */}
-        {!loading && articles.length === 0 && !error && (
-          <div className="archive-empty">
+        {!loading && !hasMore && articles.length === 0 && !error && (
+          <div className="site-state">
             <p>No archived articles available at this time</p>
           </div>
         )}
 
         {/* Intersection Observer Target */}
-        <div ref={observerTarget} className="observer-target" />
-      </div>
-    </main>
+        <div ref={observerTarget} className="article-feed-trigger" aria-hidden="true" hidden={!hasMore} />
+    </section>
   );
 }

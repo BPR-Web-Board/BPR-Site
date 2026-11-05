@@ -1,0 +1,36 @@
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-block: 0;
+  min-width: 0;
+}
+
+.category-pill {
+  display: inline-block;
+  max-width: 100%;
+  padding: var(--space-1) 10px;
+  border: 1px solid var(--text-muted);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: transparent;
+  font-family: var(--font-primary-sans);
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
+
+.article-byline-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--article-content-gap);
+  min-width: 0;
+}
+
+.article-byline-group > .category-pills {
+  margin-top: 0;
+}

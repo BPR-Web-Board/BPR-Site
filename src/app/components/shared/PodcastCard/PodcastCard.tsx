@@ -1,10 +1,13 @@
-"use client";
+
+import ArticleTitle from "../ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../CategoryPills/CategoryPills";
 
 import React from "react";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
-import { stripHtml, truncateText, getArticleTitle } from "../../../lib/utils";
-import OptimizedImage from "../OptimizedImage/OptimizedImage";
+import { getAuthorName, stripHtml, truncateText, getArticleTitle, formatArchiveDate } from "../../../lib/utils";
+import ArticleMedia from "../ArticleMedia/ArticleMedia";
 import "./PodcastCard.css";
 
 export interface PodcastCardProps {
@@ -33,6 +36,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   className = "",
 }) => {
   const title = getArticleTitle(podcast);
+  const formattedDate = formatArchiveDate(podcast.date || "");
   const excerpt = truncateText(
     stripHtml(podcast?.excerpt?.rendered || ""),
     excerptLength
@@ -52,27 +56,8 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
   const imageContent = showImage && (
     <div className={`podcast-card-image-container image-${imagePosition}`}>
-      {podcast?.featured_media_obj?.source_url ? (
-        <OptimizedImage
-          src={podcast.featured_media_obj.source_url}
-          alt={stripHtml(title)}
-          fill
-          className="podcast-card-image"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          showPlaceholder={true}
-        />
-      ) : (
-        <div className="podcast-card-image-placeholder">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            className="podcast-icon"
-          >
-            <path d="M9 18v-6m6 6v-6m-9 0a3 3 0 0 1 6 0m-6 0a3 3 0 0 0 6 0m-9 0c0-1.1.9-2 2-2s2 .9 2 2m6 0c0-1.1.9-2 2-2s2 .9 2 2" />
-          </svg>
-        </div>
-      )}
+      <ArticleMedia article={podcast} className="podcast-card-image" fallbackType="audio"
+        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" />
       {spotifyLink && showPlayButtonOnImage && (
         <div className={`podcast-play-button-overlay variant-${variant}`}>
           <div className="podcast-play-button">
@@ -86,22 +71,35 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   );
 
   const textContent = (
-    <div className="podcast-card-content">
+    <div className="podcast-card-content article-card-content-stack">
       <h3
-        className={`podcast-card-title variant-${variant}`}
-        dangerouslySetInnerHTML={{ __html: title }}
-      ></h3>
+        className={`podcast-card-title variant-${variant}`}><ArticleTitle html={title} /></h3>
 
-      <div className="podcast-card-meta">
-        <span className="podcast-card-author">
-          BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
-        </span>
-        {podcastDuration && showDuration && variant === "compact" && (
-          <span className="podcast-card-duration">{podcastDuration}</span>
-        )}
+      <div className="article-byline-group">
+        <div className="podcast-card-meta">
+          <span className="podcast-card-author">
+            {getAuthorName(podcast).toUpperCase()}
+          </span>
+          {formattedDate ? <>
+            <span className="podcast-card-meta-divider" aria-hidden="true">·</span>
+            <time className="podcast-card-date" dateTime={podcast.date}>{formattedDate}</time>
+          </> : null}
+          {podcastDuration && showDuration && variant === "compact" && (
+            <span className="podcast-card-duration">{podcastDuration}</span>
+          )}
+        </div>
+        <CategoryPills categories={podcast.categories_obj} />
       </div>
 
-      {spotifyLink && !showPlayButtonOnImage && (
+
+
+      {showExcerpt && (
+        <div
+          className="podcast-card-excerpt"
+          dangerouslySetInnerHTML={{ __html: excerpt }}
+        ></div>
+      )}
+          {spotifyLink && !showPlayButtonOnImage && (
         <div className="podcast-inline-player">
           <div className="podcast-play-icon-inline">
             <svg
@@ -119,13 +117,6 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             </span>
           )}
         </div>
-      )}
-
-      {showExcerpt && (
-        <div
-          className="podcast-card-excerpt"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        ></div>
       )}
 
       {spotifyLink && (
@@ -171,7 +162,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
   return (
     <article
-      className={`podcast-card variant-${variant} image-position-${imagePosition} ${
+      className={`article-card-frame podcast-card variant-${variant} image-position-${imagePosition} ${
         spotifyLink ? "has-spotify" : ""
       } ${className}`}
     >

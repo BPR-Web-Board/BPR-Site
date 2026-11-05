@@ -1,0 +1,117 @@
+.backend-content-page {
+  margin-inline: auto;
+  padding-block: var(--space-5) var(--space-7);
+  width: var(--content-width);
+  max-width: none;
+  padding-inline: 0;
+}
+
+.backend-content-page h1 {
+  font-family: var(--font-primary-serif);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.15;
+  margin: 0 0 var(--space-5);
+}
+
+.wordpress-puzzle-content > * + * {
+  margin-top: var(--space-4);
+}
+
+.wordpress-puzzle-content details {
+  padding-block: var(--space-3);
+  border-bottom: var(--divider-border);
+}
+
+.wordpress-puzzle-content summary {
+  cursor: pointer;
+  padding-block: var(--space-2);
+}
+
+.wordpress-puzzle-content hr {
+  border: 0;
+  border-top: var(--divider-border);
+}
+
+.puzzle-frame {
+  display: block;
+  width: 100%;
+  height: 700px;
+  border: 0;
+}
+
+.content-search-form {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.content-search-form input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3);
+  font: inherit;
+  background: transparent;
+  color: inherit;
+  border: var(--divider-border);
+}
+
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-block: var(--space-5);
+  gap: var(--article-card-gap);
+  align-items: stretch;
+}
+
+.search-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+@media (max-width: 767px) {
+  .search-results { grid-template-columns: minmax(0, 1fr); }
+  .puzzle-frame { height: min(700px, 85svh); min-height: 480px; }
+}
+
+.wordpress-page-content {
+  font-family: var(--font-primary-sans);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.wordpress-page-content :is(p, ul, ol, figure, blockquote, div) {
+  margin-block: 0 var(--space-4);
+}
+
+.wordpress-page-content :is(h2, h3, h4, h5, h6) {
+  font-family: var(--font-primary-serif);
+  line-height: 1.25;
+  margin-block: var(--space-5) var(--space-3);
+}
+
+.wordpress-page-content :is(ul, ol) {
+  padding-left: var(--space-4);
+}
+
+.wordpress-page-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
+.wordpress-page-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.wordpress-page-content hr {
+  margin-block: var(--space-5);
+  border: 0;
+  border-top: var(--divider-border);
+}

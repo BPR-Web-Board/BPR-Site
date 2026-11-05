@@ -1,15 +1,18 @@
-"use client";
+
+import ArticleTitle from "../ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../CategoryPills/CategoryPills";
 
 import React from "react";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
-import {
+import { getAuthorName, formatArchiveDate,
   stripHtml,
   truncateText,
   getArticleTitle,
   getArticleLink,
 } from "../../../lib/utils";
-import OptimizedImage from "../OptimizedImage/OptimizedImage";
+import ArticleMedia from "../ArticleMedia/ArticleMedia";
 import "./LargeArticlePreview.css";
 
 export interface LargeArticlePreviewProps {
@@ -29,22 +32,13 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
 }) => {
   const articleLink = getArticleLink(article);
   const rawTitle = getArticleTitle(article);
-  const title = truncateText(stripHtml(rawTitle), 120);
+  const title = stripHtml(rawTitle);
   const authorName = truncateText(
-    (article?.author_name || "LASTNAME").toUpperCase(),
+    getAuthorName(article).toUpperCase(),
     30
   );
 
-  // Format the date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-  const formattedDate = formatDate(article?.date || new Date().toISOString());
+  const formattedDate = formatArchiveDate(article.date || "");
 
   // Extract excerpt
   const fullExcerpt = stripHtml(article?.excerpt?.rendered || "");
@@ -69,26 +63,14 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
 
   return (
     <article
-      className={`large-article-preview variant-${variant} image-position-${imagePosition} ${
+      className={`article-card-frame large-article-preview variant-${variant} image-position-${imagePosition} ${
         isPodcast && spotifyLink ? "has-podcast" : ""
       } ${className}`}
     >
       <Link href={articleLink} className="large-article-preview-link">
         {/* Image Container */}
         <div className="large-article-preview-image-container">
-          {article?.featured_media_obj?.source_url ? (
-            <OptimizedImage
-              src={article.featured_media_obj.source_url}
-              alt={stripHtml(title)}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="large-article-preview-image"
-              priority
-              showPlaceholder={true}
-            />
-          ) : (
-            <div className="large-article-preview-image-placeholder"></div>
-          )}
+          <ArticleMedia article={article} className="large-article-preview-image" sizes="(max-width: 768px) 100vw, 50vw" />
           {isPodcast && spotifyLink && showPlayButtonOnImage && (
             <div className="podcast-play-button-overlay">
               <div className="podcast-play-button">
@@ -101,20 +83,29 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
         </div>
 
         {/* Content Container */}
-        <div className="large-article-preview-content">
+        <div className="large-article-preview-content article-card-content-stack">
           <h3
-            className="large-article-preview-title"
-            dangerouslySetInnerHTML={{ __html: title }}
-          />
+            className="large-article-preview-title"><ArticleTitle html={title} /></h3>
 
-          <div className="large-article-preview-meta">
-            <span className="large-article-preview-author">
-              BY {authorName}
-            </span>
-            <span className="large-article-preview-meta-divider"></span>
-            <span className="large-article-preview-date">{formattedDate}</span>
+          <div className="article-byline-group">
+            <div className="large-article-preview-meta">
+              <span className="large-article-preview-author">
+                {authorName}
+              </span>
+              {formattedDate && <>
+                <span className="large-article-preview-meta-divider" aria-hidden="true">·</span>
+                <time className="large-article-preview-date" dateTime={article.date}>{formattedDate}</time>
+              </>}
+            </div>
+            <CategoryPills categories={article.categories_obj} />
           </div>
 
+
+
+          <div
+            className="large-article-preview-excerpt"
+            dangerouslySetInnerHTML={{ __html: excerpt }}
+          />
           {isPodcast && spotifyLink && !showPlayButtonOnImage && (
             <div className="podcast-inline-player">
               <div className="podcast-play-icon-inline">
@@ -132,11 +123,6 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
               </span>
             </div>
           )}
-
-          <div
-            className="large-article-preview-excerpt"
-            dangerouslySetInnerHTML={{ __html: excerpt }}
-          />
         </div>
       </Link>
     </article>

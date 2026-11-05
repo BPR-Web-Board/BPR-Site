@@ -1,0 +1,115 @@
+.issue-cover-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+.page-container > .main-content > .issue-cover-hero.hero-section:first-child {
+  min-height: 0;
+  padding-bottom: var(--space-4);
+}
+
+.issue-cover-hero .issue-cover-image {
+  object-fit: cover;
+  object-position: center top;
+  transform: scale(1.28);
+  transform-origin: center top;
+}
+
+.issue-cover-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: 0;
+  padding-inline: var(--site-gutter);
+  box-sizing: border-box;
+}
+
+.issue-cover-hero .issue-edition-header,
+.issue-cover-hero .issue-pdf-stage {
+  width: 100%;
+  margin: 0;
+}
+
+.issue-edition-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-4);
+  width: var(--content-width);
+  margin: var(--section-gap) auto var(--space-2);
+  padding-inline: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+.issue-edition-header--plain {
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.issue-edition-header--plain + .issue-pdf-stage {
+  margin-top: 0;
+}
+
+.issue-edition-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  width: 100%;
+  gap: var(--space-3);
+}
+
+.issue-edition-kicker {
+  margin: 0;
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.issue-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-metadata);
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.issue-nav-link svg {
+  flex-shrink: 0;
+}
+
+.issue-nav-link:hover,
+.issue-nav-link:focus-visible {
+  color: oklch(from currentColor calc(l + 0.12) c h);
+}
+
+:root[data-theme="light"] .issue-nav-link:hover,
+:root[data-theme="light"] .issue-nav-link:focus-visible {
+  color: oklch(from currentColor calc(l - 0.12) c h);
+}
+

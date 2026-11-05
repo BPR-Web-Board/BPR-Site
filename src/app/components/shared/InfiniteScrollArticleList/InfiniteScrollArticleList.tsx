@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { uniqueArticles } from "../../../lib/utils";
 import { EnhancedPost } from "../../../lib/types";
 import LargeArticlePreview from "../LargeArticlePreview/LargeArticlePreview";
+import LoadingStatus from "../LoadingStatus/LoadingStatus";
 import "./InfiniteScrollArticleList.css";
 
 export interface InfiniteScrollArticleListProps {
@@ -10,6 +12,8 @@ export interface InfiniteScrollArticleListProps {
   initialPosts: EnhancedPost[];
   initialPage?: number;
   perPage?: number;
+  title?: string;
+  description?: string;
 }
 
 const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
@@ -17,16 +21,20 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   initialPosts,
   initialPage = 1,
   perPage = 10,
+  title = "Archive",
+  description = "Explore more articles from our collection",
 }) => {
-  const [posts, setPosts] = useState<EnhancedPost[]>(initialPosts);
+  const [posts, setPosts] = useState<EnhancedPost[]>(() => uniqueArticles(initialPosts));
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const requestPending = useRef(false);
 
   const loadMore = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (requestPending.current || loading || !hasMore) return;
+    requestPending.current = true;
 
     setLoading(true);
     setError(null);
@@ -45,7 +53,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
       const data = await response.json();
 
       if (data.posts && data.posts.length > 0) {
-        setPosts((prev) => [...prev, ...data.posts]);
+        setPosts((prev) => uniqueArticles(prev, data.posts));
         setPage((prev) => prev + 1);
         setHasMore(data.hasMore);
       } else {
@@ -55,6 +63,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error loading more posts:", err);
     } finally {
+      requestPending.current = false;
       setLoading(false);
     }
   }, [subsection, page, perPage, loading, hasMore]);
@@ -62,7 +71,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && hasMore) {
+        if (entries[0].isIntersecting && !loading && hasMore && !error) {
           loadMore();
         }
       },
@@ -79,34 +88,29 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         observer.unobserve(currentTarget);
       }
     };
-  }, [loadMore, loading, hasMore]);
+  }, [loadMore, loading, hasMore, error]);
 
   if (posts.length === 0 && !loading) {
     return (
-      <div className="infinite-scroll-empty">
+      <div className="site-state width-constrained">
         <p>No articles found for this subsection.</p>
       </div>
     );
   }
 
   return (
-    <div className="infinite-scroll-container">
+    <div className="infinite-scroll-container" aria-busy={loading}>
       {/* Header */}
-      <div className="infinite-scroll-header">
-        <h2 className="infinite-scroll-title">Archive</h2>
-        <p className="infinite-scroll-description">
-          Explore more articles from our collection
-        </p>
+      <div className="infinite-scroll-header section-heading-rule">
+        <h2 className="infinite-scroll-title">{title}</h2>
+        <p className="infinite-scroll-description">{description}</p>
       </div>
 
       <div className="infinite-scroll-grid">
         {posts.map((post, index) => (
           <div
-            key={`${post.id}-${index}`}
+            key={post.id}
             className="infinite-scroll-item"
-            style={{
-              animationDelay: `${(index % perPage) * 50}ms`,
-            }}
           >
             <LargeArticlePreview
               article={post}
@@ -119,33 +123,20 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         ))}
       </div>
 
-      {/* Loading spinner */}
-      {loading && (
-        <div className="infinite-scroll-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading more articles...</p>
-        </div>
-      )}
+      {loading && <LoadingStatus />}
 
       {/* Error state */}
       {error && (
-        <div className="infinite-scroll-error">
+        <div className="site-state site-state-error" role="alert">
           <p>Failed to load more articles: {error}</p>
-          <button onClick={loadMore} className="retry-button">
+          <button onClick={loadMore} className="site-action">
             Retry
           </button>
         </div>
       )}
 
-      {/* End of content */}
-      {!hasMore && !loading && posts.length > 0 && (
-        <div className="infinite-scroll-end">
-          <p>You&apos;ve reached the end of the articles</p>
-        </div>
-      )}
-
       {/* Intersection observer target */}
-      <div ref={observerTarget} className="infinite-scroll-trigger" />
+      <div ref={observerTarget} className="article-feed-trigger" aria-hidden="true" hidden={!hasMore} />
     </div>
   );
 };

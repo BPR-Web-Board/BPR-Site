@@ -1,0 +1,172 @@
+.issue-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--article-card-gap);
+  align-items: stretch;
+}
+
+.issue-card {
+  --issue-fold: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.issue-cover {
+  --issue-curl-ease: 320ms ease;
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 0;
+  outline: none;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  /* Dark page stack under the clipped corner */
+  background: color-mix(in srgb, var(--text-primary) 72%, var(--surface));
+}
+
+.issue-cover-surface {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  outline: none;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--issue-fold)) 0,
+    100% var(--issue-fold),
+    100% 100%,
+    0 100%
+  );
+  transition: clip-path var(--issue-curl-ease);
+}
+
+.issue-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+/*
+  Flipped-over dog-ear: lies on top of the cover (inner triangle).
+  Outer tip is clipped away so the darker sheet shows underneath.
+*/
+.issue-cover-curl {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  width: var(--issue-fold);
+  height: var(--issue-fold);
+  /* Triangle on the image side of the fold, not the empty outer tip */
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background:
+    linear-gradient(
+      135deg,
+      #fffef9 0%,
+      #f7f2e8 52%,
+      #e4dccb 68%,
+      #cfc4ae 100%
+    );
+  /* Soft lift only — hard inset/crease bands read as a stray stroke on the diagonal */
+  filter: drop-shadow(4px -4px 6px rgb(0 0 0 / 45%));
+  pointer-events: none;
+  transition: width var(--issue-curl-ease), height var(--issue-curl-ease), filter var(--issue-curl-ease);
+}
+
+.issue-cover-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 0;
+  outline: none;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+}
+
+.issue-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--article-content-gap);
+  min-width: 0;
+}
+
+.issue-details h2 {
+  margin: 0;
+  font-family: var(--font-primary-serif);
+  font-size: var(--font-size-card-title);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
+
+.issue-details h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.issue-details h2 a:hover,
+.issue-details h2 a:focus-visible {
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.issue-card:focus-within {
+  --issue-fold: 4rem;
+}
+
+@media (hover: hover) {
+  .issue-card:hover {
+    --issue-fold: 4rem;
+  }
+
+  .issue-card:hover .issue-cover-curl {
+    filter: drop-shadow(5px -5px 9px rgb(0 0 0 / 52%));
+  }
+}
+
+@media (max-width: 1199px) {
+  .issue-archive-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1023px) {
+  .issue-archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .issue-archive-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .issue-card { transition: none; }
+
+  .issue-cover-surface {
+    transition: none;
+    clip-path: none;
+  }
+
+  .issue-cover-curl { display: none; }
+}
+

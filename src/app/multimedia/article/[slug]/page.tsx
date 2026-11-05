@@ -7,7 +7,7 @@ import {
   getPostsByCategorySlug,
   getAllCategories,
 } from "../../../lib/wordpress";
-import { enhancePosts } from "../../../lib/enhancePost";
+import { enhancePosts, enhancePreviewPosts } from "../../../lib/enhancePost";
 import { EnhancedPost } from "../../../lib/types";
 
 interface PageProps {
@@ -80,7 +80,7 @@ export default async function MultimediaArticlePage({ params }: PageProps) {
           .slice(0, 4);
 
         // Use batch enhancement for related posts (fixes N+1 problem)
-        relatedPosts = await enhancePosts(filteredPosts, categories);
+        relatedPosts = await enhancePreviewPosts(filteredPosts, categories);
       } catch (error) {
         console.error("Error fetching related posts:", error);
       }

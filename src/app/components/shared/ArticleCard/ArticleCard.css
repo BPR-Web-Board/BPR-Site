@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  background: white;
+  background: var(--surface);
   border-radius: 0;
   overflow: hidden;
 }
@@ -12,19 +12,21 @@
 .article-card-image-container {
   position: relative;
   overflow: hidden;
-  background-color: #f5f5f5;
+  background-color: var(--surface-muted);
 }
 
 .article-card-image-container.image-top {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  margin-bottom: 1rem;
+  aspect-ratio: var(--article-image-ratio);
+  margin-bottom: var(--article-card-gap);
 }
 
 .article-card-image-container.image-left,
 .article-card-image-container.image-right {
-  width: 40%;
-  aspect-ratio: 4 / 3;
+  width: var(--article-side-image-width);
+  align-self: stretch;
+  height: auto;
+  aspect-ratio: auto;
   flex-shrink: 0;
 }
 
@@ -40,12 +42,12 @@
 .article-card-image-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #e5e7eb;
+  background-color: var(--surface-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
-  font-family: "Nicholas", "Playfair Display", serif;
+  color: var(--text-muted);
+  font-family: var(--font-primary-serif);
   font-size: 0.875rem;
 }
 
@@ -54,75 +56,92 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   padding: 0;
 }
 
 /* Title */
 .article-card-title-link {
   text-decoration: none;
-  color: inherit;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .article-card-title {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-primary-serif);
   font-weight: 600;
-  line-height: 1.2;
-  margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  line-height: 1.25;
+  color: var(--text-primary);
   transition: color 0.2s ease;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  overflow: visible;
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 .article-card-title:hover {
-  color: #374151;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .article-card-title.variant-standard {
-  font-size: clamp(1.375rem, 2vw, 2rem);
+  font-size: var(--font-size-card-title);
+  overflow-wrap: anywhere;
 }
 
 .article-card-title.variant-compact {
-  font-size: clamp(1.375rem, 2vw, 2rem);
+  font-size: var(--font-size-compact-title);
+  overflow-wrap: anywhere;
 }
 
 .article-card-title.variant-featured {
-  font-size: clamp(1.375rem, 2vw, 2rem);
+  font-size: var(--font-size-featured-title);
+  overflow-wrap: anywhere;
 }
 
 /* Meta */
+
 .article-card-meta {
-  margin-bottom: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--article-content-gap);
 }
 
-.article-card-author {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.7);
+.article-card-author,
+.article-card-date,
+.article-card-meta-divider {
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
+  line-height: 1.4;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.article-card-author,
+.article-card-date {
+  white-space: nowrap;
+}
+
+.article-card-meta-divider {
+  flex-shrink: 0;
 }
 
 /* Excerpt */
 .article-card-excerpt {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: clamp(0.875rem, 1.25vw, 1.25rem);
+  font-family: var(--font-body);
+  font-size: var(--font-size-preview);
   font-weight: 400;
   line-height: 1.5;
-  color: #4b5563;
-  margin-top: auto;
+  color: var(--text-secondary);
 }
 
 /* Layout Variants */
 .article-card.image-position-left,
 .article-card.image-position-right {
   flex-direction: row;
-  gap: 1rem;
+  gap: var(--article-card-gap);
 }
 
 .article-card.image-position-right {
@@ -136,7 +155,7 @@
 
 /* Variant Styles */
 .article-card.variant-compact {
-  gap: 0.75rem;
+  gap: var(--article-content-gap);
 }
 
 .article-card.variant-compact .article-card-content {
@@ -144,12 +163,12 @@
 }
 
 .article-card.variant-featured {
-  gap: 1.5rem;
+  gap: var(--article-card-gap);
 }
 
 .article-card.variant-featured .article-card-image-container.image-top {
-  aspect-ratio: 16 / 10;
-  margin-bottom: 1.5rem;
+  aspect-ratio: var(--article-image-ratio);
+  margin-bottom: var(--article-card-gap);
 }
 
 /* Responsive */
@@ -162,7 +181,7 @@
   .article-card-image-container.image-left,
   .article-card-image-container.image-right {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    margin-bottom: 1rem;
+    aspect-ratio: var(--article-image-ratio);
+    margin-bottom: var(--article-card-gap);
   }
 }

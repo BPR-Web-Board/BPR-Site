@@ -46,7 +46,7 @@ const SpotifyEmbed: React.FC<SpotifyEmbedProps> = ({
 
   if (!spotifyUri) {
     return (
-      <div className={`spotify-embed-error ${className}`}>
+      <div className={`site-state site-state-error ${className}`} role="alert">
         <p>Invalid Spotify URL</p>
       </div>
     );
@@ -63,7 +63,7 @@ const SpotifyEmbed: React.FC<SpotifyEmbedProps> = ({
     >
       <iframe
         style={{
-          borderRadius: "12px",
+          borderRadius: "0",
           border: "0",
           width: "100%",
           height: "100%",

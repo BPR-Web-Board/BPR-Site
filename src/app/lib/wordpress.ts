@@ -3,6 +3,7 @@
 // Types are imported from `wp.d.ts`
 
 import axios from "axios";
+import type { IssueSource } from "./issues";
 
 import { Post, Category, Tag, Page, Author, FeaturedMedia } from "./types";
 import { withCache } from "./cache";
@@ -15,6 +16,7 @@ const baseUrl =
 // Create axios instance with default config
 export const api = axios.create({
   baseURL: baseUrl,
+  timeout: 15000,
 });
 
 // Cache TTL constants (in milliseconds)
@@ -26,6 +28,43 @@ const CACHE_TTL = {
   AUTHORS: 2 * 60 * 60 * 1000, // 2 hours (authors rarely change)
   MEDIA: 2 * 60 * 60 * 1000, // 2 hours (media rarely changes)
 };
+
+const LIST_POST_PARAMS = {
+  _embed: "author,wp:featuredmedia",
+  _fields: [
+    "id",
+    "date",
+    "date_gmt",
+    "modified",
+    "modified_gmt",
+    "slug",
+    "status",
+    "type",
+    "link",
+    "title",
+    "excerpt",
+    "author",
+    "featured_media",
+    "format",
+    "categories",
+    "tags",
+    "meta",
+    "guid",
+    "_links",
+    "_embedded",
+  ].join(","),
+};
+
+function normalizeListPost(post: Post): Post {
+  return {
+    ...post,
+    content: post.content || { rendered: "", protected: false },
+    excerpt: post.excerpt || { rendered: "", protected: false },
+    categories: post.categories || [],
+    tags: post.tags || [],
+    meta: post.meta || {},
+  };
+}
 
 // WordPress Functions
 
@@ -42,6 +81,7 @@ export const getAllPosts = withCache(
   }): Promise<Post[]> => {
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
       params: {
+        ...LIST_POST_PARAMS,
         per_page: filterParams?.per_page || 30,
         page: filterParams?.page,
         offset: filterParams?.offset,
@@ -51,7 +91,7 @@ export const getAllPosts = withCache(
         search: filterParams?.search,
       },
     });
-    return data;
+    return (data || []).map(normalizeListPost);
   },
   CACHE_TTL.POSTS
 );
@@ -69,7 +109,7 @@ export const getPostBySlug = withCache(
   "getPostBySlug",
   async (slug: string): Promise<Post> => {
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
-      params: { slug },
+      params: { slug, _embed: "author,wp:featuredmedia" },
     });
     return data[0];
   },
@@ -79,8 +119,18 @@ export const getPostBySlug = withCache(
 export const getAllCategories = withCache(
   "getAllCategories",
   async (): Promise<Category[]> => {
-    const { data } = await api.get<Category[]>("/wp-json/wp/v2/categories");
-    return data;
+    const categories: Category[] = [];
+    let page = 1;
+    let totalPages = 1;
+    do {
+      const response = await api.get<Category[]>("/wp-json/wp/v2/categories", {
+        params: { per_page: 100, page },
+      });
+      categories.push(...response.data);
+      totalPages = Number(response.headers?.["x-wp-totalpages"] || 1);
+      page++;
+    } while (page <= totalPages);
+    return categories;
   },
   CACHE_TTL.CATEGORIES
 );
@@ -118,9 +168,9 @@ export const getPostsByCategory = withCache(
   "getPostsByCategory",
   async (categoryId: number): Promise<Post[]> => {
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
-      params: { categories: categoryId },
+      params: { ...LIST_POST_PARAMS, categories: categoryId },
     });
-    return data;
+    return (data || []).map(normalizeListPost);
   },
   CACHE_TTL.POSTS
 );
@@ -268,20 +318,22 @@ export const getPostsByCategorySlug = withCache(
     }
   ): Promise<Post[]> => {
     try {
-      const category = await getCategoryBySlug(categorySlug);
+      const categories = await getAllCategories();
+      const category = categories.find((entry) => entry.slug === categorySlug)
+        || await getCategoryBySlug(categorySlug);
       if (!category) {
-        // Category doesn't exist, return empty array silently
         return [];
       }
       const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
         params: {
+          ...LIST_POST_PARAMS,
           categories: category.id,
           per_page: options?.per_page || 20,
           page: options?.page,
           offset: options?.offset,
         },
       });
-      return data || [];
+      return (data || []).map(normalizeListPost);
     } catch (error) {
       console.warn(
         `Failed to fetch posts for category "${categorySlug}":`,
@@ -359,6 +411,33 @@ export const getMediaByIds = withCache(
 );
 
 /**
+ * Fetch only post bodies for cards that lack a featured image, so in-article
+ * <img> tags can still be used as cover fallbacks (common for photo essays).
+ */
+export const getPostContentByIds = withCache(
+  "getPostContentByIds",
+  async (ids: number[]): Promise<Array<Pick<Post, "id" | "content">>> => {
+    if (ids.length === 0) return [];
+    const unique = [...new Set(ids.filter((id) => Number.isSafeInteger(id) && id > 0))];
+    if (!unique.length) return [];
+    const posts: Array<Pick<Post, "id" | "content">> = [];
+    for (let i = 0; i < unique.length; i += 100) {
+      const chunk = unique.slice(i, i + 100);
+      const { data } = await api.get<Array<Pick<Post, "id" | "content">>>("/wp-json/wp/v2/posts", {
+        params: {
+          include: chunk.join(","),
+          per_page: chunk.length,
+          _fields: "id,content",
+        },
+      });
+      posts.push(...(data || []));
+    }
+    return posts;
+  },
+  CACHE_TTL.POSTS
+);
+
+/**
  * Search posts by keyword
  */
 export const searchPosts = withCache(
@@ -372,12 +451,69 @@ export const searchPosts = withCache(
   ): Promise<Post[]> => {
     const { data } = await api.get<Post[]>("/wp-json/wp/v2/posts", {
       params: {
+        ...LIST_POST_PARAMS,
         search: searchTerm,
         per_page: options?.per_page || 20,
         page: options?.page || 1,
       },
     });
-    return data;
+    return (data || []).map(normalizeListPost);
+  },
+  CACHE_TTL.POSTS
+);
+
+export const getIssueArchiveSources = withCache(
+  "getIssueArchiveSources",
+  async (): Promise<IssueSource[]> => {
+    const [archive, categories] = await Promise.all([
+      api.get<IssueSource[]>("/wp-json/wp/v2/pages", { params: { slug: "issues-archive", _embed: "wp:featuredmedia" } }),
+      api.get<Category[]>("/wp-json/wp/v2/categories", { params: { slug: "issues-archive" } }),
+    ]);
+    const sources = [...archive.data];
+    const category = categories.data[0];
+    if (category) {
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const response = await api.get<IssueSource[]>("/wp-json/wp/v2/posts", {
+          params: { categories: category.id, per_page: 100, page, _embed: "wp:featuredmedia" },
+        });
+        sources.push(...response.data);
+        totalPages = Number(response.headers["x-wp-totalpages"] || 1);
+        page++;
+      } while (page <= totalPages);
+    }
+    return sources;
+  },
+  CACHE_TTL.POSTS
+);
+
+
+export const getIssuePosts = withCache(
+  "getIssuePosts",
+  async (identifier: string | number): Promise<Post[]> => {
+    let tagId: number;
+    if (typeof identifier === "number") {
+      if (!Number.isSafeInteger(identifier) || identifier < 1) return [];
+      tagId = identifier;
+    } else {
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(identifier)) return [];
+      const { data } = await api.get<Tag[]>("/wp-json/wp/v2/tags", { params: { slug: identifier } });
+      if (!data[0]) return [];
+      tagId = data[0].id;
+    }
+    const posts = new Map<number, Post>();
+    let page = 1;
+    let totalPages = 1;
+    do {
+      const response = await api.get<Post[]>("/wp-json/wp/v2/posts", {
+        params: { ...LIST_POST_PARAMS, tags: tagId, per_page: 100, page, orderby: "date", order: "desc" },
+      });
+      for (const post of response.data) if (post.tags?.includes(tagId)) posts.set(post.id, normalizeListPost(post));
+      totalPages = Number(response.headers["x-wp-totalpages"] || 1);
+      page++;
+    } while (page <= totalPages);
+    return [...posts.values()].sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0) || b.id - a.id);
   },
   CACHE_TTL.POSTS
 );

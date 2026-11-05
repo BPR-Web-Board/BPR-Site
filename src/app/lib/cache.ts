@@ -254,7 +254,7 @@ class WordPressCache {
       // Clear entries for specific function
       const keysToDelete: string[] = [];
       for (const key of this.memoryCache.keys()) {
-        if (key.startsWith(`wp:${functionName}:`)) {
+        if (key.startsWith(`wp:${functionName.replace(/\*$/, "")}${functionName.endsWith("*") ? "" : ":"}`)) {
           keysToDelete.push(key);
         }
       }
@@ -427,6 +427,9 @@ export function withCache<T extends unknown[], R>(
 export const cacheInvalidation = {
   // Invalidate all post-related caches
   invalidatePosts: async () => {
+    await cache.clear("getIssuePosts");
+    await cache.clear("getIssueArchiveSources");
+    await cache.clear("spotlight*");
     await cache.clear("getAllPosts");
     await cache.clear("getPostById");
     await cache.clear("getPostBySlug");
@@ -436,10 +439,12 @@ export const cacheInvalidation = {
     await cache.clear("getPostsByTagSlug");
     await cache.clear("getPostsByAuthor");
     await cache.clear("getPostsByAuthorSlug");
+    await cache.clear("getPostContentByIds");
   },
 
   // Invalidate category-related caches
   invalidateCategories: async () => {
+    await cache.clear("getIssueArchiveSources");
     await cache.clear("getAllCategories");
     await cache.clear("getCategoryById");
     await cache.clear("getCategoryBySlug");
@@ -447,6 +452,7 @@ export const cacheInvalidation = {
 
   // Invalidate tag-related caches
   invalidateTags: async () => {
+    await cache.clear("getIssuePosts");
     await cache.clear("getAllTags");
     await cache.clear("getTagById");
     await cache.clear("getTagBySlug");
@@ -462,8 +468,16 @@ export const cacheInvalidation = {
 
   // Invalidate media-related caches
   invalidateMedia: async () => {
+    await cache.clear("getIssueArchiveSources");
     await cache.clear("getFeaturedMediaById");
     await cache.clear("getMediaByIds");
+  },
+
+  invalidatePages: async () => {
+    await cache.clear("getIssueArchiveSources");
+    await cache.clear("getAllPages");
+    await cache.clear("getPageById");
+    await cache.clear("getPageBySlug");
   },
 
   // Invalidate all caches
@@ -474,9 +488,10 @@ export const cacheInvalidation = {
 
 // Clean up expired entries every 5 minutes
 if (typeof window === "undefined") {
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     cache.cleanup();
   }, 5 * 60 * 1000);
+  cleanupTimer.unref();
 }
 
 export default cache;

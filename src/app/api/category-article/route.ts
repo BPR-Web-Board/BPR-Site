@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPostsByCategorySlug, getAllCategories } from "@/app/lib/wordpress";
-import { enhancePosts } from "@/app/lib/enhancePost";
+import { enhancePreviewPosts } from "@/app/lib/enhancePost";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Enhance posts
-    const enhancedPosts = await enhancePosts(posts, categories);
+    const enhancedPosts = await enhancePreviewPosts(posts, categories);
 
     // Return a random article
     const randomIndex = Math.floor(Math.random() * enhancedPosts.length);

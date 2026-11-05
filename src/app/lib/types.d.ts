@@ -47,6 +47,18 @@ export type Post = {
   // Add new properties as optional to avoid TypeScript errors
   class_list?: string[] | string; // Updated to support both array and string formats
   coauthors?: number[] | number; // Updated to support both array and single number
+  _embedded?: {
+    author?: Array<{ id: number; name?: string; slug?: string; link?: string; description?: string; url?: string; avatar_urls?: Record<string, string>; meta?: unknown[] }>;
+    "wp:featuredmedia"?: Array<{
+      id: number;
+      source_url?: string;
+      alt_text?: string;
+      media_type?: string;
+      mime_type?: string;
+      media_details?: { width?: number; height?: number; file?: string; sizes?: Record<string, unknown> };
+      [key: string]: unknown;
+    }>;
+  };
 };
 
 // Keep the rest of your types as they are
@@ -308,11 +320,14 @@ export interface PostMeta {
   [key: string]: unknown;
 }
 
+export type MediaPreview = { type: "audio" | "video" | "gallery" | "data" | "media"; thumbnail?: string };
+
 export interface EnhancedPost extends Omit<Post, "meta"> {
   meta?: PostMeta;
   author_name?: string;
   author_obj?: Author | null;
   illustrator?: string;
   featured_media_obj?: FeaturedMedia | null;
+  media_preview?: MediaPreview | null;
   categories_obj?: Category[];
 }

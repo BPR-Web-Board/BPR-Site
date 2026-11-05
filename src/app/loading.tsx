@@ -1,18 +1,9 @@
-import React from "react";
 import LoadingSkeleton from "./components/shared/LoadingSkeleton/LoadingSkeleton";
+import LoadingStatus from "./components/shared/LoadingStatus/LoadingStatus";
 
 export default function Loading() {
-  return (
-    <div className="page-container">
-      <div className="featured-content">
-        <LoadingSkeleton variant="hero" />
-        <div className="article-layout-wrapper">
-          <LoadingSkeleton variant="grid" count={10} />
-        </div>
-      </div>
-      <div className="main-content">
-        <LoadingSkeleton variant="article" count={5} />
-      </div>
-    </div>
-  );
+  return <main className="page-loading" aria-busy="true" aria-label="Loading page">
+    <LoadingStatus label="Loading articles…" />
+    <LoadingSkeleton variant="grid" count={8} />
+  </main>;
 }

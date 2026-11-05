@@ -8,7 +8,7 @@
  * 3. Run with: INTEGRATION_TESTS=true npm test
  */
 
-import * as wpApi from "../lib/wordpress";
+import * as wpApi from "../src/app/lib/wordpress";
 
 // Only run these tests if explicitly enabled
 console.log(process.env.INTEGRATION_TESTS);

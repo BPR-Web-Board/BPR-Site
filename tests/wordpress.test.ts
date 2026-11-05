@@ -1,10 +1,10 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import * as wpApi from "../lib/wordpress";
+import * as wpApi from "../src/app/lib/wordpress";
 
 // We need to mock the specific axios instance used in our WordPress API module
 // First, import the api instance (we'll need to export it in wordpress.ts)
-import { api } from "../lib/wordpress";
+import { api } from "../src/app/lib/wordpress";
 
 // Create mock for the specific axios instance
 const mock = new MockAdapter(api);
@@ -199,8 +199,8 @@ describe("WordPress API", () => {
 
   test("getCategoryBySlug returns category", async () => {
     const category = await wpApi.getCategoryBySlug("test-category");
-    expect(category.id).toBe(1);
-    expect(category.slug).toBe("test-category");
+    expect(category?.id).toBe(1);
+    expect(category?.slug).toBe("test-category");
   });
 
   test("getPostsByCategory returns posts array", async () => {

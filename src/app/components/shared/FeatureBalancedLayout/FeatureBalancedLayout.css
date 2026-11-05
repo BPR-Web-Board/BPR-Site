@@ -1,0 +1,70 @@
+.feature-balanced-layout {
+  position: relative;
+}
+
+.feature-balanced-layout .feature-height-source {
+  min-height: var(--feature-min-height, 0px);
+}
+
+.feature-side-column {
+  display: grid;
+  grid-auto-rows: auto;
+  align-content: stretch;
+  gap: var(--article-card-gap);
+  height: var(--feature-height, auto);
+  min-width: 0;
+}
+
+.feature-side-slot {
+  display: grid;
+  min-width: 0;
+}
+
+.feature-side-card.small-article-preview {
+  flex-direction: row;
+  gap: var(--article-content-gap);
+  height: 100%;
+}
+
+.feature-side-card .small-article-image-container {
+  width: var(--article-compact-image-width);
+  height: auto;
+  aspect-ratio: auto;
+  align-self: stretch;
+  min-height: 0;
+}
+
+.feature-side-card .small-article-title {
+  font-size: var(--font-size-compact-title);
+}
+
+.feature-side-card .small-article-content {
+  height: auto;
+}
+
+.feature-side-overflow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  align-items: stretch;
+  gap: var(--article-card-gap);
+  min-width: 0;
+}
+
+
+.feature-side-column--stacked {
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.feature-side-card--stacked.small-article-preview {
+  flex-direction: column;
+}
+
+.feature-side-card--stacked .small-article-image-container {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: var(--space-7);
+}
+
+.feature-side-card--stacked .small-article-content.article-card-content-stack {
+  flex: 0 0 auto;
+}

@@ -1,260 +1,56 @@
 /* Infinite Scroll Article List */
 .infinite-scroll-container {
-  width: 85vw;
-  max-width: 2600px;
-  margin: 0 auto;
-  padding: 3rem 0 4rem;
-  border-top: 2px solid var(--color-black, #0d0b00);
-  margin-top: 3rem;
+  width: var(--content-width);
+  max-width: none;
+  padding-inline: 0;
+  padding-block: 0;
+  margin-inline: auto;
+  margin-top: var(--section-with-heading-gap);
+  margin-bottom: 0;
 }
 
 .infinite-scroll-header {
-  margin-bottom: 3rem;
-  padding: 0 1rem;
-  padding-top: 2rem;
+  padding-inline: 0;
+  margin: 0 0 var(--section-heading-gap);
+  padding-block: 0;
 }
 
 .infinite-scroll-title {
   font-family: var(--font-primary-serif, "Nicholas", "Playfair Display", serif);
   font-weight: 600;
-  line-height: 1.2;
-  color: var(--color-black, #0d0b00);
-  margin: 0 0 1rem 0;
-  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.25;
+  color: var(--text-primary);
+  font-size: var(--font-size-section-title);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .infinite-scroll-description {
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-  font-size: 1.125rem;
-  line-height: 1.6;
-  color: var(--color-dark-gray, #3f3f3c);
+  font-family: var(--font-body);
+  font-size: var(--font-size-preview);
+  line-height: 1.5;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .infinite-scroll-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3rem 3rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
-  margin-bottom: 3rem;
+  gap: var(--article-card-gap);
+  align-items: stretch;
 }
 
 .infinite-scroll-item {
   width: 100%;
   min-width: 0;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out forwards;
+  display: grid;
 }
 
 .infinite-scroll-article-preview {
   height: 100%;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading state */
-.infinite-scroll-loading {
-  text-align: center;
-  padding: 3rem 1rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-}
-
-.infinite-scroll-loading p {
-  font-size: 1.125rem;
-  color: var(--color-dark-gray, #3f3f3c);
-  margin: 0;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-light-gray, #f0efea);
-  border-top: 3px solid var(--color-black, #0d0b00);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Error state */
-.infinite-scroll-error {
-  text-align: center;
-  padding: 3rem 1rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-  background-color: rgba(224, 93, 80, 0.1);
-  border: 1px solid var(--color-red, #e05d50);
-  border-radius: 4px;
-  margin: 2rem 0;
-}
-
-.infinite-scroll-error p {
-  color: var(--color-red, #e05d50);
-  font-size: 1rem;
-  margin: 0 0 1rem 0;
-}
-
-.retry-button {
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-white, #fffefa);
-  background-color: var(--color-red, #e05d50);
-  border: none;
-  padding: 0.75rem 2rem;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.retry-button:hover {
-  opacity: 0.9;
-}
-
-/* End of content */
-.infinite-scroll-end {
-  text-align: center;
-  padding: 3rem 1rem;
-  border-top: 1px solid var(--color-gray, #b7b7b1);
-  margin-top: 2rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-}
-
-.infinite-scroll-end p {
-  font-size: 1.125rem;
-  color: var(--color-dark-gray, #3f3f3c);
-  margin: 0;
-}
-
-/* Empty state */
-.infinite-scroll-empty {
-  text-align: center;
-  padding: 3rem 1rem;
-  font-family: var(
-    --font-primary-sans,
-    "FranklinGothic URW",
-    "Libre Franklin",
-    sans-serif
-  );
-}
-
-.infinite-scroll-empty p {
-  font-size: 1.125rem;
-  color: var(--color-dark-gray, #3f3f3c);
-  margin: 0;
-}
-
-/* Intersection observer trigger */
-.infinite-scroll-trigger {
-  height: 20px;
-  width: 100%;
-}
-
-/* Responsive styles */
-@media (max-width: 1023px) {
-  .infinite-scroll-container {
-    width: 90vw;
-    padding: 2.5rem 0 3rem;
-  }
-
-  .infinite-scroll-header {
-    margin-bottom: 2.5rem;
-    padding-top: 1.5rem;
-  }
-
-  .infinite-scroll-grid {
-    gap: 2.5rem 2.5rem;
-  }
-}
-
 @media (max-width: 767px) {
-  .infinite-scroll-container {
-    width: 95vw;
-    padding: 2rem 0 2.5rem;
-  }
-
-  .infinite-scroll-header {
-    margin-bottom: 2rem;
-    padding: 0 0.5rem;
-    padding-top: 1.5rem;
-  }
-
-  .infinite-scroll-description {
-    font-size: 1rem;
-  }
-
-  .infinite-scroll-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .infinite-scroll-loading,
-  .infinite-scroll-error,
-  .infinite-scroll-end,
-  .infinite-scroll-empty {
-    padding: 2rem 1rem;
-  }
-
-  .infinite-scroll-loading p,
-  .infinite-scroll-end p,
-  .infinite-scroll-empty p {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .infinite-scroll-container {
-    width: 100vw;
-    padding: 1.5rem 0 2rem;
-  }
-
-  .infinite-scroll-header {
-    padding: 0 0.5rem;
-    padding-top: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .infinite-scroll-grid {
-    gap: 1.5rem;
-  }
+  .infinite-scroll-grid { grid-template-columns: minmax(0, 1fr); }
 }

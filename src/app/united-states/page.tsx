@@ -1,5 +1,5 @@
 import React from "react";
-import ArticleCarousel from "../components/ArticleCarousel";
+import ArticleSpotlight from "../components/ArticleSpotlight";
 import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
 import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
@@ -8,167 +8,170 @@ import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
 import "../mainStyle.css";
-import { enhancePosts } from "../lib/enhancePost";
+import { enhancePreviewPosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
 
-// Fetch all data in parallel for optimal performance
-const [
-  categories,
-  usaPostsRaw,
-  electionsPostsRaw,
-  educationPostsRaw,
-  environmentPostsRaw,
-  healthPostsRaw,
-  lawPostsRaw,
-  housingPostsRaw,
-  foreignPolicyPostsRaw,
-  securityPostsRaw,
-] = await Promise.all([
-  getAllCategories(),
-  getPostsByCategorySlug("usa", { per_page: 24 }),
-  getPostsByCategorySlug("elections", { per_page: 8 }),
-  getPostsByCategorySlug("education", { per_page: 8 }),
-  getPostsByCategorySlug("environment", { per_page: 8 }),
-  getPostsByCategorySlug("health", { per_page: 8 }),
-  getPostsByCategorySlug("law", { per_page: 8 }),
-  getPostsByCategorySlug("housing", { per_page: 8 }),
-  getPostsByCategorySlug("foreign-policy", { per_page: 8 }),
-  getPostsByCategorySlug("security-and-defense-usa", { per_page: 8 }),
-]);
+export const revalidate = 1800;
 
-// Enhance all posts in parallel
-const [
-  usaPosts,
-  electionsPosts,
-  educationPosts,
-  environmentPosts,
-  healthPosts,
-  lawPosts,
-  housingPosts,
-  foreignPolicyPosts,
-  securityPosts,
-] = await Promise.all([
-  enhancePosts(usaPostsRaw, categories),
-  enhancePosts(electionsPostsRaw, categories),
-  enhancePosts(educationPostsRaw, categories),
-  enhancePosts(environmentPostsRaw, categories),
-  enhancePosts(healthPostsRaw, categories),
-  enhancePosts(lawPostsRaw, categories),
-  enhancePosts(housingPostsRaw, categories),
-  enhancePosts(foreignPolicyPostsRaw, categories),
-  enhancePosts(securityPostsRaw, categories),
-]);
+export default async function UnitedStatesPage() {
+  // Fetch all data in parallel for optimal performance
+  const [
+    categories,
+    usaPostsRaw,
+    electionsPostsRaw,
+    educationPostsRaw,
+    environmentPostsRaw,
+    healthPostsRaw,
+    lawPostsRaw,
+    housingPostsRaw,
+    foreignPolicyPostsRaw,
+    securityPostsRaw,
+  ] = await Promise.all([
+    getAllCategories(),
+    getPostsByCategorySlug("usa", { per_page: 24 }),
+    getPostsByCategorySlug("elections", { per_page: 8 }),
+    getPostsByCategorySlug("education", { per_page: 8 }),
+    getPostsByCategorySlug("environment", { per_page: 8 }),
+    getPostsByCategorySlug("health", { per_page: 8 }),
+    getPostsByCategorySlug("law", { per_page: 8 }),
+    getPostsByCategorySlug("housing", { per_page: 8 }),
+    getPostsByCategorySlug("foreign-policy", { per_page: 8 }),
+    getPostsByCategorySlug("security-and-defense-usa", { per_page: 8 }),
+  ]);
 
-const usaCategory = categories.find((cat) => cat.slug === "usa");
+  // Enhance all posts in parallel
+  const [
+    usaPosts,
+    electionsPosts,
+    educationPosts,
+    environmentPosts,
+    healthPosts,
+    lawPosts,
+    housingPosts,
+    foreignPolicyPosts,
+    securityPosts,
+  ] = await Promise.all([
+    enhancePreviewPosts(usaPostsRaw, categories),
+    enhancePreviewPosts(electionsPostsRaw, categories),
+    enhancePreviewPosts(educationPostsRaw, categories),
+    enhancePreviewPosts(environmentPostsRaw, categories),
+    enhancePreviewPosts(healthPostsRaw, categories),
+    enhancePreviewPosts(lawPostsRaw, categories),
+    enhancePreviewPosts(housingPostsRaw, categories),
+    enhancePreviewPosts(foreignPolicyPostsRaw, categories),
+    enhancePreviewPosts(securityPostsRaw, categories),
+  ]);
 
-// Create content manager to prevent duplicate articles across all page components
-const contentManager = new PageContentManager();
+  const usaCategory = categories.find((cat) => cat.slug === "usa");
 
-// Create a global fallback pool for filling gaps
-const globalFallbackPool = contentManager.combineUniquePosts(
-  usaPosts,
-  electionsPosts,
-  educationPosts,
-  environmentPosts,
-  healthPosts,
-  lawPosts,
-  housingPosts,
-  foreignPolicyPosts,
-  securityPosts
-);
+  // Create content manager to prevent duplicate articles across all page components
+  const contentManager = new PageContentManager();
 
-// Select articles for each section in order of appearance on the page
-// This ensures no article appears twice on the United States page
-const previewArticles = contentManager.selectArticles(usaPosts, 10, {
-  allowPartial: true,
-});
-const carouselArticles = contentManager.selectArticles(usaPosts, 5, {
-  allowPartial: true,
-});
-const heroArticles = contentManager.selectArticles(usaPosts, 5, {
-  allowPartial: true,
-});
+  // Create a global fallback pool for filling gaps
+  const globalFallbackPool = contentManager.combineUniquePosts(
+    usaPosts,
+    electionsPosts,
+    educationPosts,
+    environmentPosts,
+    healthPosts,
+    lawPosts,
+    housingPosts,
+    foreignPolicyPosts,
+    securityPosts
+  );
 
-// Election Dispatch section
-const electionPool = contentManager.ensureContent(electionsPosts, usaPosts);
-const electionSpotlight = contentManager.selectArticles(electionPool, 7, {
-  allowPartial: true,
-});
+  // Select articles for each section in order of appearance on the page
+  // This ensures no article appears twice on the United States page
+  const previewArticles = contentManager.selectArticles(usaPosts, 10, {
+    allowPartial: true,
+  });
+  const spotlightArticles = contentManager.selectArticles(usaPosts, 5, {
+    allowPartial: true,
+  });
+  const heroArticles = contentManager.selectArticles(usaPosts, 5, {
+    allowPartial: true,
+  });
 
-// Two Column Layout - Environment and Health
-const environmentPool = contentManager.ensureContent(
-  environmentPosts,
-  usaPosts
-);
-const environmentColumn = contentManager.selectArticles(environmentPool, 5, {
-  allowPartial: true,
-});
-const healthPool = contentManager.ensureContent(healthPosts, usaPosts);
-const healthColumn = contentManager.selectArticles(healthPool, 5, {
-  allowPartial: true,
-});
+  // Election Dispatch section
+  const electionPool = contentManager.ensureContent(electionsPosts, usaPosts);
+  const electionSpotlight = contentManager.selectArticles(electionPool, 7, {
+    allowPartial: true,
+  });
 
-// Education section - ensure exactly 4 articles
-const educationPool = contentManager.ensureContent(educationPosts, usaPosts);
-const educationArticles = contentManager.fillToCount(
-  educationPool,
-  4,
-  globalFallbackPool
-);
+  // Two Column Layout - Environment and Health
+  const environmentPool = contentManager.ensureContent(
+    environmentPosts,
+    usaPosts
+  );
+  const environmentColumn = contentManager.selectArticles(environmentPool, 5, {
+    allowPartial: true,
+  });
+  const healthPool = contentManager.ensureContent(healthPosts, usaPosts);
+  const healthColumn = contentManager.selectArticles(healthPool, 5, {
+    allowPartial: true,
+  });
 
-// Second Hero
-const heroArticles2 = contentManager.selectArticles(usaPosts, 5, {
-  allowPartial: true,
-});
+  // Education section - ensure exactly 4 articles
+  const educationPool = contentManager.ensureContent(educationPosts, usaPosts);
+  const educationArticles = contentManager.fillToCount(
+    educationPool,
+    4,
+    globalFallbackPool
+  );
 
-// Law & Justice section
-const lawPool = contentManager.ensureContent(lawPosts, usaPosts);
-const lawArticles = contentManager.selectArticles(lawPool, 5, {
-  allowPartial: true,
-});
+  // Second Hero
+  const heroArticles2 = contentManager.selectArticles(usaPosts, 5, {
+    allowPartial: true,
+  });
 
-// National Security & Foreign Policy Pool
-const nationalSecurityPool = contentManager.combineUniquePosts(
-  foreignPolicyPosts,
-  securityPosts,
-  usaPosts
-);
-const nationalSecurityArticles = contentManager.selectArticles(
-  nationalSecurityPool,
-  4,
-  { allowPartial: true }
-);
+  // Law & Justice section
+  const lawPool = contentManager.ensureContent(lawPosts, usaPosts);
+  const lawArticles = contentManager.selectArticles(lawPool, 5, {
+    allowPartial: true,
+  });
 
-// Housing & Urban Affairs section - ensure exactly 4 articles
-const housingPool = contentManager.ensureContent(housingPosts, usaPosts);
-const housingArticles = contentManager.fillToCount(
-  housingPool,
-  4,
-  globalFallbackPool
-);
+  // National Security & Foreign Policy Pool
+  const nationalSecurityPool = contentManager.combineUniquePosts(
+    foreignPolicyPosts,
+    securityPosts,
+    usaPosts
+  );
+  const nationalSecurityArticles = contentManager.selectArticles(
+    nationalSecurityPool,
+    4,
+    { allowPartial: true }
+  );
 
-// USA Highlights
-const usaHighlights = contentManager.selectArticles(usaPosts, 5, {
-  allowPartial: true,
-});
+  // Housing & Urban Affairs section - ensure exactly 4 articles
+  const housingPool = contentManager.ensureContent(housingPosts, usaPosts);
+  const housingArticles = contentManager.fillToCount(
+    housingPool,
+    4,
+    globalFallbackPool
+  );
 
-// Third Hero
-const heroArticles3 = contentManager.selectArticles(usaPosts, 5, {
-  allowPartial: true,
-});
+  // USA Highlights
+  const usaHighlights = contentManager.selectArticles(usaPosts, 5, {
+    allowPartial: true,
+  });
 
-export default function UnitedStatesPage() {
+  // Third Hero
+  const heroArticles3 = contentManager.selectArticles(usaPosts, 5, {
+    allowPartial: true,
+  });
+
+
   return (
     <main className="page-container">
       <div className="main-content">
         {previewArticles.length > 0 && (
           <ArticlePreviewGrid articles={previewArticles} />
         )}
-        {carouselArticles.length > 0 && (
-          <ArticleCarousel
+        {spotlightArticles.length > 0 && (
+          <ArticleSpotlight
             title="Domestic Briefing"
-            posts={carouselArticles}
+            posts={spotlightArticles}
             maxArticles={5}
           />
         )}
@@ -206,7 +209,6 @@ export default function UnitedStatesPage() {
             posts={nationalSecurityArticles}
             categoryName="National Security &amp; Foreign Policy"
             showCategoryTitle={true}
-            showBoundingLines={true}
             numberOfRows={1}
             className="width-constrained"
           />

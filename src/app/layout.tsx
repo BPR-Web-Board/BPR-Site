@@ -3,9 +3,8 @@ import { Playfair_Display, Libre_Franklin } from "next/font/google";
 import "./globals.css";
 import NavigationBar from "./components/NavigationBar";
 import Footer from "./components/Footer";
-// ...existing code...
+import NewsletterSignup from "./components/NewsletterSignup/NewsletterSignup";
 
-// Load Google Fonts as fallbacks for Adobe Fonts
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "600"],
@@ -34,9 +33,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${playfairDisplay.variable} ${libreFranklin.variable}`}
     >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var theme;try{theme=localStorage.getItem('bpr-theme')}catch(e){}var issuePage=/^\\/magazine\\/?$/.test(location.pathname)||/^\\/magazine\\/issues\\/[^/]+\\/?$/.test(location.pathname);if(theme==='issue'&&!issuePage)theme=null;if(issuePage)document.documentElement.dataset.theme='issue';else if(theme==='light'||theme==='dark')document.documentElement.dataset.theme=theme;else document.documentElement.dataset.theme='dark'})()` }} />
         {/* Load Adobe Fonts */}
         <link rel="stylesheet" href="https://use.typekit.net/oxs2lss.css" />
       </head>
@@ -44,6 +45,7 @@ export default function RootLayout({
         <NavigationBar />
         {children}
         <Footer />
+        <NewsletterSignup />
       </body>
     </html>
   );

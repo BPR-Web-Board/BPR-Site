@@ -1,9 +1,11 @@
-"use client";
+
+import CategoryPills from "../shared/CategoryPills/CategoryPills";
+import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
 
 import React from "react";
 import { EnhancedPost } from "../../lib/types";
-import { stripHtml, getArticleTitle } from "../../lib/utils";
-import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
+import { getAuthorName, getArticleTitle, formatArchiveDate } from "../../lib/utils";
+import ArticleMedia from "../shared/ArticleMedia/ArticleMedia";
 import "./FeaturedPodcast.css";
 
 interface FeaturedPodcastProps {
@@ -20,6 +22,7 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
   className = "",
 }) => {
   const title = getArticleTitle(podcast);
+  const formattedDate = formatArchiveDate(podcast.date || "");
   const podcastDuration = duration || (podcast?.meta?.duration as string);
   const spotifyLink =
     spotifyUrl ||
@@ -28,37 +31,24 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
 
   return (
     <section className={`featured-podcast ${className}`}>
-      <div className="featured-podcast-container">
+      <div className="featured-podcast-container article-card-frame">
         <div className="featured-podcast-image-wrapper">
-          {podcast?.featured_media_obj?.source_url ? (
-            <OptimizedImage
-              src={podcast.featured_media_obj.source_url}
-              alt={stripHtml(title)}
-              fill
-              className="featured-podcast-image"
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
-              priority
-              showPlaceholder={true}
-            />
-          ) : (
-            <div className="featured-podcast-image-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M9 18v-6m6 6v-6m-9 0a3 3 0 0 1 6 0m-6 0a3 3 0 0 0 6 0m-9 0c0-1.1.9-2 2-2s2 .9 2 2m6 0c0-1.1.9-2 2-2s2 .9 2 2" />
-              </svg>
-            </div>
-          )}
+          <ArticleMedia article={podcast} className="featured-podcast-image" fallbackType="audio"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw" />
         </div>
 
-        <div className="featured-podcast-content">
+        <div className="featured-podcast-content article-card-content-stack">
           <h2
-            className="featured-podcast-title"
-            dangerouslySetInnerHTML={{ __html: title }}
-          ></h2>
+            className="featured-podcast-title"><ArticleTitle html={title} /></h2>
 
           <div className="featured-podcast-meta">
             <span className="featured-podcast-author">
-              BY {(podcast?.author_name || "LASTNAME").toUpperCase()}
+              {getAuthorName(podcast).toUpperCase()}
             </span>
+            {formattedDate ? <>
+              <span className="featured-podcast-meta-divider" aria-hidden="true">·</span>
+              <time className="featured-podcast-date" dateTime={podcast.date}>{formattedDate}</time>
+            </> : null}
             {podcastDuration && (
               <span className="featured-podcast-duration">
                 {podcastDuration}
@@ -66,20 +56,16 @@ const FeaturedPodcast: React.FC<FeaturedPodcastProps> = ({
             )}
           </div>
 
-          <div className="featured-podcast-date">
-            {new Date(podcast.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </div>
 
-          <p
+
+          <CategoryPills categories={podcast.categories_obj} />
+
+          <div
             className="featured-podcast-excerpt"
             dangerouslySetInnerHTML={{
               __html: podcast?.excerpt?.rendered || "",
             }}
-          ></p>
+          ></div>
 
           {spotifyLink && (
             <a

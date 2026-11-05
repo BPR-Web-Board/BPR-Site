@@ -1,8 +1,8 @@
 import React from "react";
-import ArticleCarousel from "../../components/ArticleCarousel";
+import ArticleSpotlight from "../../components/ArticleSpotlight";
 import ArticleGrid from "../../components/ArticleGrid";
 import InfiniteScrollArticleList from "../../components/shared/InfiniteScrollArticleList";
-import { enhancePosts } from "../../lib/enhancePost";
+import { enhancePreviewPosts } from "../../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../../lib/wordpress";
 import { PageContentManager } from "../../lib/contentManager";
 import "../../mainStyle.css";
@@ -21,9 +21,8 @@ export default async function MultimediaSubsectionPage({
   // Fetch categories first to enhance posts
   const categories = await getAllCategories();
 
-  // Fetch posts for carousel (first 5), grid (next 8), and infinite scroll initial (next 10)
   // Total: 23 posts on initial load
-  const [carouselPostsRaw, gridPostsRaw, infiniteScrollPostsRaw] =
+  const [spotlightPostsRaw, gridPostsRaw, infiniteScrollPostsRaw] =
     await Promise.all([
       getPostsByCategorySlug(subsection, { per_page: 5, page: 1 }),
       getPostsByCategorySlug(subsection, { per_page: 8, page: 1, offset: 5 }),
@@ -31,10 +30,10 @@ export default async function MultimediaSubsectionPage({
     ]);
 
   // Enhance all posts in parallel
-  const [carouselPosts, gridPosts, infiniteScrollPosts] = await Promise.all([
-    enhancePosts(carouselPostsRaw, categories),
-    enhancePosts(gridPostsRaw, categories),
-    enhancePosts(infiniteScrollPostsRaw, categories),
+  const [spotlightPosts, gridPosts, infiniteScrollPosts] = await Promise.all([
+    enhancePreviewPosts(spotlightPostsRaw, categories),
+    enhancePreviewPosts(gridPostsRaw, categories),
+    enhancePreviewPosts(infiniteScrollPostsRaw, categories),
   ]);
 
   // Get the category name for display
@@ -46,13 +45,13 @@ export default async function MultimediaSubsectionPage({
 
   // Create a global fallback pool for filling gaps
   const globalFallbackPool = contentManager.combineUniquePosts(
-    carouselPosts,
+    spotlightPosts,
     gridPosts,
     infiniteScrollPosts
   );
 
   // Select articles for each section in order
-  const displayCarouselPosts = contentManager.selectArticles(carouselPosts, 5, {
+  const displaySpotlightPosts = contentManager.selectArticles(spotlightPosts, 5, {
     allowPartial: true,
   });
 
@@ -66,11 +65,10 @@ export default async function MultimediaSubsectionPage({
   return (
     <main className="page-container">
       <div className="main-content">
-        {/* Article Carousel - Top 5 posts */}
-        {displayCarouselPosts.length > 0 && (
-          <ArticleCarousel
-            title={`${categoryName} Spotlight`}
-            posts={displayCarouselPosts}
+        {displaySpotlightPosts.length > 0 && (
+          <ArticleSpotlight
+            title="Latest"
+            posts={displaySpotlightPosts}
             maxArticles={5}
           />
         )}
@@ -78,7 +76,7 @@ export default async function MultimediaSubsectionPage({
         {/* Article Grid - 2 rows x 4 columns = 8 posts */}
         <ArticleGrid
           posts={displayGridPosts}
-          categoryName={categoryName}
+          categoryName="Spotlight"
           maxArticles={8}
         />
 
@@ -89,16 +87,16 @@ export default async function MultimediaSubsectionPage({
             initialPosts={infiniteScrollPosts}
             initialPage={2} // We already loaded page 1 (offset 13-22), start from page 2
             perPage={10}
+            title={`${categoryName} Archive`}
           />
         )}
 
         {/* Empty state if no posts at all */}
-        {displayCarouselPosts.length === 0 &&
+        {displaySpotlightPosts.length === 0 &&
           displayGridPosts.length === 0 &&
           infiniteScrollPosts.length === 0 && (
             <div
-              className="empty-state"
-              style={{ textAlign: "center", padding: "60px 20px" }}
+              className="site-state width-constrained"
             >
               <h2>No articles found</h2>
               <p>There are currently no articles in this subsection.</p>

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { EnhancedPost } from "../../lib/types";
 import { ArticleCard } from "../shared";
@@ -7,96 +5,31 @@ import "./FourArticleGrid.css";
 
 interface FourArticleGridProps {
   posts: EnhancedPost[];
-  categoryName?: string; // Optional: display name for the category
+  categoryName?: string;
   showCategoryTitle?: boolean;
-  showBoundingLines?: boolean; // Optional: show grey bounding lines around articles
-  numberOfRows?: number; // Number of rows to display (each row has 4 articles)
+  showBoundingLines?: boolean;
+  numberOfRows?: number;
+  columns?: 2 | 3 | 4;
   className?: string;
 }
 
-const FourArticleGrid: React.FC<FourArticleGridProps> = ({
-  posts,
-  categoryName,
-  showCategoryTitle = true,
-  showBoundingLines = false,
-  numberOfRows = 1,
-  className = "",
-}) => {
-  if (!posts || posts.length === 0) {
-    return (
-      <div className={`four-article-grid ${className}`}>
-        {showCategoryTitle && categoryName && (
-          <h2 className="category-title">{categoryName}</h2>
-        )}
-        <div className="error-state">No articles available</div>
-      </div>
-    );
-  }
-
-  // Calculate total articles needed (numberOfRows * 4)
-  const totalArticlesNeeded = numberOfRows * 4;
-
-  // Take only the required number of posts (or however many are available)
-  const displayArticles = posts.slice(0, totalArticlesNeeded);
-
-  return (
-    <div className={`four-article-grid ${className}`}>
-      {showCategoryTitle && categoryName && (
-        <h2 className="category-title">{categoryName}</h2>
-      )}
-
-      <div
-        className={`articles-grid-container ${
-          showBoundingLines ? "with-bounding-lines" : ""
-        }`}
-      >
-        {showBoundingLines && (
-          <>
-            {/* Horizontal top line */}
-            <div className="bounding-line horizontal top" />
-
-            {/* Vertical lines */}
-            {/* <div className="bounding-line vertical left" /> */}
-            <div className="bounding-line vertical middle-1" />
-            <div className="bounding-line vertical middle-2" />
-            <div className="bounding-line vertical middle-3" />
-            {/* <div className="bounding-line vertical right" /> */}
-
-            {/* Horizontal bottom line */}
-            <div className="bounding-line horizontal bottom" />
-          </>
-        )}
-
-        <div className="articles-rows-container">
-          {Array.from({ length: numberOfRows }, (_, rowIndex) => {
-            const startIndex = rowIndex * 4;
-            const endIndex = startIndex + 4;
-            const rowArticles = displayArticles.slice(startIndex, endIndex);
-
-            return (
-              <div key={rowIndex}>
-                {/* Add horizontal divider before each row except the first */}
-                {rowIndex > 0 && <div className="row-divider" />}
-
-                <div className="articles-grid">
-                  {rowArticles.map((article, index) => (
-                    <ArticleCard
-                      key={`${article.id}-${startIndex + index}`}
-                      article={article}
-                      variant="standard"
-                      excerptLength={200}
-                      imagePosition="top"
-                      className="four-article-grid-card"
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+export default function FourArticleGrid({ posts, categoryName, showCategoryTitle = true,
+  numberOfRows = 1, columns = 4, className = "" }: FourArticleGridProps) {
+  const articles = (posts || []).slice(0, Math.max(0, Math.floor(numberOfRows)) * columns);
+  if (!articles.length) return null;
+  return <section className={`four-article-grid ${className}`}>
+    {showCategoryTitle && categoryName && <h2 className="category-title section-heading-rule">{categoryName}</h2>}
+    <div className="articles-grid-container">
+      <div className="articles-rows-container">
+        {Array.from({ length: Math.ceil(articles.length / columns) }, (_, row) => {
+          const rowArticles = articles.slice(row * columns, (row + 1) * columns);
+          return <div key={row} className={`articles-grid count-${rowArticles.length}`}>
+            {rowArticles.map(article => <ArticleCard key={article.id} article={article}
+              excerptLength={rowArticles.length === 1 ? 500 : 200} showExcerpt
+              imagePosition={rowArticles.length === 1 ? "left" : "top"} />)}
+          </div>;
+        })}
       </div>
     </div>
-  );
-};
-
-export default FourArticleGrid;
+  </section>;
+}

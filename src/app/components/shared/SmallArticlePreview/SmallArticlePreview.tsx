@@ -1,16 +1,20 @@
-"use client";
+
+import ArticleTitle from "../ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../CategoryPills/CategoryPills";
 
 import React from "react";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
-import {
+import { getAuthorName,
   stripHtml,
   truncateText,
   getArticleTitle,
   getArticleLink,
-  formatDate,
+  formatArchiveDate,
 } from "../../../lib/utils";
-import OptimizedImage from "../OptimizedImage/OptimizedImage";
+import ArticleMedia from "../ArticleMedia/ArticleMedia";
+import { getMediaPreview } from "../../../lib/mediaPreview";
 import "./SmallArticlePreview.css";
 
 export interface SmallArticlePreviewProps {
@@ -21,6 +25,7 @@ export interface SmallArticlePreviewProps {
   variant?: "default" | "compact" | "sidebar" | "preview-grid";
   className?: string;
   showDate?: boolean;
+  showExcerpt?: boolean;
 }
 
 const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
@@ -30,51 +35,43 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
   imagePosition = "left",
   variant = "default",
   className = "",
-  showDate = false,
+  showDate = true,
+  showExcerpt = variant !== "preview-grid",
 }) => {
   const articleLink = getArticleLink(article);
   const rawTitle = getArticleTitle(article);
-  const title = truncateText(stripHtml(rawTitle), 60);
+  const title = stripHtml(rawTitle);
   const authorName = truncateText(
-    (article?.author_name || "LASTNAME").toUpperCase(),
+    getAuthorName(article).toUpperCase(),
     25
   );
-  const formattedDate = article?.date ? formatDate(article.date) : "";
+  const formattedDate = formatArchiveDate(article?.date || "");
   const excerpt = truncateText(
     stripHtml(article?.excerpt?.rendered || ""),
     excerptLength
   );
 
-  const imageContent = showImage && (
+  const imageContent = showImage && (!!article.featured_media_obj?.source_url || !!getMediaPreview(article)) && (
     <div className="small-article-image-container">
-      {article?.featured_media_obj?.source_url ? (
-        <OptimizedImage
-          src={article.featured_media_obj.source_url}
-          alt={stripHtml(title)}
-          fill
-          sizes="(max-width: 768px) 100vw, 25vw"
-          className="small-article-image"
-          showPlaceholder={true}
-        />
-      ) : (
-        <div className="small-article-image-placeholder"></div>
-      )}
+      <ArticleMedia article={article} className="small-article-image" sizes="(max-width: 768px) 100vw, 25vw" />
     </div>
   );
 
   const textContent = (
-    <div className="small-article-content">
+    <div className="small-article-content article-card-content-stack">
       <h4
-        className="small-article-title"
-        dangerouslySetInnerHTML={{ __html: title }}
-      ></h4>
-      <div className="small-article-meta">
-        <span className="small-article-author">BY {authorName}</span>
-        {showDate && formattedDate && (
-          <span className="small-article-date">{formattedDate}</span>
-        )}
+        className="small-article-title"><ArticleTitle html={title} /></h4>
+      <div className="article-byline-group">
+        <div className="small-article-meta">
+          <span className="small-article-author">{authorName}</span>
+          {showDate && formattedDate ? <>
+            <span className="small-article-meta-divider" aria-hidden="true">·</span>
+            <time className="small-article-date" dateTime={article.date}>{formattedDate}</time>
+          </> : null}
+        </div>
+        <CategoryPills categories={article.categories_obj} />
       </div>
-      {variant !== "preview-grid" && (
+      {showExcerpt && excerpt.trim() && (
         <div
           className="small-article-excerpt"
           dangerouslySetInnerHTML={{ __html: excerpt }}
@@ -85,7 +82,7 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
 
   return (
     <article
-      className={`small-article-preview variant-${variant} image-${imagePosition} ${className}`}
+      className={`article-card-frame small-article-preview variant-${variant} image-${imagePosition} ${className}`}
     >
       <Link href={articleLink} style={{ display: "contents" }}>
         {imagePosition === "left" ? (

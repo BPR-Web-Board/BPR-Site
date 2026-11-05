@@ -14,7 +14,7 @@ export default function LoadingSkeleton({
 
   if (variant === "hero") {
     return (
-      <div className="skeleton-hero">
+      <div className="skeleton-hero" aria-hidden="true">
         <div className="skeleton-hero-image skeleton-pulse" />
         <div className="skeleton-hero-content">
           <div className="skeleton-text skeleton-pulse" style={{ width: "70%" }} />
@@ -26,7 +26,7 @@ export default function LoadingSkeleton({
 
   if (variant === "grid") {
     return (
-      <div className="skeleton-grid">
+      <div className="skeleton-grid" aria-hidden="true">
         {skeletons.map((_, i) => (
           <div key={i} className="skeleton-article-card">
             <div className="skeleton-image skeleton-pulse" />
@@ -41,7 +41,7 @@ export default function LoadingSkeleton({
 
   if (variant === "text") {
     return (
-      <div className="skeleton-text-block">
+      <div className="skeleton-text-block" aria-hidden="true">
         {skeletons.map((_, i) => (
           <div
             key={i}
@@ -54,7 +54,7 @@ export default function LoadingSkeleton({
   }
 
   return (
-    <div className="skeleton-article">
+    <div className="skeleton-article" aria-hidden="true">
       <div className="skeleton-image skeleton-pulse" />
       <div className="skeleton-content">
         <div className="skeleton-text skeleton-pulse" style={{ width: "90%" }} />

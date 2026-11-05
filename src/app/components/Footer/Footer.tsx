@@ -1,131 +1,57 @@
-"use client";
-
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Facebook, Linkedin } from "lucide-react";
+import { Instagram, Linkedin, Mail } from "lucide-react";
 import "./Footer.css";
 
-interface FooterProps extends React.HTMLAttributes<HTMLDivElement> {
+interface FooterProps extends React.HTMLAttributes<HTMLElement> {
   className?: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ className, ...props }) => {
-  return (
-    <footer className={`footer ${className || ""}`} {...props}>
-      <div className="footer-container">
-        <div className="footer-content">
-          {/* Left Section - Logo */}
-          <div className="logo-section">
-            <div className="logo-container">
-              <Image
-                src="/logo/logo_white.svg"
-                alt="The Brown Political Review Logo"
-                width={250}
-                height={75}
-                priority
-              />
-            </div>
-          </div>
-
-          {/* Middle Section - Intentionally Left Blank */}
-          <div className="middle-section"></div>
-
-          {/* Right Section - Links in a 2x2 Grid */}
-          <div className="links-grid">
-            {/* About Column */}
-            <div className="link-column">
-              <h3 className="column-title">About</h3>
-              <ul className="link-list">
+const Footer: React.FC<FooterProps> = ({ className, ...props }) => (
+  <footer className={`footer ${className || ""}`} {...props}>
+    <div className="footer-content">
+      <div className="footer-text">
+        <nav aria-label="Footer">
+          <ul className="footer-links">
+            <li><Link href="/about/story" className="footer-link" target="_blank" rel="noopener noreferrer">Our Story</Link></li>
+            <li><Link href="/about/masthead" className="footer-link" target="_blank" rel="noopener noreferrer">Masthead</Link></li>
+            <li><Link href="/about/join" className="footer-link" target="_blank" rel="noopener noreferrer">Join BPR</Link></li>
+            <li><Link href="/donate" className="footer-link" target="_blank" rel="noopener noreferrer">Donate</Link></li>
+            <li><a href="http://eepurl.com/hJoTFX" className="footer-link" target="_blank" rel="noopener noreferrer">Newsletter</a></li>
+            <li>
+              <ul className="footer-social-links" aria-label="Social and contact links">
                 <li>
-                  <Link href="/mission" className="footer-link">
-                    Our Mission
-                  </Link>
+                  <a href="https://www.instagram.com/brownpoliticalreview/?hl=en#" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+                    <Instagram size={16} aria-hidden="true" />
+                  </a>
                 </li>
                 <li>
-                  <Link href="/story" className="footer-link">
-                    Our Story
-                  </Link>
+                  <a href="https://open.spotify.com/show/4OewXk59kprBDrq1to11Ap" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="Spotify" title="Spotify">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M6.5 9a15 15 0 0 1 11 1M7 12.5a12 12 0 0 1 9.5.9M7.5 16a9 9 0 0 1 7.8.7" />
+                    </svg>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/masthead" className="footer-link">
-                    Masthead
-                  </Link>
+                  <a href="https://www.linkedin.com/company/brown-political-review/posts/?feedView=all" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                    <Linkedin size={16} aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:brown-political-review@brown.edu" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="Email BPR" title="Email BPR">
+                    <Mail size={16} aria-hidden="true" />
+                  </a>
                 </li>
               </ul>
-            </div>
-
-            {/* Support Column */}
-            <div className="link-column">
-              <h3 className="column-title">Support</h3>
-              <ul className="link-list">
-                <li>
-                  <Link href="/subscribe" className="footer-link">
-                    Subscribe
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/donate" className="footer-link">
-                    Donate
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/advertise" className="footer-link">
-                    Advertise
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Connect Column */}
-            <div className="link-column">
-              <h3 className="column-title">Connect</h3>
-              <ul className="link-list">
-                <li>
-                  <Link href="/contact" className="footer-link">
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/join" className="footer-link">
-                    Join BPR
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Follow Column */}
-            <div className="link-column">
-              <h3 className="column-title">Follow</h3>
-              <div className="social-icons">
-                <Link
-                  href="https://instagram.com"
-                  className="social-icon"
-                  aria-label="Instagram"
-                >
-                  <Instagram size={18} />
-                </Link>
-                <Link
-                  href="https://facebook.com"
-                  className="social-icon"
-                  aria-label="Facebook"
-                >
-                  <Facebook size={18} />
-                </Link>
-                <Link
-                  href="https://linkedin.com"
-                  className="social-icon"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin size={18} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+            </li>
+          </ul>
+        </nav>
+        <p className="footer-copyright">© {new Date().getFullYear()} Brown Political Review</p>
       </div>
-    </footer>
-  );
-};
+      <span className="footer-logo" role="img" aria-label="Brown Political Review" />
+    </div>
+  </footer>
+);
 
 export default Footer;

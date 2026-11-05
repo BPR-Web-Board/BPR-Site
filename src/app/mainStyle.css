@@ -4,8 +4,8 @@
   contain: layout style;
   display: block;
   width: 100%;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .two-column-layout-wrapper {
@@ -13,13 +13,13 @@
   contain: layout style;
   display: block;
   width: 100%;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 /* Page Layout Container */
 .page-container {
   width: 100%;
-  background-color: var(--color-white);
+  background-color: var(--surface);
   scroll-behavior: smooth;
 }
 
@@ -33,18 +33,7 @@
 
 /* Consistent section spacing */
 .main-content {
-  margin-top: 2rem;
+  margin-top: 0;
 }
 
 /* Responsive section spacing */
-@media (min-width: 768px) {
-  .main-content {
-    margin-top: 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .main-content {
-    margin-top: 4rem;
-  }
-}

@@ -1,3 +1,4 @@
+import { cache } from "../cache";
 import {
   getAllPosts,
   getPostById,
@@ -65,10 +66,13 @@ const createMockFeaturedMedia = (id: number): FeaturedMedia => ({
   source_url: "https://brownpoliticalreview.org/test-image.jpg",
 });
 
-describe("WordPress API Functions (Mocked)", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    jest.restoreAllMocks();
+    await cache.clear();
   });
+
+describe("WordPress API Functions (Mocked)", () => {
+
 
   describe("Post Functions", () => {
     it("should fetch all posts", async () => {

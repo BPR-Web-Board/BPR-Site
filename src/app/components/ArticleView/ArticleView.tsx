@@ -1,4 +1,9 @@
 "use client";
+import { getAuthorName } from "../../lib/utils";
+import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../shared/CategoryPills/CategoryPills";
+
 
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import Image from "next/image";
@@ -475,7 +480,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
 
   // Get author information
   const authorName =
-    post.author_name || post.author_obj?.name || "Unknown Author";
+    getAuthorName(post);
 
 
 
@@ -596,9 +601,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
       <header className="article-header">
         <div className="header-content">
           <h1
-            className="article-title-view"
-            dangerouslySetInnerHTML={{ __html: titleText }}
-          ></h1>
+            className="article-title-view"><ArticleTitle html={titleText} /></h1>
           <div
             className="article-excerpt-view"
             dangerouslySetInnerHTML={{ __html: excerptText }}
@@ -625,7 +628,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         {/* Left sidebar - author info and positioned pull quotes */}
         <aside className="article-sidebar" ref={sidebarRef}>
           <div className="author-info">
-            <div className="author-byline">BY {authorName.toUpperCase()}</div>
+            <div className="author-byline">{authorName.toUpperCase()}</div>
+            <CategoryPills categories={post.categories_obj} />
             <div className="article-date">
               {formatDate(post.date).toUpperCase()}
             </div>

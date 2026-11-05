@@ -1,0 +1,56 @@
+.archive-content {
+  width: var(--content-width);
+  margin: var(--section-gap) auto;
+  padding: 0;
+  min-height: calc(100svh - var(--nav-height) - var(--section-gap) * 2);
+  display: flex;
+  flex-direction: column;
+}
+
+.archive-header {
+  margin: 0 0 var(--section-heading-gap);
+}
+
+.archive-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-primary-serif);
+  font-size: var(--font-size-article-title);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.archive-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.archive-issues > p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-preview);
+  line-height: 1.5;
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: var(--article-card-gap);
+  align-items: stretch;
+}
+
+.archive-grid-item {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+}
+
+.archive-article-preview {
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+  .archive-grid { grid-template-columns: minmax(0, 1fr); }
+}

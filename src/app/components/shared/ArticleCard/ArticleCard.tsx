@@ -1,15 +1,20 @@
-"use client";
+
+import ArticleTitle from "../ArticleTitle/ArticleTitle";
+
+import CategoryPills from "../CategoryPills/CategoryPills";
 
 import React from "react";
 import Link from "next/link";
 import { EnhancedPost } from "../../../lib/types";
-import {
+import { getAuthorName,
   stripHtml,
   truncateText,
   getArticleTitle,
   getArticleLink,
+  formatArchiveDate,
 } from "../../../lib/utils";
-import OptimizedImage from "../OptimizedImage/OptimizedImage";
+import ArticleMedia from "../ArticleMedia/ArticleMedia";
+import { getMediaPreview } from "../../../lib/mediaPreview";
 import "./ArticleCard.css";
 
 export interface ArticleCardProps {
@@ -33,39 +38,34 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 }) => {
   const articleLink = getArticleLink(article);
   const title = getArticleTitle(article);
+  const formattedDate = formatArchiveDate(article.date || "");
   const excerpt = truncateText(
     stripHtml(article?.excerpt?.rendered || ""),
     excerptLength
   );
 
-  const imageContent = showImage && (
+  const imageContent = showImage && (!!article.featured_media_obj?.source_url || !!getMediaPreview(article)) && (
     <div className={`article-card-image-container image-${imagePosition}`}>
-      {article?.featured_media_obj?.source_url ? (
-        <OptimizedImage
-          src={article.featured_media_obj.source_url}
-          alt={stripHtml(title)}
-          fill
-          className="article-card-image"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          showPlaceholder={true}
-        />
-      ) : (
-        <div className="article-card-image-placeholder"></div>
-      )}
+      <ArticleMedia article={article} className="article-card-image" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" />
     </div>
   );
 
   const textContent = (
-    <div className="article-card-content">
+    <div className="article-card-content article-card-content-stack">
       <h3
-        className={`article-card-title variant-${variant}`}
-        dangerouslySetInnerHTML={{ __html: title }}
-      ></h3>
+        className={`article-card-title variant-${variant}`}><ArticleTitle html={title} /></h3>
 
-      <div className="article-card-meta">
-        <span className="article-card-author">
-          BY {(article?.author_name || "LASTNAME").toUpperCase()}
-        </span>
+      <div className="article-byline-group">
+        <div className="article-card-meta">
+          <span className="article-card-author">
+            {getAuthorName(article).toUpperCase()}
+          </span>
+          {formattedDate ? <>
+            <span className="article-card-meta-divider" aria-hidden="true">·</span>
+            <time className="article-card-date" dateTime={article.date}>{formattedDate}</time>
+          </> : null}
+        </div>
+        <CategoryPills categories={article.categories_obj} />
       </div>
 
       {showExcerpt && excerpt && excerpt.trim() && (
@@ -79,7 +79,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
   return (
     <article
-      className={`article-card variant-${variant} image-position-${imagePosition} ${className}`}
+      className={`article-card-frame article-card variant-${variant} image-position-${imagePosition} ${className}`}
     >
       <Link href={articleLink} style={{ display: "contents" }}>
         {imagePosition === "top" && (
@@ -96,8 +96,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         )}
         {imagePosition === "right" && (
           <>
-            {textContent}
             {imageContent}
+            {textContent}
           </>
         )}
       </Link>

@@ -1,19 +1,21 @@
 /* ArticleView Component - Matching Figma Design */
 .article-view {
-  width: 85vw;
-  max-width: 2600px;
-  margin: 64px auto;
-  padding: 0 64px;
-  background-color: #fff;
+  margin: var(--space-7) auto;
+  padding-block: 0;
+  background-color: var(--surface);
   position: relative;
+  width: var(--content-width);
+  max-width: none;
+  padding-inline: 0;
 }
 
 /* Top border line */
 .article-top-border {
   width: 100%;
-  height: 1px;
-  background-color: #000;
+  height: var(--divider-width);
+  background-color: var(--divider-color);
   margin-bottom: 46px;
+  opacity: 1;
 }
 
 /* Header with title and excerpt side by side */
@@ -30,23 +32,24 @@
 
 /* Article Title - Nicholas font, 64px, Bold, Letter spacing 3.2px */
 .article-title-view {
-  font-family: "FranklinGothic URW", "Playfair Display", serif;
-  font-size: 4rem;
+  font-family: var(--font-primary-sans);
+  font-size: var(--font-size-article-title);
   font-weight: 700;
-  line-height: 130%; /* 83.2px */
+  line-height: 1.15; /* 83.2px */
   letter-spacing: 3.2px;
-  color: #000;
+  color: var(--text-primary);
   margin: 0;
   grid-column: 1;
+  overflow-wrap: anywhere;
 }
 
 /* Article Excerpt - Nicholas, 32px */
 .article-excerpt-view {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1.35rem;
+  font-family: var(--font-body);
+  font-size: var(--font-size-preview);
   font-weight: 400;
-  line-height: 130%;
-  color: #000;
+  line-height: 1.5;
+  color: var(--text-secondary);
   margin: 0;
   grid-column: 2;
 }
@@ -88,25 +91,25 @@
 
 .author-byline,
 .illustrator-info {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 120%;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
+  line-height: 1.4;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.7);
-  margin-bottom: 8px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
 }
 
 .article-date {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 120%;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
+  line-height: 1.4;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #000;
-  margin-top: 16px;
+  color: var(--text-muted);
+  margin-top: var(--space-3);
 }
 
 /* Pull Quotes in Sidebar */
@@ -131,17 +134,18 @@
 
 .pull-quote-divider {
   width: 100%;
-  height: 1px;
-  background-color: #000;
-  margin-bottom: 16px;
+  height: var(--divider-width);
+  background-color: var(--divider-color);
+  margin-bottom: var(--space-3);
+  opacity: 1;
 }
 
 .sidebar-pull-quote {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-primary-serif);
   font-size: 24px;
   font-weight: 400;
   line-height: 150%; /* 36px */
-  color: #000;
+  color: var(--text-primary);
   margin: 0;
   border: none;
   padding: 0;
@@ -169,60 +173,61 @@
 
 /* Article Content */
 .article-content {
-  font-size: 24px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-article-body);
   font-weight: 400;
-  line-height: 130%; /* 31.2px */
-  color: #000;
+  line-height: 1.6; /* 31.2px */
+  color: var(--text-primary);
 }
 
 .article-content p {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-4);
 }
 
 .article-content h2 {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-primary-serif);
   font-size: 28px;
   font-weight: 600;
-  margin-top: 32px;
-  margin-bottom: 16px;
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-3);
   line-height: 130%;
 }
 
 .article-content h3 {
-  font-family: "Nicholas", "Playfair Display", serif;
+  font-family: var(--font-primary-serif);
   font-size: 26px;
   font-weight: 600;
-  margin-top: 24px;
+  margin-top: var(--space-4);
   margin-bottom: 12px;
   line-height: 130%;
 }
 
 .article-content ul,
 .article-content ol {
-  margin-bottom: 24px;
-  padding-left: 32px;
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-5);
 }
 
 .article-content li {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .article-content blockquote {
-  border-left: 3px solid #000;
-  padding-left: 24px;
-  margin: 24px 0;
+  border-left: 3px solid var(--text-primary);
+  padding-left: var(--space-4);
+  margin: var(--space-4) 0;
   font-style: italic;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .article-content a {
-  color: #000;
+  color: var(--text-primary);
   text-decoration: underline;
   transition: color 0.2s ease;
 }
 
 .article-content a:hover {
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* Content Image */
@@ -237,29 +242,29 @@
 }
 
 .image-caption {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 120%; /* 19.2px */
-  color: rgba(0, 0, 0, 0.7);
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
+  line-height: 1.4; /* 19.2px */
+  color: var(--text-secondary);
   margin-top: 13px;
 }
 
 .image-credit {
-  font-family: "Nicholas", "Playfair Display", serif;
-  font-size: 16px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  font-weight: 500;
   font-style: italic;
-  line-height: 120%;
-  color: rgba(0, 0, 0, 0.7);
-  margin-top: 4px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
 }
 
 /* Related Articles */
 .article-related {
   margin-top: 80px;
   padding-top: 40px;
-  border-top: 1px solid #000;
+  border-top: var(--divider-border);
   max-width: 100%;
 }
 
@@ -268,35 +273,34 @@
 /* Tablet Styles (768px - 1024px) */
 @media (max-width: 1024px) {
   .article-view {
-    padding: 0 32px;
+    padding-block: 0;
   }
 
   .header-content {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: var(--space-5);
   }
 
   .article-title-view {
-    font-size: 48px;
     letter-spacing: 2px;
     grid-column: 1;
+    overflow-wrap: anywhere;
   }
 
   .article-excerpt-view {
-    font-size: 24px;
     grid-column: 1;
   }
 
   .article-body {
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: var(--space-6);
   }
 
   .article-sidebar {
     order: 2;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: var(--space-5);
   }
 
   .author-info {
@@ -311,71 +315,51 @@
   .positioned-quote {
     position: static !important;
     max-width: none;
-    margin-bottom: 32px;
+    margin-bottom: var(--space-5);
   }
 
   .article-main-content {
     order: 1;
-  }
-
-  .article-content {
-    font-size: 20px;
   }
 }
 
 /* Mobile Styles (max-width: 768px) */
 @media (max-width: 768px) {
   .article-view {
-    padding: 0 16px;
+    padding-block: 0;
   }
 
   .article-top-border {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-4);
   }
 
   .header-content {
-    gap: 24px;
+    gap: var(--space-4);
   }
 
   .article-title-view {
-    font-size: 32px;
     letter-spacing: 1.6px;
-    line-height: 120%;
-  }
-
-  .article-excerpt-view {
-    font-size: 18px;
-    line-height: 140%;
+    overflow-wrap: anywhere;
   }
 
   .article-header {
-    margin-bottom: 32px;
+    margin-bottom: var(--space-5);
   }
 
   .article-featured-image {
-    margin-bottom: 32px;
+    margin-bottom: var(--space-5);
   }
 
   .article-body {
-    gap: 32px;
+    gap: var(--space-5);
   }
 
   .article-sidebar {
     grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .author-byline,
-  .illustrator-info {
-    font-size: 14px;
+    gap: var(--space-4);
   }
 
   .sidebar-pull-quote {
-    font-size: 18px;
-    line-height: 140%;
-  }
-
-  .article-content {
     font-size: 18px;
     line-height: 140%;
   }
@@ -389,30 +373,25 @@
   }
 
   .article-content-image {
-    margin: 32px 0;
-  }
-
-  .image-caption,
-  .image-credit {
-    font-size: 14px;
+    margin: var(--space-5) 0;
   }
 
   .article-related {
     max-width: 100%;
-    margin-top: 48px;
-    padding-top: 24px;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
   }
 }
 
 /* Very small screens (max-width: 480px) */
 @media (max-width: 480px) {
   .article-view {
-    padding: 0 12px;
+    padding-block: 0;
   }
 
   .article-title-view {
-    font-size: 28px;
     letter-spacing: 1.2px;
+    overflow-wrap: anywhere;
   }
   .article-sidebar {
     grid-row: 1;
@@ -423,20 +402,7 @@
     grid-row: 2;
   }
 
-  .article-excerpt-view {
-    font-size: 16px;
-  }
-
-  .article-content {
-    font-size: 16px;
-  }
-
   .sidebar-pull-quote {
     font-size: 16px;
-  }
-
-  .author-byline,
-  .illustrator-info {
-    font-size: 12px;
   }
 }

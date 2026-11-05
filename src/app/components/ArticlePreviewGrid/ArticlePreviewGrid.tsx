@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { EnhancedPost } from "../../lib/types";
+import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import FeaturedArticle from "../shared/FeaturedArticle";
 import SmallArticlePreview from "../shared/SmallArticlePreview";
+import useFeatureFit from "../shared/FeatureBalancedLayout/useFeatureFit";
+import "../shared/FeatureBalancedLayout/FeatureBalancedLayout.css";
 import "./ArticlePreviewGrid.css";
 
 export interface ArticlePreviewGridProps {
@@ -11,66 +14,29 @@ export interface ArticlePreviewGridProps {
   className?: string;
 }
 
-const ArticlePreviewGrid: React.FC<ArticlePreviewGridProps> = ({
-  articles,
-  className = "",
-}) => {
-  if (!articles || articles.length === 0) {
-    return (
-      <div className="article-preview-grid-empty">No articles available</div>
-    );
+export default function ArticlePreviewGrid({ articles, className = "" }: ArticlePreviewGridProps) {
+  const unique = useMemo(() => Array.from(new Map((articles || []).map(article => [article.id, article])).values()), [articles]);
+  const featured = unique[2]?.featured_media_obj?.source_url ? unique[2] : unique.find(article => article.featured_media_obj?.source_url);
+  const candidates = unique.filter(article => article.id !== featured?.id);
+  const { rootRef, layout } = useFeatureFit(candidates.map(article => article.id), 2, 1024, unique);
+  if (!unique.length) return null;
+  if (unique.length < 5 || !featured) {
+    return <FourArticleGrid posts={unique} numberOfRows={Math.ceil(unique.length / 4)} showCategoryTitle={false} className={`width-constrained ${className}`} />;
   }
-
-  // Ensure we have enough articles, or use available ones
-  const leftArticles = articles.slice(0, 2);
-  const centerArticle = articles[2] || articles[0];
-  const rightArticles = articles.slice(3, 8);
-
-  return (
-    <div className={`article-preview-grid ${className}`}>
-      {/* Left Column - Medium Articles */}
-      <div className="apg-left-column">
-        {leftArticles.map((article) => (
-          <div key={article.id} className="apg-medium-article">
-            <SmallArticlePreview
-              article={article}
-              excerptLength={120}
-              variant="preview-grid"
-              imagePosition="left"
-              className="apg-medium-preview"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Center Column - Large Featured Article */}
-      <div className="apg-center-column">
-        <FeaturedArticle
-          article={centerArticle}
-          excerptLength={200}
-          variant="preview-grid"
-          imagePosition="top"
-          className="apg-featured-article"
-        />
-      </div>
-
-      {/* Right Column - Small Sidebar Articles */}
-      <div className="apg-right-column">
-        {rightArticles.map((article) => (
-          <div key={article.id} className="apg-sidebar-article">
-            <SmallArticlePreview
-              article={article}
-              excerptLength={0}
-              variant="preview-grid"
-              showImage={true}
-              imagePosition="right"
-              className="apg-sidebar-preview"
-            />
-          </div>
-        ))}
-      </div>
+  const byId = new Map(candidates.map(article => [article.id, article]));
+  const sideCard = (id: number) => {
+    const article = byId.get(id);
+    const stacked = layout.columns.some(column => column.includes(id) && column.length < 4);
+    return article && <div key={id} className="feature-side-slot" data-fit-id={id}>
+      <SmallArticlePreview article={article} variant="preview-grid" imagePosition="left" className={`feature-side-card ${stacked ? "feature-side-card--stacked" : ""}`} showExcerpt={layout.overflow.includes(id)} excerptLength={300} />
+    </div>;
+  };
+  return <div ref={rootRef} className={`article-preview-grid feature-balanced-layout ${className}`}>
+    <div className={`feature-side-column apg-left-column ${layout.columns[0].length < 4 ? "feature-side-column--stacked" : ""}`} data-side-column>{layout.columns[0].map(sideCard)}</div>
+    <div className="apg-center-column">
+      <FeaturedArticle article={featured} variant="preview-grid" imagePosition="top" className="apg-featured-article feature-height-source" />
     </div>
-  );
-};
-
-export default ArticlePreviewGrid;
+    <div className={`feature-side-column apg-right-column ${layout.columns[1].length < 4 ? "feature-side-column--stacked" : ""}`} data-side-column>{layout.columns[1].map(sideCard)}</div>
+    {layout.overflow.length > 0 && <div className="feature-side-overflow apg-overflow">{layout.overflow.map(sideCard)}</div>}
+  </div>;
+}
