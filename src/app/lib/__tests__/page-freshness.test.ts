@@ -16,7 +16,7 @@ import IssueArticlesPage from "../../magazine/issues/[issue]/page";
 import MagazinePage from "../../magazine/page";
 import AllIssuesPage from "../../magazine/(archive)/issues/page";
 import ArchiveLayout from "../../magazine/(archive)/layout";
-import { getAllPosts, getPostsByCategorySlug, getIssueArchiveSources, getIssuePosts, getTagBySlug } from "../wordpress";
+import { getAllPosts, getPostsByCategorySlug, getIssueArchiveSources, getIssuePosts } from "../wordpress";
 
 jest.mock("../wordpress", () => ({
   getAllPosts: jest.fn().mockResolvedValue([]),

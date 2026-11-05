@@ -83,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({
   const href = getArticleLink(selectedPost);
 
   return (
-    <section className={classNames("hero-section", className, topChrome && "hero-section--with-chrome")}>
+    <section className={classNames("hero-section", className, topChrome ? "hero-section--with-chrome" : undefined)}>
       <div className="hero-background">
         {hasImage && imageUrl ? (
           <OptimizedImage

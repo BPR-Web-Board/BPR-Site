@@ -18,10 +18,6 @@ const THEME_LABELS: Record<ThemeMode, string> = {
   dark: "Dark",
 };
 
-function isThemeMode(value: string | undefined): value is ThemeMode {
-  return value === "issue" || value === "light" || value === "dark";
-}
-
 function hasIssueThemeColors(): boolean {
   return !!document.querySelector(".issue-edition");
 }
