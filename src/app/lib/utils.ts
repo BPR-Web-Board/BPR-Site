@@ -1,10 +1,13 @@
 // Shared utility functions used across components
+import { decode } from "he";
 import type { EnhancedPost, Category, Post } from "./types";
 
 export function getAuthorName(post: { author_name?: string; author_obj?: { name: string } | null }): string {
   for (const value of [post.author_name, post.author_obj?.name]) {
     const name = value?.trim();
-    if (name && !/^(last\s*name|unknown(?: author)?|staff writer)$/i.test(name)) return name;
+    if (name && !/^(last\s*name|unknown(?: author)?|staff writer)$/i.test(name)) {
+      return decode(name);
+    }
   }
   return "Anonymous";
 }
@@ -22,10 +25,43 @@ export function formatDate(dateString: string): string {
 }
 
 /**
- * Strips HTML tags from a string
+ * Strips HTML tags and decodes entities (&#8217; → ’) for plain-text display.
  */
 export function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "");
+  return decode(html.replace(/<[^>]*>/g, ""));
+}
+
+const SITE_HOSTS = /^(?:www\.)?brownpoliticalreview\.org$/i;
+
+function isExternalHref(href: string): boolean {
+  const value = href.trim();
+  if (!value || value.startsWith("#") || value.startsWith("/") || value.startsWith("?")) {
+    return false;
+  }
+  if (/^(mailto|tel|sms):/i.test(value)) return false;
+  try {
+    const url = new URL(value, "https://brownpoliticalreview.org/");
+    if (!/^https?:$/i.test(url.protocol)) return false;
+    return !SITE_HOSTS.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function withExternalLinkTargets(html: string): string {
+  return html.replace(/<a\b([^>]*)>/gi, (full, attrs: string) => {
+    const hrefMatch =
+      attrs.match(/\bhref\s*=\s*(["'])(.*?)\1/i) ||
+      attrs.match(/\bhref\s*=\s*([^\s>]+)/i);
+    if (!hrefMatch) return full;
+    const href = hrefMatch[2] ?? hrefMatch[1];
+    if (!isExternalHref(href)) return full;
+
+    let next = attrs.replace(/\s*\btarget\s*=\s*(["']).*?\1/gi, "").replace(/\s*\btarget\s*=\s*[^\s>]+/gi, "");
+    next = next.replace(/\s*\brel\s*=\s*(["']).*?\1/gi, "").replace(/\s*\brel\s*=\s*[^\s>]+/gi, "");
+    next += ' target="_blank" rel="noopener noreferrer"';
+    return `<a${next}>`;
+  });
 }
 
 /**
@@ -42,6 +78,24 @@ export function truncateText(text: string, maxLength: number): string {
  */
 export function getArticleTitle(post: Post | EnhancedPost): string {
   return typeof post.title === "object" ? post.title.rendered : post.title;
+}
+
+/**
+ * Plain-text title + description for metadata / Open Graph.
+ */
+export function getArticlePlainMeta(post: {
+  title?: { rendered: string } | string;
+  excerpt?: { rendered: string } | string;
+}): { title: string; description: string } {
+  const title = stripHtml(
+    typeof post.title === "object" ? post.title.rendered : post.title || ""
+  );
+  const excerpt =
+    typeof post.excerpt === "object" ? post.excerpt.rendered : post.excerpt || "";
+  return {
+    title,
+    description: stripHtml(excerpt).substring(0, 160),
+  };
 }
 
 /**

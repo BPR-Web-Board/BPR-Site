@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { uniqueArticles } from "../../../lib/utils";
+import { stripHtml, uniqueArticles } from "../../../lib/utils";
 import { EnhancedPost } from "../../../lib/types";
 import LargeArticlePreview from "../LargeArticlePreview/LargeArticlePreview";
 import LoadingStatus from "../LoadingStatus/LoadingStatus";
@@ -102,7 +102,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
     <div className="infinite-scroll-container" aria-busy={loading}>
       {/* Header */}
       <div className="infinite-scroll-header section-heading-rule">
-        <h2 className="infinite-scroll-title">{title}</h2>
+        <h2 className="infinite-scroll-title">{stripHtml(title)}</h2>
         <p className="infinite-scroll-description">{description}</p>
       </div>
 

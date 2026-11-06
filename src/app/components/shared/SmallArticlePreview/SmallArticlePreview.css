@@ -2,7 +2,7 @@
 .small-article-preview {
   display: flex;
   height: 100%;
-  gap: var(--space-3);
+  gap: var(--article-card-gap);
   align-items: stretch;
   background: var(--surface);
   position: relative;
@@ -10,6 +10,17 @@
 
 .small-article-preview.image-right {
   flex-direction: row-reverse;
+}
+
+.small-article-preview.image-top {
+  flex-direction: column;
+}
+
+.small-article-preview.image-top .small-article-image-container {
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--article-image-ratio);
+  align-self: stretch;
 }
 
 /* Image Container */

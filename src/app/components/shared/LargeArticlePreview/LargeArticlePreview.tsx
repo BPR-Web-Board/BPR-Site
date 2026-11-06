@@ -102,10 +102,7 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
 
 
 
-          <div
-            className="large-article-preview-excerpt"
-            dangerouslySetInnerHTML={{ __html: excerpt }}
-          />
+          <div className="large-article-preview-excerpt">{excerpt}</div>
           {isPodcast && spotifyLink && !showPlayButtonOnImage && (
             <div className="podcast-inline-player">
               <div className="podcast-play-icon-inline">

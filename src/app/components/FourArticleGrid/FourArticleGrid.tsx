@@ -1,5 +1,6 @@
 import React from "react";
 import { EnhancedPost } from "../../lib/types";
+import { stripHtml } from "../../lib/utils";
 import { ArticleCard } from "../shared";
 import "./FourArticleGrid.css";
 
@@ -18,7 +19,7 @@ export default function FourArticleGrid({ posts, categoryName, showCategoryTitle
   const articles = (posts || []).slice(0, Math.max(0, Math.floor(numberOfRows)) * columns);
   if (!articles.length) return null;
   return <section className={`four-article-grid ${className}`}>
-    {showCategoryTitle && categoryName && <h2 className="category-title section-heading-rule">{categoryName}</h2>}
+    {showCategoryTitle && categoryName && <h2 className="category-title section-heading-rule">{stripHtml(categoryName)}</h2>}
     <div className="articles-grid-container">
       <div className="articles-rows-container">
         {Array.from({ length: Math.ceil(articles.length / columns) }, (_, row) => {

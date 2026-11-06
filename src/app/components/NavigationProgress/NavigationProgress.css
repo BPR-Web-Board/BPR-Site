@@ -1,0 +1,42 @@
+.navigation-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  height: 2px;
+  width: 0;
+  pointer-events: none;
+  background: var(--text-primary);
+  opacity: 0;
+  transform-origin: left;
+}
+
+.navigation-progress--active {
+  opacity: 1;
+  animation: navigation-progress-run 8s cubic-bezier(0.1, 0.05, 0, 1) forwards;
+}
+
+@keyframes navigation-progress-run {
+  0% {
+    width: 0;
+  }
+  10% {
+    width: 28%;
+  }
+  40% {
+    width: 58%;
+  }
+  70% {
+    width: 78%;
+  }
+  100% {
+    width: 92%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress--active {
+    width: 100%;
+    animation: none;
+  }
+}

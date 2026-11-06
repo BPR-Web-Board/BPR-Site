@@ -202,12 +202,12 @@ export default async function UnitedStatesPage() {
           <Hero posts={heroArticles2} preferredCategory="usa" />
         )}
         {lawArticles.length > 0 && (
-          <ArticleLayout posts={lawArticles} categoryName="Law &amp; Justice" />
+          <ArticleLayout posts={lawArticles} categoryName="Law & Justice" />
         )}
         {nationalSecurityArticles.length > 0 && (
           <FourArticleGrid
             posts={nationalSecurityArticles}
-            categoryName="National Security &amp; Foreign Policy"
+            categoryName="National Security & Foreign Policy"
             showCategoryTitle={true}
             numberOfRows={1}
             className="width-constrained"
@@ -215,7 +215,7 @@ export default async function UnitedStatesPage() {
         )}
         <ArticleGrid
           posts={housingArticles}
-          categoryName="Housing &amp; Urban Affairs"
+          categoryName="Housing & Urban Affairs"
         />
         {usaHighlights.length > 0 && (
           <ArticleLayout

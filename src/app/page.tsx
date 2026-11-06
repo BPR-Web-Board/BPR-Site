@@ -17,11 +17,11 @@ export default async function HomePage() {
   // Fetch all data in parallel for optimal performance
   const [posts, categories, usaPosts, worldPosts, culturePosts] =
     await Promise.all([
-      getAllPosts(),
+      getAllPosts({ per_page: 25 }),
       getAllCategories(),
-      getPostsByCategorySlug("usa", { per_page: 20 }),
-      getPostsByCategorySlug("world", { per_page: 20 }),
-      getPostsByCategorySlug("culture", { per_page: 15 }),
+      getPostsByCategorySlug("usa", { per_page: 16 }),
+      getPostsByCategorySlug("world", { per_page: 14 }),
+      getPostsByCategorySlug("culture", { per_page: 12 }),
       // getPostsByCategorySlug("law", { per_page: 10 }), // Law/Justice for policy content - reserved for future use
     ]);
 

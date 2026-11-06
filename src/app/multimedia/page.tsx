@@ -165,7 +165,7 @@ export default async function MultimediaPage() {
         {dataArticles.length > 0 && (
           <ArticleLayout
             posts={dataArticles}
-            categoryName="Data &amp; Analysis"
+            categoryName="Data & Analysis"
           />
         )}
         {bpradioSpotlight.length > 0 && (

@@ -110,14 +110,6 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
       aria-label={`${title} PDF preview`}
       aria-busy={!ready}
     >
-      {!ready ? (
-        <div className="issue-pdf-skeleton-overlay" aria-hidden="true">
-          <div className="issue-pdf-skeleton-spread">
-            <div className="issue-pdf-skeleton-page" />
-            <div className="issue-pdf-skeleton-page" />
-          </div>
-        </div>
-      ) : null}
       <button
         type="button"
         className="issue-pdf-nav issue-pdf-nav-prev"
@@ -127,7 +119,17 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
       >
         <ChevronLeft size={36} strokeWidth={1.5} aria-hidden="true" />
       </button>
-      <div ref={hostRef} className="issue-pdf-flipbook-host" />
+      <div className="issue-pdf-viewer">
+        {!ready ? (
+          <div className="issue-pdf-skeleton-overlay" aria-hidden="true">
+            <div className="issue-pdf-skeleton-spread">
+              <div className="issue-pdf-skeleton-page" />
+              <div className="issue-pdf-skeleton-page" />
+            </div>
+          </div>
+        ) : null}
+        <div ref={hostRef} className="issue-pdf-flipbook-host" />
+      </div>
       <button
         type="button"
         className="issue-pdf-nav issue-pdf-nav-next"

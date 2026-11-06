@@ -21,7 +21,7 @@ export interface SmallArticlePreviewProps {
   article: EnhancedPost;
   excerptLength?: number;
   showImage?: boolean;
-  imagePosition?: "left" | "right";
+  imagePosition?: "left" | "right" | "top";
   variant?: "default" | "compact" | "sidebar" | "preview-grid";
   className?: string;
   showDate?: boolean;
@@ -72,10 +72,7 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
         <CategoryPills categories={article.categories_obj} />
       </div>
       {showExcerpt && excerpt.trim() && (
-        <div
-          className="small-article-excerpt"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        ></div>
+        <div className="small-article-excerpt">{excerpt}</div>
       )}
     </div>
   );
@@ -85,15 +82,15 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
       className={`article-card-frame small-article-preview variant-${variant} image-${imagePosition} ${className}`}
     >
       <Link href={articleLink} style={{ display: "contents" }}>
-        {imagePosition === "left" ? (
+        {imagePosition === "right" ? (
           <>
-            {imageContent}
             {textContent}
+            {imageContent}
           </>
         ) : (
           <>
-            {textContent}
             {imageContent}
+            {textContent}
           </>
         )}
       </Link>

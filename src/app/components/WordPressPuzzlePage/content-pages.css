@@ -13,6 +13,81 @@
   margin: 0 0 var(--space-5);
 }
 
+.puzzle-page-header {
+  margin: 0 0 var(--space-5);
+}
+
+.puzzle-page-header h1 {
+  margin: 0;
+}
+
+.puzzle-page-header--with-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+}
+
+.puzzle-archives-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: min(100%, 18rem);
+  margin: 0 0 0.35em auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-body);
+  font-size: var(--font-size-metadata);
+  line-height: 1.45;
+  text-align: right;
+  text-decoration: none;
+}
+
+.puzzle-archives-link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+
+.puzzle-archives-link-cta {
+  font-weight: 500;
+}
+
+.puzzle-archives-link svg {
+  flex-shrink: 0;
+  margin-top: 0.1em;
+}
+
+.puzzle-archives-link:hover,
+.puzzle-archives-link:focus-visible {
+  color: oklch(from currentColor calc(l + 0.12) c h);
+}
+
+:root[data-theme="light"] .puzzle-archives-link:hover,
+:root[data-theme="light"] .puzzle-archives-link:focus-visible {
+  color: oklch(from currentColor calc(l - 0.12) c h);
+}
+
+.puzzle-archives-link:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: var(--space-1);
+}
+
+@media (max-width: 767px) {
+  .puzzle-page-header--with-link {
+    align-items: flex-start;
+  }
+
+  .puzzle-archives-link {
+    max-width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
 .wordpress-puzzle-content > * + * {
   margin-top: var(--space-4);
 }

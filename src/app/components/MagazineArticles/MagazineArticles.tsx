@@ -83,7 +83,9 @@ export default function MagazineArticles({ posts, title = "Magazine", intro, aft
   const hasCoverHero = Boolean(coverHero?.url);
 
   const contentManager = new PageContentManager();
-  const heroArticles = contentManager.selectArticles(magazinePosts, 1, { allowPartial: true });
+  const heroArticles = hasCoverHero
+    ? []
+    : contentManager.selectArticles(magazinePosts, 1, { allowPartial: true });
 
   const unused = magazinePosts.filter((post) => !contentManager.isUsed(post.id));
   const buckets = Object.fromEntries(HUB_SECTIONS.map((section) => [section.key, [] as EnhancedPost[]])) as Record<string, EnhancedPost[]>;
@@ -122,9 +124,6 @@ export default function MagazineArticles({ posts, title = "Magazine", intro, aft
   return (
     <div className="main-content">
       {coverIntro}
-      {!magazinePosts.length && !specialFeatures.length && (
-        <div className="site-state width-constrained">{emptyMessage}</div>
-      )}
 
       {!hasCoverHero && heroArticles.length > 0 && (
         <Hero posts={heroArticles} preferredCategory="magazine" priority topChrome={intro} />
@@ -134,12 +133,12 @@ export default function MagazineArticles({ posts, title = "Magazine", intro, aft
 
       {afterHero}
 
-      {specialFeatures.length > 0 && (
-        <ArticleLayout posts={specialFeatures} categoryName="Special Feature" />
+      {!magazinePosts.length && !specialFeatures.length && (
+        <div className="site-state width-constrained">{emptyMessage}</div>
       )}
 
-      {hasCoverHero && heroArticles.length > 0 && (
-        <Hero posts={heroArticles} preferredCategory="magazine" />
+      {specialFeatures.length > 0 && (
+        <ArticleLayout posts={specialFeatures} categoryName="Special Feature" />
       )}
 
       {usPosts.length > 0 && worldPosts.length > 0 && usPosts.length <= 4 && worldPosts.length <= 4 ? (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Libre_Franklin } from "next/font/google";
 import "./globals.css";
 import NavigationBar from "./components/NavigationBar";
+import NavigationProgress from "./components/NavigationProgress/NavigationProgress";
 import Footer from "./components/Footer";
 import NewsletterSignup from "./components/NewsletterSignup/NewsletterSignup";
 
@@ -42,6 +43,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://use.typekit.net/oxs2lss.css" />
       </head>
       <body className="antialiased font-sans">
+        <NavigationProgress />
         <NavigationBar />
         {children}
         <Footer />

@@ -21,16 +21,17 @@
 }
 
 .feature-side-card.small-article-preview {
-  flex-direction: row;
-  gap: var(--article-content-gap);
+  flex-direction: column;
+  gap: var(--article-card-gap);
   height: 100%;
 }
 
 .feature-side-card .small-article-image-container {
-  width: var(--article-compact-image-width);
+  width: 100%;
   height: auto;
-  aspect-ratio: auto;
+  aspect-ratio: var(--article-image-ratio);
   align-self: stretch;
+  flex: 0 0 auto;
   min-height: 0;
 }
 
@@ -52,17 +53,30 @@
 
 
 .feature-side-column--stacked {
-  grid-auto-rows: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  grid-auto-rows: unset;
 }
 
-.feature-side-card--stacked.small-article-preview {
-  flex-direction: column;
+.feature-side-column--stacked .feature-side-slot {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* Cover images get more of the column than text-only cards */
+.feature-side-column--stacked .feature-side-slot--with-image {
+  flex: 1.85 1 0;
+}
+
+.feature-side-column--stacked .feature-side-card {
+  min-height: 0;
 }
 
 .feature-side-card--stacked .small-article-image-container {
-  width: 100%;
   flex: 1 1 0;
   min-height: var(--space-7);
+  aspect-ratio: auto;
 }
 
 .feature-side-card--stacked .small-article-content.article-card-content-stack {

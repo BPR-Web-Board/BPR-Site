@@ -6,12 +6,11 @@ import MagazineArticles from "../../../components/MagazineArticles/MagazineArtic
 import { getAllCategories, getIssueArchiveSources, getIssuePosts, getTagBySlug } from "../../../lib/wordpress";
 import { enhancePreviewPosts } from "../../../lib/enhancePost";
 import { formatIssueHeading, getIssueThemeCss, parseIssues } from "../../../lib/issues";
+import { SPECIAL_FEATURE_TAG } from "../../../lib/articleIssue";
 import "../../../components/IssuePdfPreview/IssuePdfPreview.css";
 import "./issue.css";
 
 export const revalidate = 1800;
-
-const SPECIAL_FEATURE_TAG = "special-feature";
 
 export default async function IssueArticlesPage({ params }: { params: Promise<{ issue: string }> }) {
   const { issue: slug } = await params;

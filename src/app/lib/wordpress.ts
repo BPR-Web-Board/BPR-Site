@@ -16,7 +16,7 @@ const baseUrl =
 // Create axios instance with default config
 export const api = axios.create({
   baseURL: baseUrl,
-  timeout: 15000,
+  timeout: 25000,
 });
 
 // Cache TTL constants (in milliseconds)
@@ -410,10 +410,6 @@ export const getMediaByIds = withCache(
   CACHE_TTL.MEDIA
 );
 
-/**
- * Fetch only post bodies for cards that lack a featured image, so in-article
- * <img> tags can still be used as cover fallbacks (common for photo essays).
- */
 export const getPostContentByIds = withCache(
   "getPostContentByIds",
   async (ids: number[]): Promise<Array<Pick<Post, "id" | "content">>> => {

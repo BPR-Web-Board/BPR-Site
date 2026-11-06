@@ -13,7 +13,7 @@ import type { EnhancedPost, Post } from "../types";
 import HomePage from "../../page";
 import WorldPage from "../../world/page";
 import IssueArticlesPage from "../../magazine/issues/[issue]/page";
-import MagazinePage from "../../magazine/page";
+import MagazinePage from "../../magazine/(home)/page";
 import AllIssuesPage from "../../magazine/(archive)/issues/page";
 import ArchiveLayout from "../../magazine/(archive)/layout";
 import { getAllPosts, getPostsByCategorySlug, getIssueArchiveSources, getIssuePosts } from "../wordpress";
@@ -111,7 +111,9 @@ test("layouts adapt to sparse and uneven post counts without duplicate cards or 
 });
 
 test("All Issues keeps issues separate from articles and serves published WordPress content", async () => {
-  const empty = renderToStaticMarkup(ArchiveLayout({ children: await AllIssuesPage() }));
+  const empty = renderToStaticMarkup(
+    await ArchiveLayout({ children: await AllIssuesPage({ searchParams: Promise.resolve({}) }) })
+  );
   expect(getIssueArchiveSources).toHaveBeenCalled();
   expect(empty).toContain("No issues are available yet.");
   expect(empty).toContain('href="/magazine/archive"');
@@ -125,7 +127,9 @@ test("All Issues keeps issues separate from articles and serves published WordPr
     id: 1, date: "2026-01-01", title: { rendered: "Fall issue" },
     content: { rendered: '<p>Title: Fall issue<br>Published: 2026-01-01<br>PDF: https://brownpoliticalreview.org/issue.pdf</p>' },
   }]);
-  const published = renderToStaticMarkup(ArchiveLayout({ children: await AllIssuesPage() }));
+  const published = renderToStaticMarkup(
+    await ArchiveLayout({ children: await AllIssuesPage({ searchParams: Promise.resolve({}) }) })
+  );
   expect(published).toContain('href="/magazine/issues/fall-issue"');
   expect(published).toContain("Fall issue");
   expect(published).not.toContain("Magazine issues will appear here");

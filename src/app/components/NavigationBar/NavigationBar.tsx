@@ -48,7 +48,7 @@ export default function NavigationBar({ className = "" }: { className?: string }
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
   const closeMobileMenu = () => { setIsMobileMenuOpen(false); setActiveDropdown(null); };
-  const themeOrder: ThemeMode[] = issueThemeAvailable ? ["issue", "light", "dark"] : ["dark", "light"];
+  const themeOrder: ThemeMode[] = issueThemeAvailable ? ["issue", "dark", "light"] : ["dark", "light"];
   const activeTheme = themeOrder.includes(theme) ? theme : themeOrder[0];
   const nextTheme = themeOrder[(themeOrder.indexOf(activeTheme) + 1) % themeOrder.length];
 
@@ -272,7 +272,7 @@ export default function NavigationBar({ className = "" }: { className?: string }
         { label: "Who are we?", href: "/about/story" },
         { label: "Masthead", href: "/about/masthead" },
         { label: "Join BPR!", href: "/about/join" },
-        { label: "Pitch an Article", href: "/about/pitch" },
+        { label: "Pitch an Article!", href: "/about/pitch" },
         { label: "High School Program", href: "/about/high-school-program" },
       ],
     },

@@ -1,6 +1,7 @@
 .article-preview-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  /* Same 4 tracks as .four-article-grid so the center feature = 2 mediums + gap */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: start;
   gap: var(--article-card-gap);
   width: var(--content-width);
@@ -8,12 +9,22 @@
   margin-inline: auto;
   background: var(--surface);
   padding-block: 0;
-  margin-inline: auto;
   margin-top: var(--section-gap);
   margin-bottom: 0;
 }
 
+.apg-left-column {
+  grid-column: 1;
+  min-width: 0;
+}
+
 .apg-center-column {
+  grid-column: 2 / 4;
+  min-width: 0;
+}
+
+.apg-right-column {
+  grid-column: 4;
   min-width: 0;
 }
 
@@ -39,6 +50,12 @@
   .article-preview-grid .feature-side-column,
   .article-preview-grid .apg-overflow {
     display: contents;
+  }
+
+  .apg-left-column,
+  .apg-right-column,
+  .apg-center-column {
+    grid-column: auto;
   }
 
   .apg-center-column {

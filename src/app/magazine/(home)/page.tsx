@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import MagazineArticles from "../components/MagazineArticles/MagazineArticles";
-import IssuePdfPreview from "../components/IssuePdfPreview/IssuePdfPreview";
-import { enhancePreviewPosts } from "../lib/enhancePost";
-import { formatIssueHeading, getIssueThemeCss, parseIssues } from "../lib/issues";
-import { getAllCategories, getIssueArchiveSources, getPostsByCategorySlug } from "../lib/wordpress";
-import "../components/IssuePdfPreview/IssuePdfPreview.css";
-import "./issues/[issue]/issue.css";
+import MagazineArticles from "../../components/MagazineArticles/MagazineArticles";
+import IssuePdfPreview from "../../components/IssuePdfPreview/IssuePdfPreview";
+import { enhancePreviewPosts } from "../../lib/enhancePost";
+import { formatIssueHeading, getIssueThemeCss, parseIssues } from "../../lib/issues";
+import { getAllCategories, getIssueArchiveSources, getPostsByCategorySlug } from "../../lib/wordpress";
+import "../../components/IssuePdfPreview/IssuePdfPreview.css";
+import "../issues/[issue]/issue.css";
 
 export const revalidate = 1800;
 
 export default async function MagazinePage() {
   const [categories, posts, sources] = await Promise.all([
     getAllCategories(),
-    getPostsByCategorySlug("mag", { per_page: 100 }),
+    getPostsByCategorySlug("mag", { per_page: 30 }),
     getIssueArchiveSources(),
   ]);
   const cutoff = new Date();

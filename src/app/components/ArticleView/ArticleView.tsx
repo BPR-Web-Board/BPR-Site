@@ -1,21 +1,27 @@
 "use client";
-import { getAuthorName } from "../../lib/utils";
+import { getAuthorName, formatArchiveDate, withExternalLinkTargets } from "../../lib/utils";
+import type { ArticleIssueRef } from "../../lib/articleIssue";
+import {
+  getArticleVideoEmbed,
+  stripArticleVideoEmbed,
+} from "../../lib/mediaPreview";
 import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
-
 import CategoryPills from "../shared/CategoryPills/CategoryPills";
-
-
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowUp, Expand, X } from "lucide-react";
 import { EnhancedPost } from "../../lib/types";
 import he from "he";
-// import { DOMParser } from "htmlparser2";
 import "./ArticleView.css";
 import FourArticleGrid from "../FourArticleGrid";
 
 interface ArticleViewProps {
   post: EnhancedPost;
   relatedPosts?: EnhancedPost[];
+  issue?: ArticleIssueRef | null;
+  specialFeature?: boolean;
 }
 
 interface ContentBlock {
@@ -36,16 +42,6 @@ interface ContentBlock {
 interface PullQuotePosition {
   index: number;
   topOffset: number;
-}
-
-// Helper function to format date
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 // Clean up leading punctuation/quotes specifically for pull quotes
@@ -164,7 +160,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
 
         // Check for caption (figcaption)
         const captionMatch = content.match(
-          /\u003cfigcaption[^\u003e]*\u003e(.*?)\u003c\/figcaption\u003e/s
+          /<figcaption[^>]*>(.*?)<\/figcaption>/s
         );
 
         if (srcMatch) {
@@ -174,7 +170,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
             width: widthMatch ? parseInt(widthMatch[1]) : 800,
             height: heightMatch ? parseInt(heightMatch[1]) : 600,
             caption: captionMatch
-              ? captionMatch[1].replace(/\u003c[^\u003e]*\u003e/g, "").trim()
+              ? he.decode(captionMatch[1].replace(/<[^>]*>/g, "")).trim()
               : undefined,
             link: linkMatch ? he.decode(linkMatch[1]) : undefined,
           };
@@ -196,9 +192,9 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
         const widthMatch = img.match(/width="(\d+)"/);
         const heightMatch = img.match(/height="(\d+)"/);
 
-        const linkMatch = content.match(/\u003ca[^\u003e]*href="([^"]+)"[^\u003e]*\u003e/);
+        const linkMatch = content.match(/<a[^>]*href="([^"]+)"[^>]*>/);
         const captionMatch = content.match(
-          /\u003cfigcaption[^\u003e]*\u003e(.*?)\u003c\/figcaption\u003e/s
+          /<figcaption[^>]*>(.*?)<\/figcaption>/s
         );
 
         if (srcMatch) {
@@ -208,7 +204,7 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
             width: widthMatch ? parseInt(widthMatch[1]) : 800,
             height: heightMatch ? parseInt(heightMatch[1]) : 600,
             caption: captionMatch
-              ? captionMatch[1].replace(/\u003c[^\u003e]*\u003e/g, "").trim()
+              ? he.decode(captionMatch[1].replace(/<[^>]*>/g, "")).trim()
               : undefined,
             link: linkMatch ? he.decode(linkMatch[1]) : undefined,
           };
@@ -271,15 +267,22 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
     let match;
     while ((match = pattern.regex.exec(htmlContent)) !== null) {
       const extracted = pattern.extract(match[1]);
+      if (!extracted) continue;
 
-      if (extracted) {
-        foundImages.push({
-          start: match.index!,
-          end: match.index! + match[0].length,
-          imageData: extracted,
-          fullMatch: match[0],
-        });
-      }
+      const start = match.index!;
+      const end = start + match[0].length;
+      // wp-block-image figures also match the generic <figure> pattern — keep one.
+      const overlapsExisting = foundImages.some(
+        (image) => !(end <= image.start || start >= image.end)
+      );
+      if (overlapsExisting) continue;
+
+      foundImages.push({
+        start,
+        end,
+        imageData: extracted,
+        fullMatch: match[0],
+      });
     }
     // Reset regex for next pattern
     pattern.regex.lastIndex = 0;
@@ -408,6 +411,8 @@ function stripHtml(html: string): string {
 const ArticleView: React.FC<ArticleViewProps> = ({
   post,
   relatedPosts = [],
+  issue = null,
+  specialFeature = false,
 }) => {
   const [pullQuotePositions, setPullQuotePositions] = useState<
     PullQuotePosition[]
@@ -415,14 +420,20 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const [fetchedRelatedPosts, setFetchedRelatedPosts] = useState<
     EnhancedPost[]
   >([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const contentElementRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+
+  const scrollToTop = () => {
+    const top = articleRef.current?.offsetTop ?? 0;
+    window.scrollTo({ top: Math.max(0, top - 16), behavior: "smooth" });
+  };
 
   const titleText =
     typeof post.title === "object" ? post.title.rendered : post.title;
-  const excerptText =
-    typeof post.excerpt === "object" ? post.excerpt.rendered : post.excerpt;
   const rawContent =
     typeof post.content === "object" ? post.content.rendered : post.content;
 
@@ -447,227 +458,303 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     }
   }, [post.id, post.categories, relatedPosts.length]);
 
+  const videoEmbed = useMemo(() => getArticleVideoEmbed(post), [post]);
+
   // Memoize contentBlocks to prevent infinite loop in useEffect
-  const contentBlocks = useMemo(
-    () => extractContentBlocks(rawContent),
-    [rawContent]
-  );
+  const contentBlocks = useMemo(() => {
+    const html = videoEmbed
+      ? stripArticleVideoEmbed(rawContent, videoEmbed)
+      : rawContent;
+    return extractContentBlocks(withExternalLinkTargets(html));
+  }, [rawContent, videoEmbed]);
 
-  // Debug: print pull quotes and leading character codes
-  useEffect(() => {
-    const pullQuotes = contentBlocks.filter((b) => b.type === "pullquote");
-    if (pullQuotes.length) {
-      console.groupCollapsed(
-        `[ArticleView] Pull quotes (${pullQuotes.length}) — ${
-          post.id || titleText || "untitled"
-        }`
-      );
-      pullQuotes.forEach((q, idx) => {
-        const s = q.content as string;
-        const head = s.slice(0, 6);
-        const codes = head.split("").map((c) => c.charCodeAt(0));
-        console.log(`#${idx + 1}`, { text: s, head, codes });
-      });
-      console.groupEnd();
-    }
-  }, [contentBlocks, titleText, post]);
-
-  // Get featured image details
   const featuredImage = post.featured_media_obj;
-  const hasImage = !!(featuredImage && featuredImage.source_url);
-  // const imageCaption = featuredImage?.caption?.rendered || ""; // unused
+  const hasImage = !videoEmbed && !!(featuredImage && featuredImage.source_url);
+  const hasMedia = hasImage || !!videoEmbed;
   const imageAlt = featuredImage?.alt_text || titleText;
+  const authorName = getAuthorName(post);
+  const formattedDate = formatArchiveDate(post.date || "");
 
-  // Get author information
-  const authorName =
-    getAuthorName(post);
-
-
-
-  // Calculate pull quote positions after component mounts and on resize
   useEffect(() => {
-    const calculatePositions = () => {
-      if (!bodyRef.current) return;
+    if (!lightboxOpen) return;
+    const scrollbar = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+    const previousOverflow = document.body.style.overflow;
+    const previousPadding = document.body.style.paddingRight;
+    document.body.style.overflow = "hidden";
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+    lightboxCloseRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightboxOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPadding;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [lightboxOpen]);
 
-      const bodyTop = bodyRef.current.offsetTop;
+  // Align pull quotes with their markers, and grow the sidebar so late quotes
+  // cannot spill into Related Articles.
+  useEffect(() => {
+    const body = bodyRef.current;
+    const sidebar = sidebarRef.current;
+    if (!body || !sidebar) return;
+
+    let frame = 0;
+    const quotesRoot = sidebar.querySelector<HTMLElement>(".sidebar-pull-quotes");
+
+    const measure = () => {
+      frame = 0;
+      if (lightboxOpen) return;
+      if (!quotesRoot) {
+        sidebar.style.removeProperty("--article-sidebar-min-height");
+        return;
+      }
+
+      const rootTop = quotesRoot.getBoundingClientRect().top;
       const positions: PullQuotePosition[] = [];
 
       contentElementRefs.current.forEach((element, index) => {
-        if (element && contentBlocks[index]?.type === "pullquote") {
-          const elementTop = element.offsetTop;
-          const relativeTop = elementTop - bodyTop;
-
-          positions.push({
-            index: contentBlocks[index].index,
-            topOffset: relativeTop,
-          });
-        }
+        if (!element || contentBlocks[index]?.type !== "pullquote") return;
+        positions.push({
+          index: contentBlocks[index].index,
+          topOffset: Math.max(0, element.getBoundingClientRect().top - rootTop),
+        });
       });
 
-      setPullQuotePositions(positions);
+      setPullQuotePositions((previous) => {
+        if (
+          previous.length === positions.length
+          && previous.every((entry, index) => (
+            entry.index === positions[index].index
+            && Math.abs(entry.topOffset - positions[index].topOffset) < 0.5
+          ))
+        ) {
+          return previous;
+        }
+        return positions;
+      });
     };
 
-    // Calculate positions on mount and window resize
-    calculatePositions();
-    window.addEventListener("resize", calculatePositions);
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+
+    schedule();
+    window.addEventListener("resize", schedule);
+    const observer = new ResizeObserver(schedule);
+    observer.observe(body);
+    document.fonts?.ready.then(schedule);
 
     return () => {
-      window.removeEventListener("resize", calculatePositions);
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      observer.disconnect();
+      sidebar.style.removeProperty("--article-sidebar-min-height");
     };
-  }, [contentBlocks]);
+  }, [contentBlocks, lightboxOpen]);
 
-  // Render content blocks with proper spacing for pull quotes and images
-  const renderContentBlocks = () => {
-    return contentBlocks.map((block, index) => {
-      if (block.type === "text") {
-        return (
-          <div
-            key={block.index}
-            ref={(el) => {
-              contentElementRefs.current[index] = el;
-            }}
-            dangerouslySetInnerHTML={{ __html: block.content }}
-            style={{ pointerEvents: "auto" }}
-          />
-        );
-      } else if (block.type === "pullquote") {
-        return (
-          <div
-            key={block.index}
-            ref={(el) => {
-              contentElementRefs.current[index] = el;
-            }}
-            className="content-pullquote-marker"
-            data-quote-index={block.index}
-            style={{
-              height: "1px",
-              visibility: "hidden",
-              margin: "24px 0", // Add some spacing where the pullquote would be
-            }}
-          />
-        );
-      } else if (block.type === "image" && block.imageData) {
-        const { imageData } = block;
-        const imageElement = (
-          <Image
-            src={imageData.src}
-            alt={imageData.alt}
-            width={imageData.width}
-            height={imageData.height}
-            className="content-image"
-          />
-        );
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    const quotesRoot = sidebar?.querySelector<HTMLElement>(".sidebar-pull-quotes");
+    if (!sidebar || !quotesRoot) return;
 
-        return (
-          <div
-            key={block.index}
-            ref={(el) => {
-              contentElementRefs.current[index] = el;
-            }}
-            className="article-content-image"
-          >
-            {imageData.link ? (
-              <a
-                href={imageData.link}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {imageElement}
-              </a>
-            ) : (
-              imageElement
-            )}
-            {imageData.caption && (
-              <div className="image-caption">{imageData.caption}</div>
-            )}
-          </div>
-        );
+    const frame = requestAnimationFrame(() => {
+      const quoteBottom = Array.from(
+        quotesRoot.querySelectorAll<HTMLElement>(".positioned-quote")
+      ).reduce((max, quote) => Math.max(max, quote.offsetTop + quote.offsetHeight), 0);
+
+      const minHeight = Math.ceil(quotesRoot.offsetTop + quoteBottom);
+      if (minHeight > 0) {
+        sidebar.style.setProperty("--article-sidebar-min-height", `${minHeight}px`);
+      } else {
+        sidebar.style.removeProperty("--article-sidebar-min-height");
       }
-      return null;
     });
-  };
 
-  console.log("Related posts:", relatedPosts);
+    return () => cancelAnimationFrame(frame);
+  }, [pullQuotePositions, contentBlocks]);
+
+  const setContentElementRef = useCallback((index: number, el: HTMLDivElement | null) => {
+    contentElementRefs.current[index] = el;
+  }, []);
 
   const postsToShow =
     relatedPosts.length > 0 ? relatedPosts : fetchedRelatedPosts;
+  const pullQuotes = contentBlocks.filter((block) => block.type === "pullquote");
+
+  const lightbox = lightboxOpen && hasImage && typeof document !== "undefined"
+    ? createPortal(
+        <div
+          className="article-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={imageAlt}
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            ref={lightboxCloseRef}
+            type="button"
+            className="article-lightbox-close"
+            aria-label="Close image"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <X size={20} strokeWidth={1.5} aria-hidden="true" />
+          </button>
+          <div
+            className="article-lightbox-figure"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={featuredImage.source_url}
+              alt={imageAlt}
+              width={featuredImage.media_details?.width || 1600}
+              height={featuredImage.media_details?.height || 900}
+              className="article-lightbox-image"
+              sizes="100vw"
+              priority
+            />
+          </div>
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
-    <article className="article-view">
-      {/* Top border line */}
-      <div className="article-top-border"></div>
-
-      {/* Header with title and excerpt side by side */}
-      <header className="article-header">
-        <div className="header-content">
-          <h1
-            className="article-title-view"><ArticleTitle html={titleText} /></h1>
-          <div
-            className="article-excerpt-view"
-            dangerouslySetInnerHTML={{ __html: excerptText }}
-          />
+    <article className="article-view" ref={articleRef}>
+      <header className={`article-header${hasMedia ? " article-header--with-image" : ""}`}>
+        <div className="article-header-copy">
+          <div className="article-header-lead">
+            {issue || specialFeature ? (
+              issue ? (
+                <Link
+                  href={`/magazine/issues/${encodeURIComponent(issue.slug)}`}
+                  className="article-issue-kicker"
+                >
+                  {issue.heading}
+                  {specialFeature ? (
+                    <span className="article-special-feature"> (Special Feature)</span>
+                  ) : null}
+                </Link>
+              ) : (
+                <p className="article-issue-kicker">
+                  <span className="article-special-feature">(Special Feature)</span>
+                </p>
+              )
+            ) : null}
+            <h1 className="article-title-view">
+              <ArticleTitle html={titleText} />
+            </h1>
+          </div>
+          <div className="author-info">
+            <div className="author-byline">
+              <span className="author-byline-author">{authorName.toUpperCase()}</span>
+              {formattedDate ? (
+                <>
+                  <span className="author-byline-divider" aria-hidden="true">·</span>
+                  <time className="author-byline-date" dateTime={post.date}>
+                    {formattedDate}
+                  </time>
+                </>
+              ) : null}
+            </div>
+            <CategoryPills categories={post.categories_obj} />
+          </div>
         </div>
+        {videoEmbed ? (
+          <div className="article-featured-image article-featured-video">
+            {videoEmbed.provider === "file" ? (
+              <video
+                className="featured-video"
+                src={videoEmbed.src}
+                poster={videoEmbed.poster}
+                controls
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <iframe
+                className="featured-video"
+                src={videoEmbed.src}
+                title={`${titleText} video`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            )}
+          </div>
+        ) : hasImage ? (
+          <div className="article-featured-image">
+            <Image
+              src={featuredImage.source_url}
+              alt={imageAlt}
+              fill
+              sizes="(max-width: 1024px) 100vw, 62vw"
+              priority
+              className="featured-image"
+            />
+            <button
+              type="button"
+              className="article-image-expand"
+              aria-label="View full image"
+              onClick={() => setLightboxOpen(true)}
+            >
+              <Expand size={16} strokeWidth={1.5} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
       </header>
 
-      {/* Large featured image */}
-      {hasImage && (
-        <div className="article-featured-image">
-          <Image
-            src={featuredImage.source_url}
-            alt={imageAlt}
-            width={featuredImage.media_details?.width || 1310}
-            height={featuredImage.media_details?.height || 712}
-            priority
-            className="featured-image"
-          />
-        </div>
-      )}
-
-      {/* Two column layout */}
       <div className="article-body" ref={bodyRef}>
-        {/* Left sidebar - author info and positioned pull quotes */}
         <aside className="article-sidebar" ref={sidebarRef}>
-          <div className="author-info">
-            <div className="author-byline">{authorName.toUpperCase()}</div>
-            <CategoryPills categories={post.categories_obj} />
-            <div className="article-date">
-              {formatDate(post.date).toUpperCase()}
-            </div>
-          </div>
-
           <div className="sidebar-pull-quotes">
-            {contentBlocks
-              .filter((block) => block.type === "pullquote")
-              .map((block) => {
-                const position = pullQuotePositions.find(
-                  (pos) => pos.index === block.index
-                );
+            {pullQuotes.map((block) => {
+              const position = pullQuotePositions.find(
+                (pos) => pos.index === block.index
+              );
 
-                return (
-                  <div
-                    key={block.index}
-                    className="pull-quote-container positioned-quote"
-                    style={{
-                      position: "absolute",
-                      top: position ? `${position.topOffset}px` : "auto",
-                      left: 0,
-                      right: 0,
-                    }}
-                  >
-                    <div className="pull-quote-divider"></div>
-                    <blockquote className="sidebar-pull-quote">
-                      {block.content}
-                    </blockquote>
-                  </div>
-                );
-              })}
+              return (
+                <div
+                  key={block.index}
+                  className="pull-quote-container positioned-quote"
+                  style={{
+                    position: "absolute",
+                    top: position ? `${position.topOffset}px` : "auto",
+                    left: 0,
+                    right: 0,
+                  }}
+                >
+                  <div className="pull-quote-divider"></div>
+                  <blockquote className="sidebar-pull-quote">
+                    {block.content}
+                  </blockquote>
+                </div>
+              );
+            })}
           </div>
         </aside>
 
-        {/* Right main content */}
         <div className="article-main-content">
-          <div className="article-content">{renderContentBlocks()}</div>
+          <div className="article-content">
+            <StableArticleContent
+              contentBlocks={contentBlocks}
+              setContentElementRef={setContentElementRef}
+            />
+          </div>
         </div>
+      </div>
+
+      <div className="article-back-to-top">
+        <button
+          type="button"
+          className="article-back-to-top-button"
+          onClick={scrollToTop}
+        >
+          <span>Back to Top</span>
+          <ArrowUp size={16} strokeWidth={1.5} aria-hidden="true" />
+        </button>
       </div>
 
       {postsToShow.length > 0 && (
@@ -678,8 +765,80 @@ const ArticleView: React.FC<ArticleViewProps> = ({
           />
         </div>
       )}
+
+      {lightbox}
     </article>
   );
 };
+
+const StableArticleContent = memo(function StableArticleContent({
+  contentBlocks,
+  setContentElementRef,
+}: {
+  contentBlocks: ContentBlock[];
+  setContentElementRef: (index: number, el: HTMLDivElement | null) => void;
+}) {
+  return (
+    <>
+      {contentBlocks.map((block, index) => {
+        if (block.type === "text") {
+          return (
+            <div
+              key={block.index}
+              ref={(el) => setContentElementRef(index, el)}
+              dangerouslySetInnerHTML={{ __html: block.content }}
+              style={{ pointerEvents: "auto" }}
+            />
+          );
+        }
+        if (block.type === "pullquote") {
+          return (
+            <div
+              key={block.index}
+              ref={(el) => setContentElementRef(index, el)}
+              className="content-pullquote-marker"
+              data-quote-index={block.index}
+            />
+          );
+        }
+        if (block.type === "image" && block.imageData) {
+          const { imageData } = block;
+          const imageElement = (
+            <Image
+              src={imageData.src}
+              alt={imageData.alt}
+              width={imageData.width}
+              height={imageData.height}
+              className="content-image"
+            />
+          );
+          return (
+            <div
+              key={block.index}
+              ref={(el) => setContentElementRef(index, el)}
+              className="article-content-image"
+            >
+              {imageData.link ? (
+                <a
+                  href={imageData.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {imageElement}
+                </a>
+              ) : (
+                imageElement
+              )}
+              {imageData.caption ? (
+                <div className="image-caption">{imageData.caption}</div>
+              ) : null}
+            </div>
+          );
+        }
+        return null;
+      })}
+    </>
+  );
+});
 
 export default ArticleView;

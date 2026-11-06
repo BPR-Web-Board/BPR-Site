@@ -184,8 +184,9 @@ export async function enhancePosts(
       });
     } else if (post.featured_media && typeof post.featured_media === "number") {
       mediaIds.add(post.featured_media);
-    } else if (!post.content?.rendered) {
-      // Lean list payloads omit HTML; pull bodies only when we need in-article image fallbacks.
+    }
+
+    if (!post.content?.rendered) {
       contentFallbackIds.push(post.id);
     }
   }

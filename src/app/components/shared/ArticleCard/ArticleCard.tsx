@@ -71,8 +71,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       {showExcerpt && excerpt && excerpt.trim() && (
         <div
           className="article-card-excerpt"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        ></div>
+        >{excerpt}</div>
       )}
     </div>
   );

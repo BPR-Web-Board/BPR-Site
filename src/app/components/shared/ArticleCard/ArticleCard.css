@@ -162,13 +162,8 @@
   padding: 0;
 }
 
-.article-card.variant-featured {
-  gap: var(--article-card-gap);
-}
-
 .article-card.variant-featured .article-card-image-container.image-top {
   aspect-ratio: var(--article-image-ratio);
-  margin-bottom: var(--article-card-gap);
 }
 
 /* Responsive */

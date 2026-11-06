@@ -63,7 +63,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
         </div>
         <CategoryPills categories={article.categories_obj} />
       </div>
-      <div className="featured-article-excerpt" dangerouslySetInnerHTML={{ __html: excerpt }} />
+      <div className="featured-article-excerpt">{excerpt}</div>
     </div>
   );
 

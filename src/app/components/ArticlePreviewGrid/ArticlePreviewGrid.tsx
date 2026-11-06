@@ -6,6 +6,7 @@ import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import FeaturedArticle from "../shared/FeaturedArticle";
 import SmallArticlePreview from "../shared/SmallArticlePreview";
 import useFeatureFit from "../shared/FeatureBalancedLayout/useFeatureFit";
+import { getMediaPreview } from "../../lib/mediaPreview";
 import "../shared/FeatureBalancedLayout/FeatureBalancedLayout.css";
 import "./ArticlePreviewGrid.css";
 
@@ -26,9 +27,11 @@ export default function ArticlePreviewGrid({ articles, className = "" }: Article
   const byId = new Map(candidates.map(article => [article.id, article]));
   const sideCard = (id: number) => {
     const article = byId.get(id);
+    if (!article) return null;
     const stacked = layout.columns.some(column => column.includes(id) && column.length < 4);
-    return article && <div key={id} className="feature-side-slot" data-fit-id={id}>
-      <SmallArticlePreview article={article} variant="preview-grid" imagePosition="left" className={`feature-side-card ${stacked ? "feature-side-card--stacked" : ""}`} showExcerpt={layout.overflow.includes(id)} excerptLength={300} />
+    const hasImage = Boolean(article.featured_media_obj?.source_url || getMediaPreview(article));
+    return <div key={id} className={`feature-side-slot${hasImage ? " feature-side-slot--with-image" : ""}`} data-fit-id={id}>
+      <SmallArticlePreview article={article} variant="preview-grid" imagePosition="top" className={`feature-side-card ${stacked ? "feature-side-card--stacked" : ""}`} showExcerpt={layout.overflow.includes(id)} excerptLength={300} />
     </div>;
   };
   return <div ref={rootRef} className={`article-preview-grid feature-balanced-layout ${className}`}>

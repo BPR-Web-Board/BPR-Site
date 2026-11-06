@@ -94,10 +94,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
 
       {showExcerpt && (
-        <div
-          className="podcast-card-excerpt"
-          dangerouslySetInnerHTML={{ __html: excerpt }}
-        ></div>
+        <div className="podcast-card-excerpt">{excerpt}</div>
       )}
           {spotifyLink && !showPlayButtonOnImage && (
         <div className="podcast-inline-player">

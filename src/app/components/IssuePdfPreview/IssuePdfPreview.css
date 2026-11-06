@@ -13,16 +13,23 @@
   justify-content: center;
   width: var(--content-width);
   max-width: 100%;
-  margin: 0 auto var(--section-gap);
+  margin: 0 auto var(--space-3);
+  padding-bottom: 0;
   box-sizing: border-box;
 }
 
+.page-loading > .issue-pdf-stage {
+  width: 100%;
+}
+
 .issue-pdf-preview {
+  --issue-pdf-spread-ratio: 17 / 12.5;
+  --issue-pdf-viewer-width: min(100%, calc(80vh * 17 / 12.5));
   position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: var(--space-2);
   width: 100%;
   min-width: 0;
   margin-inline: auto;
@@ -45,19 +52,19 @@
   pointer-events: none;
 }
 
-.issue-pdf-skeleton,
-.issue-pdf-skeleton-overlay {
-  width: 100%;
-  min-width: 0;
+.issue-pdf-viewer {
+  position: relative;
+  flex: 0 1 auto;
+  width: var(--issue-pdf-viewer-width);
+  max-width: 100%;
+  aspect-ratio: var(--issue-pdf-spread-ratio);
+  overflow: visible;
 }
 
 .issue-pdf-skeleton-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
   pointer-events: none;
 }
 
@@ -66,12 +73,14 @@
   grid-template-columns: 1fr 1fr;
   gap: 2px;
   width: 100%;
-  min-height: min(72vh, 860px);
+  height: 100%;
+  padding-block: 3.5%;
+  box-sizing: border-box;
 }
 
 .issue-pdf-skeleton-page {
   min-width: 0;
-  min-height: inherit;
+  height: 100%;
   background: var(--surface-skeleton);
   animation: issue-pdf-skeleton-pulse 1.6s ease-in-out infinite;
 }
@@ -92,20 +101,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transition: color 160ms ease, opacity 160ms ease;
-}
-
-.issue-pdf-preview.is-ready .issue-pdf-nav {
   opacity: 1;
-  pointer-events: auto;
+  transition: color 160ms ease, opacity 160ms ease;
 }
 
 .issue-pdf-nav:hover:not(:disabled),
@@ -119,18 +123,25 @@
 }
 
 .issue-pdf-nav:disabled {
-  opacity: 0.28;
+  opacity: 0.35;
   cursor: default;
   pointer-events: none;
 }
 
 .issue-pdf-flipbook-host {
   --pfo-toolbar-height: 0px;
+  position: absolute;
+  top: -1%;
+  right: 0;
+  bottom: -6%;
+  left: 0;
+  display: block;
   width: 100%;
   min-width: 0;
-  min-height: min(72vh, 860px);
+  min-height: 0;
   background: transparent;
   color: var(--text-primary);
+  overflow: visible;
 }
 
 .issue-pdf-flipbook-host .pfo-panzoom-wrapper {
@@ -146,8 +157,6 @@
 }
 
 .issue-pdf-cover-fallback {
-  grid-column: 1 / -1;
-  justify-self: center;
   width: min(100%, 420px);
   aspect-ratio: 3 / 4;
   overflow: hidden;
@@ -162,13 +171,12 @@
 }
 
 @media (max-width: 767px) {
+  .issue-pdf-preview {
+    --issue-pdf-viewer-width: min(100%, calc(70vh * 17 / 12.5));
+  }
+
   .issue-pdf-nav svg {
     width: 28px;
     height: 28px;
-  }
-
-  .issue-pdf-flipbook-host,
-  .issue-pdf-skeleton-spread {
-    min-height: min(64vh, 640px);
   }
 }

@@ -163,7 +163,7 @@
 
 .featured-article.variant-compact.image-left,
 .featured-article.variant-compact.image-right {
-  gap: var(--space-3);
+  gap: var(--article-card-gap);
 }
 
 /* Responsive */
@@ -171,7 +171,7 @@
   .featured-article.image-left,
   .featured-article.image-right {
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--article-card-gap);
   }
 
   .featured-article.image-left .featured-article-image-container,
@@ -185,7 +185,7 @@
   }
 
   .side-articles {
-    gap: var(--space-3);
+    gap: var(--article-card-gap);
   }
 
   .featured-article.variant-large .featured-article-title {

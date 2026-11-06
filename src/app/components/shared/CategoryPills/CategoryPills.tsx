@@ -1,4 +1,3 @@
-import { decode } from "he";
 import { stripHtml } from "../../../lib/utils";
 import "./CategoryPills.css";
 
@@ -8,6 +7,6 @@ export default function CategoryPills({ categories = [] }: { categories?: PillCa
   const unique = Array.from(new Map(categories.filter(category => category.slug !== "uncategorized" && category.name.trim()).map(category => [category.id, category])).values());
   if (!unique.length) return null;
   return <div className="category-pills" role="list" aria-label="Article categories">
-    {unique.map(category => <span key={category.id} className="category-pill" role="listitem">{decode(stripHtml(category.name))}</span>)}
+    {unique.map(category => <span key={category.id} className="category-pill" role="listitem">{stripHtml(category.name)}</span>)}
   </div>;
 }

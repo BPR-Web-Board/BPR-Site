@@ -1,7 +1,7 @@
 .magazine-navigation {
   display: flex;
   gap: var(--space-2);
-  margin: 0 0 var(--section-heading-gap);
+  margin: 0;
   font-family: var(--font-body);
   font-size: var(--font-size-preview);
   line-height: 1.5;

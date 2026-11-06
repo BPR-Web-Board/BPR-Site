@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { getArticleLink } from "../../lib/utils";
+import { getArticleLink, stripHtml } from "../../lib/utils";
 
 interface SubMenuItem {
   label: string;
@@ -76,9 +76,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   }, [section]);
 
   const getArticleTitle = (article: Article): string => {
-    return typeof article.title === "object"
+    const title = typeof article.title === "object"
       ? article.title.rendered
       : article.title;
+    return stripHtml(title);
   };
 
   const getFeaturedImageUrl = (article: Article): string => {

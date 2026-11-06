@@ -1,37 +1,17 @@
-import React from "react";
-import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import ArticleView from "../../../../components/ArticleView/ArticleView";
-import {
-  getPostBySlug,
-  getPostsByCategorySlug,
-  getAllCategories,
-} from "../../../../lib/wordpress";
-import { enhancePosts, enhancePreviewPosts } from "../../../../lib/enhancePost";
-import { EnhancedPost } from "../../../../lib/types";
+import ArticlePageContent from "../../../../components/ArticleView/ArticlePageContent";
+import { getPostBySlug } from "../../../../lib/wordpress";
+import { getArticlePlainMeta } from "../../../../lib/utils";
 
 interface PageProps {
-  params: Promise<{
-    subsection: string;
-    slug: string;
-  }>;
+  params: Promise<{ subsection: string; slug: string }>;
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
     const post = await getPostBySlug(slug);
-    const title =
-      typeof post.title === "object" ? post.title.rendered : post.title;
-    const excerpt =
-      typeof post.excerpt === "object" ? post.excerpt.rendered : post.excerpt;
-
-    // Strip HTML from excerpt for description
-    const description = excerpt.replace(/<[^>]*>/g, "").substring(0, 160);
-
+    const { title, description } = getArticlePlainMeta(post);
     return {
       title: `${title} - Brown Political Review`,
       description,
@@ -51,55 +31,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function InterviewsSubsectionArticlePage({
-  params,
-}: PageProps) {
-  try {
-    const { slug, subsection } = await params;
-
-    // Fetch post and categories in parallel
-    const [post, categories] = await Promise.all([
-      getPostBySlug(slug),
-      getAllCategories(),
-    ]);
-
-    if (!post) {
-      notFound();
-    }
-
-    // Enhance the main post with batch fetching
-    const [enhancedPost] = await enhancePosts([post], categories);
-
-    // Fetch related posts from the same category/subsection
-    let relatedPosts: EnhancedPost[] = [];
-    if (enhancedPost.categories_obj && enhancedPost.categories_obj.length > 0) {
-      try {
-        // Try to get posts from the specific subsection first
-        const categorySlug = subsection;
-        const categoryPosts = await getPostsByCategorySlug(categorySlug);
-
-        // Filter out the current post and limit to 4
-        const filteredPosts = categoryPosts
-          .filter((p) => p.id !== post.id)
-          .slice(0, 4);
-
-        // Use batch enhancement for related posts (fixes N+1 problem)
-        relatedPosts = await enhancePreviewPosts(filteredPosts, categories);
-      } catch (error) {
-        console.error("Error fetching related posts:", error);
-      }
-    }
-
-    return (
-      <div className="page-container">
-        <main className="main-content">
-          <ArticleView post={enhancedPost} relatedPosts={relatedPosts} />
-        </main>
-        {/* Footer removed to prevent duplicates */}
-      </div>
-    );
-  } catch (error) {
-    console.error("Error loading article:", error);
-    notFound();
-  }
+export default async function InterviewsSubsectionArticlePage({ params }: PageProps) {
+  const { slug, subsection } = await params;
+  return <ArticlePageContent slug={slug} relatedCategorySlug={subsection} />;
 }
