@@ -22,6 +22,9 @@ export const api = axios.create({
 const WP_CIRCUIT_COOLDOWN_MS = 30_000;
 let wpCircuitOpenUntil = 0;
 
+const isProductionBuild =
+  process.env.NEXT_PHASE === "phase-production-build";
+
 export function resetWordPressCircuit() {
   wpCircuitOpenUntil = 0;
 }
@@ -42,7 +45,7 @@ function isWordPressTransportError(error: unknown): boolean {
 }
 
 api.interceptors.request.use((config) => {
-  if (Date.now() < wpCircuitOpenUntil) {
+  if (!isProductionBuild && Date.now() < wpCircuitOpenUntil) {
     const error = new Error("WordPress unavailable (circuit open)") as Error & {
       code: string;
       config: typeof config;
@@ -64,7 +67,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (isWordPressTransportError(error)) {
+    if (!isProductionBuild && isWordPressTransportError(error)) {
       wpCircuitOpenUntil = Date.now() + WP_CIRCUIT_COOLDOWN_MS;
     }
     return Promise.reject(error);
@@ -534,7 +537,7 @@ export const searchPosts = withCache(
   CACHE_TTL.POSTS
 );
 
-export const getIssueArchiveSources = withCache(
+const fetchIssueArchiveSources = withCache(
   "getIssueArchiveSources",
   async (): Promise<IssueSource[]> => {
     const [archive, categories] = await Promise.all([
@@ -559,6 +562,15 @@ export const getIssueArchiveSources = withCache(
   },
   CACHE_TTL.POSTS
 );
+
+export const getIssueArchiveSources = async (): Promise<IssueSource[]> => {
+  try {
+    return await fetchIssueArchiveSources();
+  } catch (error) {
+    console.warn("Failed to fetch issue archive sources:", error);
+    return [];
+  }
+};
 
 
 export const getIssuePosts = withCache(
