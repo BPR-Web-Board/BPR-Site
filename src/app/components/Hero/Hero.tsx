@@ -26,12 +26,12 @@ const Hero: React.FC<HeroProps> = ({
   priority = false,
   topChrome,
 }) => {
-  // Filter posts that have featured images
   const postsWithImages = posts.filter(
-    (post) => post.featured_media_obj && post.featured_media_obj.source_url
+    (post) => post.featured_media_obj?.source_url
   );
 
   if (postsWithImages.length === 0) {
+    if (posts.length === 0) return topChrome ? <>{topChrome}</> : null;
     return <>
       {topChrome}
       <FourArticleGrid posts={posts} showCategoryTitle={false} numberOfRows={Math.ceil(posts.length / 4)} className="width-constrained" />

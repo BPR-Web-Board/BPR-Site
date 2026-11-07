@@ -11,7 +11,7 @@ import FourArticleGrid from "./components/FourArticleGrid";
 import { PageContentManager } from "./lib/contentManager";
 // import Footer from "./components/Footer";
 
-export const revalidate = 1800;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   // Fetch all data in parallel for optimal performance
@@ -42,14 +42,23 @@ export default async function HomePage() {
   // Create content manager to prevent duplicate articles across all page components
   const contentManager = new PageContentManager();
 
-  // Select articles for each section in order of appearance on the page
-  // This ensures no article appears twice on the homepage
-  const heroArticles = contentManager.selectArticles(enhancedPosts, 5, {
+  const heroPool = contentManager.combineUniquePosts(
+    enhancedPosts.filter((post) => post.featured_media_obj?.source_url),
+    enhancedPosts,
+    enhancedUsaPosts,
+    enhancedWorldPosts,
+    enhancedCulturePosts
+  );
+  const heroArticles = contentManager.selectArticles(heroPool, 5, {
     allowPartial: true,
   });
-  const previewArticles = contentManager.selectArticles(enhancedPosts, 10, {
-    allowPartial: true,
-  });
+  const previewArticles = contentManager.selectArticles(
+    contentManager.combineUniquePosts(enhancedPosts, enhancedUsaPosts),
+    10,
+    {
+      allowPartial: true,
+    }
+  );
 
   // USA Section - combine all USA posts and select unique articles
   const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
