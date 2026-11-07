@@ -29,7 +29,7 @@ export default async function MagazinePage() {
       <nav className="issue-edition-nav" aria-label="Issue navigation">
         <Link href="/magazine/issues" className="issue-nav-link">
           <ArrowLeft size={16} strokeWidth={1.5} aria-hidden="true" />
-          Previous Issues
+          Prev Issues
         </Link>
         <h1 className="issue-edition-kicker">{heading}</h1>
       </nav>

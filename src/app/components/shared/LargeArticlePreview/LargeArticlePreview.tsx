@@ -67,8 +67,12 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
         isPodcast && spotifyLink ? "has-podcast" : ""
       } ${className}`}
     >
-      <Link href={articleLink} className="large-article-preview-link">
-        {/* Image Container */}
+      <Link
+        href={articleLink}
+        className="article-card-stretch-link"
+        aria-label={title}
+      />
+      <div className="large-article-preview-link">
         <div className="large-article-preview-image-container">
           <ArticleMedia article={article} className="large-article-preview-image" sizes="(max-width: 768px) 100vw, 50vw" />
           {isPodcast && spotifyLink && showPlayButtonOnImage && (
@@ -82,7 +86,6 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
           )}
         </div>
 
-        {/* Content Container */}
         <div className="large-article-preview-content article-card-content-stack">
           <h3
             className="large-article-preview-title"><ArticleTitle html={title} /></h3>
@@ -99,8 +102,6 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
             </div>
             <CategoryPills categories={article.categories_obj} />
           </div>
-
-
 
           <div className="large-article-preview-excerpt">{excerpt}</div>
           {isPodcast && spotifyLink && !showPlayButtonOnImage && (
@@ -121,7 +122,7 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
             </div>
           )}
         </div>
-      </Link>
+      </div>
     </article>
   );
 };

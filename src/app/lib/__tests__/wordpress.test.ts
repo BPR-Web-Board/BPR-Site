@@ -11,6 +11,7 @@ import {
   getPostsByAuthor,
   getFeaturedMediaById,
   api,
+  resetWordPressCircuit,
 } from "../wordpress";
 import { Post, Category, Tag, Author, FeaturedMedia } from "../types";
 
@@ -68,6 +69,7 @@ const createMockFeaturedMedia = (id: number): FeaturedMedia => ({
 
   beforeEach(async () => {
     jest.restoreAllMocks();
+    resetWordPressCircuit();
     await cache.clear();
   });
 

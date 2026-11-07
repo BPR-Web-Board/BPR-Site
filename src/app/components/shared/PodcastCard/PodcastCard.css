@@ -117,9 +117,6 @@
   transition: transform 0.3s ease;
 }
 
-.podcast-card-image:hover {
-  transform: scale(1.05);
-}
 
 .podcast-card-image-placeholder {
   width: 100%;

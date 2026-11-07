@@ -80,26 +80,29 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     <article
       className={`article-card-frame article-card variant-${variant} image-position-${imagePosition} ${className}`}
     >
-      <Link href={articleLink} style={{ display: "contents" }}>
-        {imagePosition === "top" && (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-        {imagePosition === "left" && (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-        {imagePosition === "right" && (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-      </Link>
+      <Link
+        href={articleLink}
+        className="article-card-stretch-link"
+        aria-label={stripHtml(title)}
+      />
+      {imagePosition === "top" && (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
+      {imagePosition === "left" && (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
+      {imagePosition === "right" && (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
     </article>
   );
 };

@@ -55,7 +55,7 @@ export default function ArchiveControls({
   return (
     <div className="archive-controls">
       {isArticlesView ? (
-        <>
+        <div className="archive-controls-filters">
           <form className="archive-controls-search" role="search" onSubmit={onSearch}>
             <label className="visually-hidden" htmlFor="archive-search">Search archive</label>
             <input
@@ -99,7 +99,7 @@ export default function ArchiveControls({
               ))}
             </select>
           </label>
-        </>
+        </div>
       ) : null}
 
       <button

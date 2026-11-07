@@ -65,7 +65,7 @@ export default async function InterviewsPage() {
     worldInterviewsPosts
   );
 
-  const popularArticles = contentManager.selectArticles(interviewsPosts, 5, {
+  const popularArticles = contentManager.selectArticles(interviewsPosts, 4, {
     allowPartial: true,
   });
 
@@ -143,7 +143,7 @@ export default async function InterviewsPage() {
           <ArticleSpotlight
             title="Most Popular"
             posts={popularArticles}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
         {latestArticles.length > 0 && (

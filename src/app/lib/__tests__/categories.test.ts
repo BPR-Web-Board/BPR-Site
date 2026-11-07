@@ -1,7 +1,11 @@
-import { api, getAllCategories } from "../wordpress";
+import { api, getAllCategories, resetWordPressCircuit } from "../wordpress";
 import { cache } from "../cache";
 
-beforeEach(async () => { jest.restoreAllMocks(); await cache.clear(); });
+beforeEach(async () => {
+  jest.restoreAllMocks();
+  resetWordPressCircuit();
+  await cache.clear();
+});
 afterEach(() => jest.restoreAllMocks());
 
 test("loads every category page and caches only the complete result", async () => {
@@ -20,7 +24,8 @@ test("does not cache a partial taxonomy when a later page fails", async () => {
     .mockResolvedValueOnce({ data: [{ id: 1 }], status: 200, statusText: "OK", config: { url: "/wp-json/wp/v2/categories" }, headers: { "x-wp-totalpages": "2" } })
     .mockRejectedValueOnce(new Error("upstream failure"))
     .mockResolvedValueOnce({ data: [{ id: 3 }], status: 200, statusText: "OK", config: { url: "/wp-json/wp/v2/categories" }, headers: { "x-wp-totalpages": "1" } });
-  await expect(getAllCategories()).rejects.toThrow("upstream failure");
+  // Soft-fail for page renders; failed attempts are not cached
+  expect(await getAllCategories()).toEqual([]);
   expect(await getAllCategories()).toEqual([{ id: 3 }]);
   expect(request).toHaveBeenCalledTimes(3);
 });

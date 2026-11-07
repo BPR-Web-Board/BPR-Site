@@ -38,6 +38,14 @@
   scrollbar-width: thin;
 }
 
+.archive-controls-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .archive-controls-search {
   display: flex;
   align-items: center;
@@ -168,11 +176,30 @@
 @media (max-width: 767px) {
   .archive-toolbar {
     flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-3);
+    row-gap: var(--space-3);
+  }
+
+  .archive-toolbar .magazine-navigation {
+    order: 1;
   }
 
   .archive-controls {
-    margin-left: 0;
-    max-width: 100%;
+    display: contents;
+  }
+
+  .archive-controls-sort {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .archive-controls-filters {
+    order: 3;
+    flex: 1 1 100%;
     width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
 }

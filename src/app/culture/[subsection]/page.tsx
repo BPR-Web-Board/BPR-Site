@@ -62,7 +62,7 @@ export default async function CultureSubsectionPage({
           <ArticleSpotlight
             title="Latest"
             posts={displaySpotlightPosts}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
 

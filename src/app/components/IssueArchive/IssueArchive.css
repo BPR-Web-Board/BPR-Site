@@ -152,11 +152,17 @@
 }
 
 @media (max-width: 1023px) {
-  .issue-archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .issue-archive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--space-5);
+  }
 }
 
 @media (max-width: 639px) {
-  .issue-archive-grid { grid-template-columns: minmax(0, 1fr); }
+  .issue-archive-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-5);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

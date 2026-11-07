@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { api, getAllCategories } from "../lib/wordpress";
 import { enhancePreviewPosts } from "../lib/enhancePost";
 import { Post } from "../lib/types";
@@ -34,7 +35,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     <h1 className="section-heading-rule">Search</h1>
     <form className="content-search-form" role="search" action="/search">
       <input type="search" name="q" aria-label="Search articles" placeholder="Search articles…" defaultValue={query} maxLength={280} required />
-      <button type="submit" className="site-action">Search</button>
+      <button type="submit" className="content-search-submit" aria-label="Search">
+        <Search size={20} strokeWidth={1.5} aria-hidden="true" />
+      </button>
     </form>
     {!query && <p>Enter a term to search BPR articles.</p>}
     {failed && <p className="site-state site-state-error" role="alert">Search is temporarily unavailable. Please try again.</p>}

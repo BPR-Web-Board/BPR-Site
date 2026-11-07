@@ -86,7 +86,7 @@ export default async function UnitedStatesPage() {
   const previewArticles = contentManager.selectArticles(usaPosts, 10, {
     allowPartial: true,
   });
-  const spotlightArticles = contentManager.selectArticles(usaPosts, 5, {
+  const spotlightArticles = contentManager.selectArticles(usaPosts, 4, {
     allowPartial: true,
   });
   const heroArticles = contentManager.selectArticles(usaPosts, 5, {
@@ -172,7 +172,7 @@ export default async function UnitedStatesPage() {
           <ArticleSpotlight
             title="Domestic Briefing"
             posts={spotlightArticles}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
         {heroArticles.length > 0 && (

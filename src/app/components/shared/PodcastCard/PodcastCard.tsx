@@ -163,13 +163,14 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         spotifyLink ? "has-spotify" : ""
       } ${className}`}
     >
-      {spotifyLink ? (
-        <Link href={podcast.link} className="podcast-card-link">
-          {cardContent}
-        </Link>
-      ) : (
-        cardContent
-      )}
+      {podcast.link ? (
+        <Link
+          href={podcast.link}
+          className="article-card-stretch-link"
+          aria-label={stripHtml(title)}
+        />
+      ) : null}
+      {cardContent}
     </article>
   );
 };

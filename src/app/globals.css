@@ -46,7 +46,7 @@
   --font-size-featured-title: clamp(1.75rem, 2.4vw, 2.5rem);
   --font-size-section-title: clamp(1.75rem, 2.5vw, 2.5rem);
   --font-size-hero-title: clamp(2rem, 4vw, 3.75rem);
-  --font-size-article-title: clamp(2rem, 4.5vw, 4rem);
+  --font-size-article-title: clamp(2.5rem, 6.5vw, 4.5rem);
   --font-size-article-body: clamp(1.125rem, 1.25vw, 1.25rem);
 
   /* Font sizes based on the 8pt grid - mobile first */
@@ -533,9 +533,48 @@ body { color: var(--foreground); }
 
 
 .article-card-frame.article-card-frame {
+  position: relative;
   padding: var(--article-card-inset);
   outline: var(--divider-border);
   outline-offset: -1px;
+  cursor: pointer;
+}
+
+.article-card-stretch-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.article-card-frame > *:not(.article-card-stretch-link) {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.article-card-frame :is(
+  .podcast-card-spotify-link,
+  .featured-podcast-listen-btn,
+  .category-pill-link
+) {
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.article-card-frame:hover {
+  background: color-mix(in srgb, var(--foreground) 4%, var(--surface));
+}
+
+.article-card-frame:hover .article-card-image,
+.article-card-frame:hover .small-article-image,
+.article-card-frame:hover .podcast-card-image {
+  transform: scale(1.05);
+}
+
+.article-card-frame:hover .featured-article-image,
+.article-card-frame:hover .large-article-preview-image {
+  transform: scale(1.02);
 }
 
 .article-card-content-stack.article-card-content-stack {
@@ -562,6 +601,24 @@ body { color: var(--foreground); }
 
 .article-card-content-stack > [class*="excerpt"] :is(p, div) {
   margin: 0;
+}
+
+@media (max-width: 767px) {
+  :is(
+    .article-card-excerpt,
+    .featured-article-excerpt,
+    .small-article-excerpt,
+    .large-article-preview-excerpt,
+    .podcast-card-excerpt,
+    .featured-podcast-excerpt,
+    .hero-excerpt
+  ),
+  .article-card-content-stack > [class*="excerpt"] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
 }
 
 

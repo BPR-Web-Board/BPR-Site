@@ -93,9 +93,12 @@
   border: 0;
   background: transparent;
   color: inherit;
-  font: inherit;
+  font-family: var(--font-body);
   font-size: var(--font-size-metadata);
-  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
 }

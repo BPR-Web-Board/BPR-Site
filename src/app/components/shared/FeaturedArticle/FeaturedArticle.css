@@ -52,9 +52,6 @@
   transition: transform 0.3s ease;
 }
 
-.featured-article-image:hover {
-  transform: scale(1.02);
-}
 
 .featured-article-image-placeholder {
   width: 100%;

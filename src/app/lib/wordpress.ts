@@ -19,6 +19,58 @@ export const api = axios.create({
   timeout: 25000,
 });
 
+const WP_CIRCUIT_COOLDOWN_MS = 30_000;
+let wpCircuitOpenUntil = 0;
+
+export function resetWordPressCircuit() {
+  wpCircuitOpenUntil = 0;
+}
+
+function isWordPressTransportError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: string; response?: unknown; isAxiosError?: boolean };
+  if (!err.isAxiosError && !("config" in err)) return false;
+  const code = err.code;
+  return (
+    code === "ECONNABORTED" ||
+    code === "ETIMEDOUT" ||
+    code === "ECONNREFUSED" ||
+    code === "ENOTFOUND" ||
+    code === "ERR_NETWORK" ||
+    err.response == null
+  );
+}
+
+api.interceptors.request.use((config) => {
+  if (Date.now() < wpCircuitOpenUntil) {
+    const error = new Error("WordPress unavailable (circuit open)") as Error & {
+      code: string;
+      config: typeof config;
+      isAxiosError: true;
+      response: undefined;
+    };
+    error.code = "ECONNABORTED";
+    error.config = config;
+    error.isAxiosError = true;
+    error.response = undefined;
+    throw error;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => {
+    wpCircuitOpenUntil = 0;
+    return response;
+  },
+  (error) => {
+    if (isWordPressTransportError(error)) {
+      wpCircuitOpenUntil = Date.now() + WP_CIRCUIT_COOLDOWN_MS;
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Cache TTL constants (in milliseconds)
 const CACHE_TTL = {
   POSTS: 30 * 60 * 1000, // 30 minutes (increased from 5 for better cache hit rate)
@@ -68,7 +120,7 @@ function normalizeListPost(post: Post): Post {
 
 // WordPress Functions
 
-export const getAllPosts = withCache(
+const fetchAllPosts = withCache(
   "getAllPosts",
   async (filterParams?: {
     author?: string;
@@ -96,6 +148,23 @@ export const getAllPosts = withCache(
   CACHE_TTL.POSTS
 );
 
+export const getAllPosts = async (filterParams?: {
+  author?: string;
+  tag?: string;
+  category?: string;
+  per_page?: number;
+  page?: number;
+  offset?: number;
+  search?: string;
+}): Promise<Post[]> => {
+  try {
+    return await fetchAllPosts(filterParams);
+  } catch (error) {
+    console.warn("Failed to fetch posts:", error);
+    return [];
+  }
+};
+
 export const getPostById = withCache(
   "getPostById",
   async (id: number): Promise<Post> => {
@@ -116,7 +185,7 @@ export const getPostBySlug = withCache(
   CACHE_TTL.POSTS
 );
 
-export const getAllCategories = withCache(
+const fetchAllCategories = withCache(
   "getAllCategories",
   async (): Promise<Category[]> => {
     const categories: Category[] = [];
@@ -134,6 +203,15 @@ export const getAllCategories = withCache(
   },
   CACHE_TTL.CATEGORIES
 );
+
+export const getAllCategories = async (): Promise<Category[]> => {
+  try {
+    return await fetchAllCategories();
+  } catch (error) {
+    console.warn("Failed to fetch categories:", error);
+    return [];
+  }
+};
 
 export const getCategoryById = withCache(
   "getCategoryById",
@@ -318,9 +396,7 @@ export const getPostsByCategorySlug = withCache(
     }
   ): Promise<Post[]> => {
     try {
-      const categories = await getAllCategories();
-      const category = categories.find((entry) => entry.slug === categorySlug)
-        || await getCategoryBySlug(categorySlug);
+      const category = await getCategoryBySlug(categorySlug);
       if (!category) {
         return [];
       }

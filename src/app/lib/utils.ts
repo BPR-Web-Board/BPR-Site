@@ -114,6 +114,106 @@ export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
   return (post as EnhancedPost).featured_media_obj?.source_url || "";
 }
 
+const CATEGORY_SECTION: Record<string, string> = {
+  education: "united-states",
+  elections: "united-states",
+  environment: "united-states",
+  "foreign-policy": "united-states",
+  health: "united-states",
+  housing: "united-states",
+  law: "united-states",
+  "security-and-defense-usa": "united-states",
+  africa: "world",
+  "asia-pacific": "world",
+  europe: "world",
+  "latin-america": "world",
+  "middle-east": "world",
+  "south-america": "world",
+  bpradio: "multimedia",
+  data: "multimedia",
+  media: "multimedia",
+  "photo-essays": "multimedia",
+  "photo-essay": "multimedia",
+  "video-essays": "multimedia",
+  "video-essay": "multimedia",
+  "professor-podcasts": "interviews",
+  "rhode-island-interviews": "interviews",
+  "ri-interviews": "interviews",
+  "us-interviews": "interviews",
+  "congress-interviews": "interviews",
+  congress: "interviews",
+  "world-interviews": "interviews",
+  arts: "culture",
+  gender: "culture",
+  "health-culture": "culture",
+  lgbtq: "culture",
+  "lgbtq-politics": "culture",
+  race: "culture",
+  religion: "culture",
+  science: "culture",
+  technology: "culture",
+  magazine: "magazine",
+};
+
+const CATEGORY_SUBSECTION_PAGES = new Set([
+  "education",
+  "elections",
+  "environment",
+  "foreign-policy",
+  "health",
+  "housing",
+  "law",
+  "security-and-defense-usa",
+  "africa",
+  "asia-pacific",
+  "europe",
+  "latin-america",
+  "middle-east",
+  "south-america",
+  "bpradio",
+  "data",
+  "media",
+  "professor-podcasts",
+  "ri-interviews",
+  "us-interviews",
+  "congress-interviews",
+  "congress",
+  "world-interviews",
+  "arts",
+  "gender",
+  "health-culture",
+  "lgbtq",
+  "lgbtq-politics",
+  "race",
+  "religion",
+  "science",
+  "technology",
+]);
+
+const CATEGORY_PATH_SLUG: Record<string, string> = {
+  usa: "united-states",
+  mag: "magazine",
+  "rhode-island-interviews": "ri-interviews",
+};
+
+const SECTION_ROOTS = ["magazine", "multimedia", "interviews", "united-states", "world", "culture"] as const;
+
+export function getCategoryLink(category: { slug: string }): string | null {
+  const pathSlug = CATEGORY_PATH_SLUG[category.slug] || category.slug;
+  if (SECTION_ROOTS.includes(pathSlug as (typeof SECTION_ROOTS)[number])) {
+    return `/${pathSlug}`;
+  }
+  const section = CATEGORY_SECTION[category.slug] || CATEGORY_SECTION[pathSlug];
+  if (!section) return null;
+  if (
+    CATEGORY_SUBSECTION_PAGES.has(category.slug) ||
+    CATEGORY_SUBSECTION_PAGES.has(pathSlug)
+  ) {
+    return `/${section}/${pathSlug}`;
+  }
+  return `/${section}`;
+}
+
 /**
  * Generates the article link based on category and slug
  * Maps category slugs to their proper parent sections
@@ -121,60 +221,15 @@ export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
 export function getArticleLink(post: { id: number; slug: string; categories_obj?: Array<{ slug: string }> }): string {
   if (post.id <= 0) return "#";
 
-  // Define category to parent section mappings
-  const categoryMappings: { [key: string]: string } = {
-    // United States subsections
-    education: "united-states",
-    elections: "united-states",
-    environment: "united-states",
-    "foreign-policy": "united-states",
-    health: "united-states",
-    housing: "united-states",
-    law: "united-states",
-    "security-and-defense-usa": "united-states",
-
-    // World subsections
-    africa: "world",
-    "asia-pacific": "world",
-    europe: "world",
-    "latin-america": "world",
-    "middle-east": "world",
-    "south-america": "world",
-
-    // Multimedia subsections
-    bpradio: "multimedia",
-    data: "multimedia",
-    media: "multimedia",
-
-    // Interviews subsections
-    "professor-podcasts": "interviews",
-    "rhode-island-interviews": "interviews",
-    "ri-interviews": "interviews",
-    "us-interviews": "interviews",
-    "congress-interviews": "interviews",
-    "world-interviews": "interviews",
-
-    // Culture subsections
-    arts: "culture",
-    gender: "culture",
-    "health-culture": "culture",
-    "lgbtq-politics": "culture",
-    race: "culture",
-    religion: "culture",
-    science: "culture",
-    technology: "culture",
-
-    // Magazine
-    magazine: "magazine",
-  };
-
-  const sections = ["magazine", "multimedia", "interviews", "united-states", "world", "culture"];
-  const aliases: Record<string, string> = { usa: "united-states", mag: "magazine" };
-  const slugs = (post.categories_obj || []).map(({ slug }) => aliases[slug] || slug);
-  const section = sections.find((name) => slugs.includes(name))
-    || sections.find((name) => slugs.some((slug) => categoryMappings[slug] === name))
+  const slugs = (post.categories_obj || []).map(
+    ({ slug }) => CATEGORY_PATH_SLUG[slug] || slug
+  );
+  const section = SECTION_ROOTS.find((name) => slugs.includes(name))
+    || SECTION_ROOTS.find((name) => slugs.some((slug) => CATEGORY_SECTION[slug] === name))
     || "world";
-  const subsection = slugs.filter((slug) => slug !== section && categoryMappings[slug] === section).sort()[0];
+  const subsection = slugs
+    .filter((slug) => slug !== section && CATEGORY_SECTION[slug] === section)
+    .sort()[0];
   return `/${section}${subsection ? `/${subsection}` : ""}/article/${encodeURIComponent(post.slug)}`;
 }
 

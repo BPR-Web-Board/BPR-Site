@@ -109,9 +109,6 @@
   transition: transform 0.3s ease;
 }
 
-.large-article-preview-link:hover .large-article-preview-image {
-  transform: scale(1.02);
-}
 
 /* Image placeholder */
 .large-article-preview-image-placeholder {

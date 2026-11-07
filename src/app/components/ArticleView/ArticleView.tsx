@@ -11,11 +11,40 @@ import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUp, Expand, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { ArrowLeft, ArrowUp, Expand, X } from "lucide-react";
 import { EnhancedPost } from "../../lib/types";
 import he from "he";
 import "./ArticleView.css";
 import FourArticleGrid from "../FourArticleGrid";
+
+const ARTICLE_SECTION_ROOTS = [
+  "magazine",
+  "culture",
+  "world",
+  "united-states",
+  "interviews",
+  "multimedia",
+] as const;
+
+function getArticleBackLink(pathname: string): { href: string; label: string } {
+  const section = pathname.split("/").filter(Boolean)[0];
+  if (section === "magazine") {
+    return { href: "/magazine/issues", label: "Archive" };
+  }
+  if (section && ARTICLE_SECTION_ROOTS.includes(section as (typeof ARTICLE_SECTION_ROOTS)[number])) {
+    return { href: `/${section}`, label: "Back" };
+  }
+  return { href: "/", label: "Back" };
+}
+
+function goArticleBack(fallbackHref: string) {
+  if (window.history.length > 1) {
+    window.history.back();
+    return;
+  }
+  window.location.assign(fallbackHref);
+}
 
 interface ArticleViewProps {
   post: EnhancedPost;
@@ -414,6 +443,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   issue = null,
   specialFeature = false,
 }) => {
+  const pathname = usePathname();
+  const backLink = getArticleBackLink(pathname);
   const [pullQuotePositions, setPullQuotePositions] = useState<
     PullQuotePosition[]
   >([]);
@@ -436,6 +467,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     typeof post.title === "object" ? post.title.rendered : post.title;
   const rawContent =
     typeof post.content === "object" ? post.content.rendered : post.content;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, post.id]);
 
   // Fetch related posts if not provided
   useEffect(() => {
@@ -507,6 +542,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     const measure = () => {
       frame = 0;
       if (lightboxOpen) return;
+      if (window.matchMedia("(max-width: 1024px)").matches) {
+        sidebar.style.removeProperty("--article-sidebar-min-height");
+        setPullQuotePositions((previous) => (previous.length ? [] : previous));
+        return;
+      }
       if (!quotesRoot) {
         sidebar.style.removeProperty("--article-sidebar-min-height");
         return;
@@ -517,9 +557,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({
 
       contentElementRefs.current.forEach((element, index) => {
         if (!element || contentBlocks[index]?.type !== "pullquote") return;
+        const marker =
+          element.querySelector<HTMLElement>(".content-pullquote-marker") || element;
         positions.push({
           index: contentBlocks[index].index,
-          topOffset: Math.max(0, element.getBoundingClientRect().top - rootTop),
+          topOffset: Math.max(0, marker.getBoundingClientRect().top - rootTop),
         });
       });
 
@@ -625,6 +667,30 @@ const ArticleView: React.FC<ArticleViewProps> = ({
     <article className="article-view" ref={articleRef}>
       <header className={`article-header${hasMedia ? " article-header--with-image" : ""}`}>
         <div className="article-header-copy">
+          <nav className="article-back-nav" aria-label="Article navigation">
+            <Link
+              href={backLink.href}
+              className="article-back-link"
+              onClick={(event) => {
+                if (
+                  event.defaultPrevented ||
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                ) {
+                  return;
+                }
+                event.preventDefault();
+                goArticleBack(backLink.href);
+              }}
+            >
+              <ArrowLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+              {backLink.label}
+            </Link>
+          </nav>
+          <div className="article-header-copy-body">
           <div className="article-header-lead">
             {issue || specialFeature ? (
               issue ? (
@@ -659,7 +725,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                 </>
               ) : null}
             </div>
-            <CategoryPills categories={post.categories_obj} />
+            <CategoryPills categories={post.categories_obj} clickable />
+          </div>
           </div>
         </div>
         {videoEmbed ? (
@@ -796,9 +863,17 @@ const StableArticleContent = memo(function StableArticleContent({
             <div
               key={block.index}
               ref={(el) => setContentElementRef(index, el)}
-              className="content-pullquote-marker"
+              className="content-pullquote-slot"
               data-quote-index={block.index}
-            />
+            >
+              <div className="content-pullquote-marker" aria-hidden="true" />
+              <div className="pull-quote-container content-pullquote">
+                <div className="pull-quote-divider" />
+                <blockquote className="sidebar-pull-quote">
+                  {block.content}
+                </blockquote>
+              </div>
+            </div>
           );
         }
         if (block.type === "image" && block.imageData) {

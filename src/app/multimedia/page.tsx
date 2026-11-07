@@ -78,7 +78,7 @@ export default async function MultimediaPage() {
     globalFallbackPool
   );
 
-  const spotlightArticles = contentManager.selectArticles(multimediaPosts, 5, {
+  const spotlightArticles = contentManager.selectArticles(multimediaPosts, 4, {
     allowPartial: true,
   });
 
@@ -159,7 +159,7 @@ export default async function MultimediaPage() {
           <ArticleSpotlight
             title="Multimedia Showcase"
             posts={spotlightArticles}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
         {dataArticles.length > 0 && (

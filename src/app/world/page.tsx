@@ -76,7 +76,7 @@ export default async function WorldPage() {
   const heroArticles = contentManager.selectArticles(worldPosts, 5, {
     allowPartial: true,
   });
-  const spotlightArticles = contentManager.selectArticles(worldPosts, 5, {
+  const spotlightArticles = contentManager.selectArticles(worldPosts, 4, {
     allowPartial: true,
   });
 
@@ -179,7 +179,7 @@ export default async function WorldPage() {
           <ArticleSpotlight
             title="Global Briefing"
             posts={spotlightArticles}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
         {africaSpotlight.length > 0 && (

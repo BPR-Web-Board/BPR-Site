@@ -28,6 +28,8 @@ function CoverFallback({ cover, title }: { cover?: string; title: string }) {
   );
 }
 
+const MOBILE_PDF_QUERY = "(max-width: 767px)";
+
 export default function IssuePdfFlipbook({ url, title, cover }: { url: string; title: string; cover?: string }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const flipbookRef = useRef<InstanceType<typeof PageFlipOpen> | null>(null);
@@ -35,6 +37,17 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
   const [ready, setReady] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [singlePage, setSinglePage] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(MOBILE_PDF_QUERY).matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_PDF_QUERY);
+    const sync = () => setSinglePage(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -54,11 +67,12 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
         const surface = getComputedStyle(document.documentElement)
           .getPropertyValue("--surface")
           .trim() || "#fffefa";
+        const startPage = singlePage ? 1 : 2;
         flipbook = new PageFlipOpen(host, {
           source: resolveSource(url),
-          startPage: 2,
-          singlePageMode: false,
-          autoLayout: true,
+          startPage,
+          singlePageMode: singlePage,
+          autoLayout: !singlePage,
           autoHeight: true,
           enableZoom: true,
           enableFullscreen: false,
@@ -70,7 +84,7 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
           onReady: () => {
             if (cancelled || !flipbook) return;
             flipbookRef.current = flipbook;
-            if (flipbook.totalPages >= 2 && flipbook.currentPage < 2) {
+            if (!singlePage && flipbook.totalPages >= 2 && flipbook.currentPage < 2) {
               flipbook.flipTo(2);
             }
             setPage(flipbook.currentPage);
@@ -97,7 +111,7 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
       flipbookRef.current = null;
       try { flipbook?.destroy(); } catch {}
     };
-  }, [url]);
+  }, [url, singlePage]);
 
   if (error) return <CoverFallback cover={cover} title={title} />;
 
@@ -106,7 +120,7 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
 
   return (
     <div
-      className={`issue-pdf-preview${ready ? " is-ready" : ""}`}
+      className={`issue-pdf-preview${ready ? " is-ready" : ""}${singlePage ? " is-single-page" : ""}`}
       aria-label={`${title} PDF preview`}
       aria-busy={!ready}
     >

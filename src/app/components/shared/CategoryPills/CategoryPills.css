@@ -9,6 +9,7 @@
 .category-pill {
   display: inline-block;
   max-width: 100%;
+  margin: 0;
   padding: var(--space-1) 10px;
   border: 1px solid var(--text-muted);
   border-radius: 999px;
@@ -20,7 +21,19 @@
   line-height: 1.4;
   letter-spacing: normal;
   text-transform: none;
+  text-decoration: none;
   overflow-wrap: anywhere;
+  cursor: default;
+}
+
+a.category-pill-link {
+  cursor: pointer;
+}
+
+a.category-pill-link:hover,
+a.category-pill-link:focus-visible {
+  border-color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .article-byline-group {

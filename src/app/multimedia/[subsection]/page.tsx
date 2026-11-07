@@ -51,7 +51,7 @@ export default async function MultimediaSubsectionPage({
   );
 
   // Select articles for each section in order
-  const displaySpotlightPosts = contentManager.selectArticles(spotlightPosts, 5, {
+  const displaySpotlightPosts = contentManager.selectArticles(spotlightPosts, 4, {
     allowPartial: true,
   });
 
@@ -69,7 +69,7 @@ export default async function MultimediaSubsectionPage({
           <ArticleSpotlight
             title="Latest"
             posts={displaySpotlightPosts}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
 

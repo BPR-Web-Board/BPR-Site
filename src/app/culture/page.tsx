@@ -73,7 +73,7 @@ export default async function CulturePage() {
   const heroArticles = contentManager.selectArticles(culturePosts, 5, {
     allowPartial: true,
   });
-  const spotlightArticles = contentManager.selectArticles(culturePosts, 5, {
+  const spotlightArticles = contentManager.selectArticles(culturePosts, 4, {
     allowPartial: true,
   });
 
@@ -197,7 +197,7 @@ export default async function CulturePage() {
           <ArticleSpotlight
             title="Culture Spotlight"
             posts={spotlightArticles}
-            maxArticles={5}
+            maxArticles={4}
           />
         )}
         {artsSpotlight.length > 0 && (

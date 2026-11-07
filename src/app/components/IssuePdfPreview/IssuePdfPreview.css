@@ -55,6 +55,7 @@
 .issue-pdf-viewer {
   position: relative;
   flex: 0 1 auto;
+  min-width: 0;
   width: var(--issue-pdf-viewer-width);
   max-width: 100%;
   aspect-ratio: var(--issue-pdf-spread-ratio);
@@ -172,11 +173,58 @@
 
 @media (max-width: 767px) {
   .issue-pdf-preview {
-    --issue-pdf-viewer-width: min(100%, calc(70vh * 17 / 12.5));
+    --issue-pdf-spread-ratio: 2 / 3;
+    --issue-pdf-viewer-width: min(100%, calc(85svh * 2 / 3));
+    gap: 0;
+  }
+
+  .issue-pdf-viewer {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .issue-pdf-nav {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 0;
+    background: color-mix(in oklab, var(--surface) 72%, transparent);
+  }
+
+  .issue-pdf-nav-prev {
+    left: 0;
+  }
+
+  .issue-pdf-nav-next {
+    right: 0;
   }
 
   .issue-pdf-nav svg {
     width: 28px;
     height: 28px;
+  }
+
+  .issue-pdf-skeleton-spread {
+    grid-template-columns: 1fr;
+    padding-block: 0;
+  }
+
+  .issue-pdf-skeleton-page:last-child {
+    display: none;
+  }
+
+  .issue-pdf-flipbook-host {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .issue-pdf-cover-fallback {
+    width: min(100%, calc(85svh * 2 / 3));
+    aspect-ratio: 2 / 3;
   }
 }

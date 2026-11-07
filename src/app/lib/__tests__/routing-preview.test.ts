@@ -1,9 +1,20 @@
-import { getArticleLink, getAuthorName } from "../utils";
+import { getArticleLink, getAuthorName, getCategoryLink } from "../utils";
 import { enhancePost, enhancePosts, toArticlePreview } from "../enhancePost";
 import { getMediaPreview } from "../mediaPreview";
 import type { EnhancedPost, Post } from "../types";
 
 const link = (slugs: string[]) => getArticleLink({ id: 1, slug: "test-story", categories_obj: slugs.map(slug => ({ slug })) });
+
+test("category pills link to subsection pages when they exist, else the section root", () => {
+  expect(getCategoryLink({ slug: "education" })).toBe("/united-states/education");
+  expect(getCategoryLink({ slug: "africa" })).toBe("/world/africa");
+  expect(getCategoryLink({ slug: "bpradio" })).toBe("/multimedia/bpradio");
+  expect(getCategoryLink({ slug: "usa" })).toBe("/united-states");
+  expect(getCategoryLink({ slug: "world" })).toBe("/world");
+  expect(getCategoryLink({ slug: "photo-essays" })).toBe("/multimedia");
+  expect(getCategoryLink({ slug: "video-essays" })).toBe("/multimedia");
+  expect(getCategoryLink({ slug: "unknown-tag" })).toBeNull();
+});
 
 test("article routing is stable across category order and recognizes CMS aliases", () => {
   expect(link(["education", "usa"])).toBe("/united-states/education/article/test-story");

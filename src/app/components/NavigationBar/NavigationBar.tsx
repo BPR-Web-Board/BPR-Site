@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Search, X, Moon, Sun, Palette } from "lucide-react";
+import { Search, X, Moon, Sun, Palette, Plus, Minus } from "lucide-react";
 import NavigationLogo from "./NavigationLogo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,7 +37,7 @@ export default function NavigationBar({ className = "" }: { className?: string }
   const themeToggleRef = useRef<HTMLButtonElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuState, setMobileMenuState] = useState<"closed" | "open" | "closing">("closed");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchToggleRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +47,22 @@ export default function NavigationBar({ className = "" }: { className?: string }
   const lastDisclosure = useRef<HTMLButtonElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
-  const closeMobileMenu = () => { setIsMobileMenuOpen(false); setActiveDropdown(null); };
+  const isMobileMenuOpen = mobileMenuState === "open";
+  const isMobileMenuVisible = mobileMenuState !== "closed";
+  const closeMobileMenu = (immediate = false) => {
+    setActiveDropdown(null);
+    setMobileMenuState((current) => {
+      if (current === "closed") return current;
+      if (
+        immediate
+        || (typeof window !== "undefined"
+          && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      ) {
+        return "closed";
+      }
+      return current === "open" ? "closing" : current;
+    });
+  };
   const themeOrder: ThemeMode[] = issueThemeAvailable ? ["issue", "dark", "light"] : ["dark", "light"];
   const activeTheme = themeOrder.includes(theme) ? theme : themeOrder[0];
   const nextTheme = themeOrder[(themeOrder.indexOf(activeTheme) + 1) % themeOrder.length];
@@ -76,11 +91,18 @@ export default function NavigationBar({ className = "" }: { className?: string }
     setTheme(nextTheme);
     try { localStorage.setItem("bpr-theme", nextTheme); } catch {}
   };
-  useEffect(() => { closeMobileMenu(); setIsSearchOpen(false); }, [pathname]);
+  useEffect(() => { closeMobileMenu(true); setIsSearchOpen(false); }, [pathname]);
   useEffect(() => { if (isSearchOpen) searchInputRef.current?.focus(); }, [isSearchOpen]);
   useEffect(() => {
+    if (mobileMenuState !== "closing") return;
+    const timer = window.setTimeout(() => {
+      setMobileMenuState((current) => (current === "closing" ? "closed" : current));
+    }, 180);
+    return () => window.clearTimeout(timer);
+  }, [mobileMenuState]);
+  useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1200px)");
-    const onViewport = () => { closeMobileMenu(); setIsSearchOpen(false); };
+    const onViewport = () => { closeMobileMenu(true); setIsSearchOpen(false); };
     desktop.addEventListener("change", onViewport);
     return () => {
       desktop.removeEventListener("change", onViewport);
@@ -120,7 +142,7 @@ export default function NavigationBar({ className = "" }: { className?: string }
     if (!isMobileMenuOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    mobileRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+    mobileRef.current?.querySelector<HTMLInputElement>("input[type='search']")?.focus();
     return () => { document.body.style.overflow = previousOverflow; };
   }, [isMobileMenuOpen]);
   const keepOpen = () => { if (closeTimer.current) clearTimeout(closeTimer.current); };
@@ -142,9 +164,8 @@ export default function NavigationBar({ className = "" }: { className?: string }
       const focusable = [
         navRef.current?.querySelector<HTMLElement>(".logo-link"),
         toggleRef.current,
-        searchToggleRef.current,
         themeToggleRef.current,
-        ...Array.from(mobileRef.current?.querySelectorAll<HTMLElement>("a, button") || []),
+        ...Array.from(mobileRef.current?.querySelectorAll<HTMLElement>("a, button, input") || []),
       ].filter((el): el is HTMLElement => !!el && !el.closest("[hidden]"));
       const current = focusable.indexOf(document.activeElement as HTMLElement);
       const next = (current + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
@@ -316,16 +337,36 @@ export default function NavigationBar({ className = "" }: { className?: string }
           <Link href="/" className="logo-link" aria-label="Brown Political Review home"><NavigationLogo /></Link>
         </div>
         <div className="nav-section desktop-menu">{desktopItems(desktopMenuItems)}</div>
-        <button ref={toggleRef} className="mobile-menu-toggle" onClick={() => { setIsMobileMenuOpen(!isMobileMenuOpen); setActiveDropdown(null); setIsSearchOpen(false); }}
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation">
+        <button
+          ref={toggleRef}
+          className="mobile-menu-toggle"
+          onClick={() => {
+            if (isMobileMenuOpen) {
+              closeMobileMenu();
+              return;
+            }
+            setMobileMenuState("open");
+            setActiveDropdown(null);
+            setIsSearchOpen(false);
+          }}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
+        >
           {[0, 1, 2].map((line) => <span key={line} className={`hamburger-line ${isMobileMenuOpen ? "active" : ""}`} />)}
         </button>
         <div className="nav-search-control">
           <form id="navigation-search" className="navigation-search" role={isSearchOpen ? "search" : undefined} aria-hidden={!isSearchOpen} method="get" action="/search">
             <input ref={searchInputRef} type="search" name="q" aria-label="Search articles" placeholder="Search articles…" maxLength={280} required disabled={!isSearchOpen} />
           </form>
-          <button ref={searchToggleRef} className="search-toggle" aria-label={isSearchOpen ? "Close search" : "Search"} aria-expanded={isSearchOpen} aria-controls="navigation-search"
-            onClick={() => { setIsSearchOpen(!isSearchOpen); closeMobileMenu(); }}>
+          <button
+            ref={searchToggleRef}
+            className="search-toggle"
+            aria-label={isSearchOpen ? "Close search" : "Search"}
+            aria-expanded={isSearchOpen}
+            aria-controls="navigation-search"
+            onClick={() => { setIsSearchOpen(!isSearchOpen); closeMobileMenu(true); }}
+          >
             {isSearchOpen ? <X size={20} strokeWidth={1.5} aria-hidden="true" /> : <Search size={20} strokeWidth={1.5} aria-hidden="true" />}
           </button>
           <button
@@ -343,20 +384,61 @@ export default function NavigationBar({ className = "" }: { className?: string }
         </div>
 
       </div>
-      {isMobileMenuOpen && <div ref={mobileRef} id="mobile-navigation" className="mobile-menu active">
-        <div className="mobile-menu-content">
-          {items.map((item, index) => <div key={item.label} className="mobile-nav-item">
-            <div className="mobile-nav-link-container">
-              <Link href={item.href} className="mobile-nav-link" onClick={closeMobileMenu}>{item.label}</Link>
-              {item.megaMenu && <button className="mobile-dropdown-toggle" aria-label={`${item.label} subsections`} aria-expanded={activeDropdown === item.label} aria-controls={`mobile-section-${index}`}
-                onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}>{activeDropdown === item.label ? "−" : "+"}</button>}
-            </div>
-            <div id={`mobile-section-${index}`} hidden={activeDropdown !== item.label} className="mobile-dropdown-menu">
-              {(item.megaMenu || item.dropdown || []).map((sub) => <Link key={sub.href} href={sub.href} className="mobile-dropdown-item" onClick={closeMobileMenu}>{sub.label}</Link>)}
-            </div>
-          </div>)}
+      {isMobileMenuVisible && (
+        <div
+          ref={mobileRef}
+          id="mobile-navigation"
+          className={`mobile-menu active${mobileMenuState === "closing" ? " is-closing" : ""}`}
+          onAnimationEnd={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (mobileMenuState === "closing") setMobileMenuState("closed");
+          }}
+        >
+          <div className="mobile-menu-content">
+            <form className="mobile-menu-search" role="search" method="get" action="/search">
+              <input
+                type="search"
+                name="q"
+                aria-label="Search articles"
+                placeholder="Search articles…"
+                maxLength={280}
+                required
+              />
+              <button type="submit" className="mobile-menu-search-submit" aria-label="Search">
+                <Search size={20} strokeWidth={1.5} aria-hidden="true" />
+              </button>
+            </form>
+            {items.map((item, index) => (
+              <div key={item.label} className="mobile-nav-item">
+                <div className="mobile-nav-link-container">
+                  <Link href={item.href} className="mobile-nav-link" onClick={() => closeMobileMenu()}>{item.label}</Link>
+                  {item.megaMenu && (
+                    <button
+                      className="mobile-dropdown-toggle"
+                      type="button"
+                      aria-label={`${item.label} subsections`}
+                      aria-expanded={activeDropdown === item.label}
+                      aria-controls={`mobile-section-${index}`}
+                      onClick={() => setActiveDropdown(activeDropdown === item.label ? null : item.label)}
+                    >
+                      {activeDropdown === item.label ? (
+                        <Minus size={22} strokeWidth={1.5} aria-hidden="true" />
+                      ) : (
+                        <Plus size={22} strokeWidth={1.5} aria-hidden="true" />
+                      )}
+                    </button>
+                  )}
+                </div>
+                <div id={`mobile-section-${index}`} hidden={activeDropdown !== item.label} className="mobile-dropdown-menu">
+                  {(item.megaMenu || item.dropdown || []).map((sub) => (
+                    <Link key={sub.href} href={sub.href} className="mobile-dropdown-item" onClick={() => closeMobileMenu()}>{sub.label}</Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>}
+      )}
     </nav>
   );
 }

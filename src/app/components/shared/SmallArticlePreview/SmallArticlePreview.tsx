@@ -81,19 +81,22 @@ const SmallArticlePreview: React.FC<SmallArticlePreviewProps> = ({
     <article
       className={`article-card-frame small-article-preview variant-${variant} image-${imagePosition} ${className}`}
     >
-      <Link href={articleLink} style={{ display: "contents" }}>
-        {imagePosition === "right" ? (
-          <>
-            {textContent}
-            {imageContent}
-          </>
-        ) : (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-      </Link>
+      <Link
+        href={articleLink}
+        className="article-card-stretch-link"
+        aria-label={title}
+      />
+      {imagePosition === "right" ? (
+        <>
+          {textContent}
+          {imageContent}
+        </>
+      ) : (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
     </article>
   );
 };

@@ -78,9 +78,9 @@ test("layouts adapt to sparse and uneven post counts without duplicate cards or 
   check(React.createElement(ArticleGrid, { posts, maxArticles: 2 }), 2);
   const expandedGrid = check(React.createElement(ArticleGrid, { posts, maxArticles: 8 }), 8);
   expect(expandedGrid.match(/class="articles-grid count-2"/g)).toHaveLength(4);
-  const spotlight = check(React.createElement(ArticleSpotlight, { title: "Spotlight", posts }), 5);
+  const spotlight = check(React.createElement(ArticleSpotlight, { title: "Spotlight", posts }), 4);
   expect(spotlight).not.toMatch(/carousel|slideshow|Next slide|Previous slide|aria-roledescription/);
-  expect(spotlight.match(/class="article-card-excerpt"/g)).toHaveLength(5);
+  expect(spotlight.match(/class="article-card-excerpt"/g)).toHaveLength(4);
   const solo = check(React.createElement(FourArticleGrid, { posts: posts.slice(0, 1) }), 1);
   expect(solo).toContain("image-position-left");
   expect(solo).toContain('class="article-card-excerpt"');
@@ -163,7 +163,7 @@ test("Latest Articles uses the newest issue's WordPress theme colors", async () 
   expect(html).toContain("--surface:#abcdef");
   expect(html).toContain("--text-primary:#112233");
   expect(html).not.toContain("--surface:#000000");
-  expect(html).toContain("Previous Issues");
+  expect(html).toContain("Prev Issues");
   expect(html).toMatch(/issue-edition-kicker[^>]*>Spring</);
 });
 

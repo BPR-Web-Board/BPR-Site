@@ -67,30 +67,35 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
     </div>
   );
 
+  const titleText = stripHtml(title);
+
   return (
     <article
       className={`article-card-frame featured-article variant-${variant} image-${imagePosition} ${className}`}
     >
-      <Link href={articleLink} style={{ display: "contents" }}>
-        {imagePosition === "top" && (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-        {imagePosition === "left" && (
-          <>
-            {imageContent}
-            {textContent}
-          </>
-        )}
-        {imagePosition === "right" && (
-          <>
-            {textContent}
-            {imageContent}
-          </>
-        )}
-      </Link>
+      <Link
+        href={articleLink}
+        className="article-card-stretch-link"
+        aria-label={titleText}
+      />
+      {imagePosition === "top" && (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
+      {imagePosition === "left" && (
+        <>
+          {imageContent}
+          {textContent}
+        </>
+      )}
+      {imagePosition === "right" && (
+        <>
+          {textContent}
+          {imageContent}
+        </>
+      )}
     </article>
   );
 };
