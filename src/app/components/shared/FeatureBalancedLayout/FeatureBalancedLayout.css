@@ -51,6 +51,9 @@
   min-width: 0;
 }
 
+.feature-side-overflow:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
 
 .feature-side-column--stacked {
   display: flex;
@@ -64,7 +67,6 @@
   min-height: 0;
 }
 
-/* Cover images get more of the column than text-only cards */
 .feature-side-column--stacked .feature-side-slot--with-image {
   flex: 1.85 1 0;
 }
@@ -73,9 +75,10 @@
   min-height: 0;
 }
 
-.feature-side-card--stacked .small-article-image-container {
+.small-article-preview.feature-side-card--stacked.image-top .small-article-image-container {
   flex: 1 1 0;
   min-height: var(--space-7);
+  height: auto;
   aspect-ratio: auto;
 }
 

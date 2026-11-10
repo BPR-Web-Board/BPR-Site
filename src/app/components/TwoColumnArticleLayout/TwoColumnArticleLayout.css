@@ -40,6 +40,10 @@
   min-width: 0;
 }
 
+.tcal-column-content .article-card-image-container.image-top {
+  aspect-ratio: var(--article-wide-image-ratio);
+}
+
 @media (min-width: 768px) {
   @supports (grid-template-rows: subgrid) {
     .two-column-article-layout {

@@ -33,9 +33,9 @@
   min-width: 0;
 }
 
-.article-layout-featured .featured-article-image-container {
+.article-layout .featured-article.article-layout-featured.image-top .featured-article-image-container {
   height: auto;
-  aspect-ratio: var(--article-image-ratio);
+  aspect-ratio: var(--article-wide-image-ratio);
 }
 
 .article-layout-featured .featured-article-title {

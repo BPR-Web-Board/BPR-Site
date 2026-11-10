@@ -2,7 +2,6 @@ import React from "react";
 import Hero from "./components/Hero";
 import "./mainStyle.css";
 import ArticleLayout from "./components/ArticleLayout/ArticleLayout";
-import TwoColumnArticleLayout from "./components/TwoColumnArticleLayout";
 import { enhancePreviewPosts } from "./lib/enhancePost";
 import { getAllPosts, getPostsByCategorySlug } from "./lib/wordpress";
 import { getAllCategories } from "./lib/wordpress";
@@ -65,10 +64,7 @@ export default async function HomePage() {
   const usaFeaturedGrid = contentManager.selectArticles(usaPool, 8, {
     allowPartial: true,
   });
-  const usaLeftColumn = contentManager.selectArticles(usaPool, 4, {
-    allowPartial: true,
-  });
-  const usaRightColumn = contentManager.selectArticles(usaPool, 4, {
+  const usaNewsArticles = contentManager.selectArticles(usaPool, 8, {
     allowPartial: true,
   });
   const usaBottomGrid = contentManager.selectArticles(usaPool, 4, {
@@ -95,13 +91,7 @@ export default async function HomePage() {
     enhancedCulturePosts,
     enhancedPosts
   );
-  const cultureLeftColumn = contentManager.selectArticles(culturePool, 3, {
-    allowPartial: true,
-  });
-  const cultureRightColumn = contentManager.selectArticles(culturePool, 5, {
-    allowPartial: true,
-  });
-  const cultureGrid = contentManager.selectArticles(culturePool, 4, {
+  const cultureArticles = contentManager.selectArticles(culturePool, 8, {
     allowPartial: true,
   });
 
@@ -130,18 +120,17 @@ export default async function HomePage() {
         </div>
       </div>
       <div className="main-content">
-        {/* Section 1: USA News */}
-        {(usaLeftColumn.length > 0 ||
-          usaRightColumn.length > 0 ||
-          usaPool.length > 0) && (
+        {/* Section 1: United States */}
+        {(usaNewsArticles.length > 0 || usaBottomGrid.length > 0) && (
           <div className="two-column-layout-wrapper">
-            <TwoColumnArticleLayout
-              leftColumnTitle="USA News"
-              rightColumnTitle="Latest Updates"
-              leftColumnArticles={usaLeftColumn}
-              rightColumnArticles={usaRightColumn}
-              fallbackArticles={usaPool}
-            />
+            {usaNewsArticles.length > 0 && (
+              <FourArticleGrid
+                posts={usaNewsArticles}
+                categoryName="United States"
+                numberOfRows={Math.ceil(usaNewsArticles.length / 4)}
+                className="width-constrained"
+              />
+            )}
             {usaBottomGrid.length > 0 && (
               <FourArticleGrid
                 posts={usaBottomGrid}
@@ -175,27 +164,15 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* Section 3: Culture & Arts */}
-        {(cultureLeftColumn.length > 0 ||
-          cultureRightColumn.length > 0 ||
-          culturePool.length > 0) && (
+        {/* Section 3: Culture */}
+        {cultureArticles.length > 0 && (
           <div className="two-column-layout-wrapper">
-            <TwoColumnArticleLayout
-              leftColumnTitle="Culture"
-              rightColumnTitle="Arts & Entertainment"
-              leftColumnArticles={cultureLeftColumn}
-              rightColumnArticles={cultureRightColumn}
-              fallbackArticles={culturePool}
+            <FourArticleGrid
+              posts={cultureArticles}
+              categoryName="Culture"
+              numberOfRows={Math.ceil(cultureArticles.length / 4)}
+              className="width-constrained"
             />
-            {cultureGrid.length > 0 && (
-              <FourArticleGrid
-                posts={cultureGrid}
-                categoryName="Culture"
-                showCategoryTitle={false}
-                numberOfRows={1}
-                className="width-constrained"
-              />
-            )}
           </div>
         )}
       </div>

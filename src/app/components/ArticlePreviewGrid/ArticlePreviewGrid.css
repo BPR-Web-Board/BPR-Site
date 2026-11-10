@@ -1,6 +1,5 @@
 .article-preview-grid {
   display: grid;
-  /* Same 4 tracks as .four-article-grid so the center feature = 2 mediums + gap */
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: start;
   gap: var(--article-card-gap);

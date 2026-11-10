@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { EnhancedPost } from "../../lib/types";
 import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import FeaturedArticle from "../shared/FeaturedArticle";
+import LargeArticlePreview from "../shared/LargeArticlePreview/LargeArticlePreview";
 import SmallArticlePreview from "../shared/SmallArticlePreview";
 import useFeatureFit from "../shared/FeatureBalancedLayout/useFeatureFit";
 import { getMediaPreview } from "../../lib/mediaPreview";
@@ -34,12 +35,22 @@ export default function ArticlePreviewGrid({ articles, className = "" }: Article
       <SmallArticlePreview article={article} variant="preview-grid" imagePosition="top" className={`feature-side-card ${stacked ? "feature-side-card--stacked" : ""}`} showExcerpt={layout.overflow.includes(id)} excerptLength={300} />
     </div>;
   };
+  const overflowCard = (id: number) => {
+    const article = byId.get(id);
+    if (!article) return null;
+    if (layout.overflow.length === 1) {
+      return <div key={id} className="feature-side-slot feature-side-slot--with-image" data-fit-id={id}>
+        <LargeArticlePreview article={article} excerptLength={220} imagePosition="left" className="feature-side-card four-article-grid-solo" />
+      </div>;
+    }
+    return sideCard(id);
+  };
   return <div ref={rootRef} className={`article-preview-grid feature-balanced-layout ${className}`}>
     <div className={`feature-side-column apg-left-column ${layout.columns[0].length < 4 ? "feature-side-column--stacked" : ""}`} data-side-column>{layout.columns[0].map(sideCard)}</div>
     <div className="apg-center-column">
       <FeaturedArticle article={featured} variant="preview-grid" imagePosition="top" className="apg-featured-article feature-height-source" />
     </div>
     <div className={`feature-side-column apg-right-column ${layout.columns[1].length < 4 ? "feature-side-column--stacked" : ""}`} data-side-column>{layout.columns[1].map(sideCard)}</div>
-    {layout.overflow.length > 0 && <div className="feature-side-overflow apg-overflow">{layout.overflow.map(sideCard)}</div>}
+    {layout.overflow.length > 0 && <div className="feature-side-overflow apg-overflow">{layout.overflow.map(overflowCard)}</div>}
   </div>;
 }

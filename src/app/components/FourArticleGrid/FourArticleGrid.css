@@ -32,9 +32,58 @@
   align-items: stretch;
 }
 
-.four-article-grid .article-card {
+.four-article-grid .article-card,
+.four-article-grid .four-article-grid-solo {
   height: 100%;
   min-width: 0;
+}
+
+.four-article-grid .article-card-image-container.image-top {
+  aspect-ratio: var(--article-wide-image-ratio);
+}
+
+.four-article-grid .articles-grid.count-1 .four-article-grid-solo {
+  height: auto;
+  max-width: 100%;
+}
+
+.four-article-grid-solo.image-position-left .large-article-preview-image-container,
+.four-article-grid-solo.image-position-right .large-article-preview-image-container {
+  width: var(--article-side-image-width);
+  aspect-ratio: var(--article-wide-image-ratio);
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.four-article-grid-solo.image-position-left .large-article-preview-content,
+.four-article-grid-solo.image-position-right .large-article-preview-content {
+  justify-content: center;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .four-article-grid-solo.image-position-left .large-article-preview-link,
+  .four-article-grid-solo.image-position-right .large-article-preview-link {
+    flex-direction: row;
+  }
+
+  .four-article-grid-solo.image-position-right .large-article-preview-link {
+    flex-direction: row-reverse;
+  }
+
+  .four-article-grid-solo.image-position-left .large-article-preview-content,
+  .four-article-grid-solo.image-position-right .large-article-preview-content {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .four-article-grid-solo.image-position-left .large-article-preview-image-container,
+  .four-article-grid-solo.image-position-right .large-article-preview-image-container {
+    width: 100%;
+  }
 }
 
 .four-article-grid:not(:has(.category-title)),
@@ -50,6 +99,7 @@
   .four-article-grid .articles-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .four-article-grid .articles-grid.count-1 {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -59,6 +109,7 @@
   .four-article-grid .articles-grid.count-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
   .four-article-grid .articles-grid.count-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

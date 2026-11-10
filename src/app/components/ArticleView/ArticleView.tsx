@@ -27,10 +27,10 @@ const ARTICLE_SECTION_ROOTS = [
   "multimedia",
 ] as const;
 
-function getArticleBackLink(pathname: string): { href: string; label: string } {
+function getArticleBackLink(pathname: string): { href: string; label: "Back" } {
   const section = pathname.split("/").filter(Boolean)[0];
   if (section === "magazine") {
-    return { href: "/magazine/issues", label: "Archive" };
+    return { href: "/magazine/issues", label: "Back" };
   }
   if (section && ARTICLE_SECTION_ROOTS.includes(section as (typeof ARTICLE_SECTION_ROOTS)[number])) {
     return { href: `/${section}`, label: "Back" };

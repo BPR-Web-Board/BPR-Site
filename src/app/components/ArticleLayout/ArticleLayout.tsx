@@ -6,6 +6,7 @@ import { getMediaPreview } from "../../lib/mediaPreview";
 import { stripHtml } from "../../lib/utils";
 import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import { FeaturedArticle, SmallArticlePreview } from "../shared";
+import LargeArticlePreview from "../shared/LargeArticlePreview/LargeArticlePreview";
 import useFeatureFit from "../shared/FeatureBalancedLayout/useFeatureFit";
 import "../shared/FeatureBalancedLayout/FeatureBalancedLayout.css";
 import "./ArticleLayout.css";
@@ -35,6 +36,16 @@ export default function ArticleLayout({ posts, categoryName, className = "" }: A
       <SmallArticlePreview article={article} variant="preview-grid" imagePosition="top" className={`feature-side-card ${stacked ? "feature-side-card--stacked" : ""}`} showExcerpt={layout.overflow.includes(id)} excerptLength={300} />
     </div>;
   };
+  const overflowCard = (id: number) => {
+    const article = byId.get(id);
+    if (!article) return null;
+    if (layout.overflow.length === 1) {
+      return <div key={id} className="feature-side-slot feature-side-slot--with-image" data-fit-id={id}>
+        <LargeArticlePreview article={article} excerptLength={220} imagePosition="left" className="feature-side-card four-article-grid-solo" />
+      </div>;
+    }
+    return sideCard(id);
+  };
   return <div ref={rootRef} className={`article-layout feature-balanced-layout ${className}`}>
     <div className="section-header section-heading-rule">
       <h2 className="section-title">{stripHtml(categoryName || "Popular Articles")}</h2>
@@ -45,6 +56,6 @@ export default function ArticleLayout({ posts, categoryName, className = "" }: A
       </div>
       <div className={`feature-side-column article-layout-sidebar ${layout.columns[0].length < 4 ? "feature-side-column--stacked" : ""}`} data-side-column>{layout.columns[0].map(sideCard)}</div>
     </div>
-    {layout.overflow.length > 0 && <div className="feature-side-overflow article-layout-overflow">{layout.overflow.map(sideCard)}</div>}
+    {layout.overflow.length > 0 && <div className="feature-side-overflow article-layout-overflow">{layout.overflow.map(overflowCard)}</div>}
   </div>;
 }

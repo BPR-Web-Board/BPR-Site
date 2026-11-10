@@ -85,6 +85,7 @@
   --article-card-gap: 13px;
   --article-card-inset: 13px;
   --article-image-ratio: 4 / 3;
+  --article-wide-image-ratio: 16 / 9;
   --article-side-image-width: 35%;
   --article-compact-image-width: 30%;
   --divider-color: var(--color-gray);
