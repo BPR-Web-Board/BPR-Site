@@ -17,6 +17,17 @@ export interface InfiniteScrollArticleListProps {
   excludeIds?: number[];
 }
 
+function isAbortError(error: unknown): boolean {
+  return (
+    (error instanceof DOMException && error.name === "AbortError") ||
+    (error instanceof Error && error.name === "AbortError")
+  );
+}
+
+function isTransientNetworkError(error: unknown): boolean {
+  return error instanceof TypeError && /failed to fetch|networkerror|load failed/i.test(error.message);
+}
+
 const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   subsection,
   initialPosts,
@@ -34,16 +45,26 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   const observerTarget = useRef<HTMLDivElement>(null);
   const requestPending = useRef(false);
   const excluded = useRef(new Set(excludeIds));
+  const abortRef = useRef<AbortController | null>(null);
+  const postsRef = useRef(posts);
+  postsRef.current = posts;
 
   const loadMore = useCallback(async () => {
     if (requestPending.current || loading || !hasMore) return;
     requestPending.current = true;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
     setError(null);
 
     try {
       const collected: EnhancedPost[] = [];
+      const seen = new Set<number>([
+        ...excluded.current,
+        ...postsRef.current.map((post) => post.id),
+      ]);
       let nextPage = page;
       let apiHasMore = true;
       let pagesFetched = 0;
@@ -55,7 +76,8 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         const response = await fetch(
           `/api/subsection-posts?subsection=${encodeURIComponent(
             subsection
-          )}&page=${nextPage}&per_page=${perPage}`
+          )}&page=${nextPage}&per_page=${perPage}`,
+          { signal: controller.signal }
         );
 
         if (!response.ok) {
@@ -71,12 +93,14 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         }
 
         for (const post of data.posts as EnhancedPost[]) {
-          if (excluded.current.has(post.id)) continue;
-          if (collected.some((item) => item.id === post.id)) continue;
+          if (seen.has(post.id)) continue;
+          seen.add(post.id);
           collected.push(post);
           if (collected.length >= perPage) break;
         }
       }
+
+      if (controller.signal.aborted) return;
 
       if (collected.length > 0) {
         setPosts((prev) => uniqueArticles(prev, collected));
@@ -87,35 +111,39 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         setHasMore(false);
       }
     } catch (err) {
+      if (isAbortError(err) || controller.signal.aborted) return;
+      if (isTransientNetworkError(err)) {
+        setHasMore(false);
+        return;
+      }
       setError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error loading more posts:", err);
     } finally {
+      if (abortRef.current === controller) abortRef.current = null;
       requestPending.current = false;
       setLoading(false);
     }
   }, [subsection, page, perPage, loading, hasMore]);
 
   useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    const target = observerTarget.current;
+    if (!target || !hasMore || error) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && hasMore && !error) {
-          loadMore();
-        }
+        if (entries[0]?.isIntersecting) loadMore();
       },
       { threshold: 0.1, rootMargin: "100px" }
     );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [loadMore, loading, hasMore, error]);
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [loadMore, hasMore, error]);
 
   if (posts.length === 0 && !loading) {
     return (
@@ -134,10 +162,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
 
       <div className="infinite-scroll-grid">
         {posts.map((post, index) => (
-          <div
-            key={post.id}
-            className="infinite-scroll-item"
-          >
+          <div key={post.id} className="infinite-scroll-item">
             <LargeArticlePreview
               article={post}
               excerptLength={200}
@@ -160,7 +185,12 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         </div>
       )}
 
-      <div ref={observerTarget} className="article-feed-trigger" aria-hidden="true" hidden={!hasMore} />
+      <div
+        ref={observerTarget}
+        className="article-feed-trigger"
+        aria-hidden="true"
+        hidden={!hasMore}
+      />
     </div>
   );
 };

@@ -18,13 +18,24 @@ export interface ArticlePreviewGridProps {
   className?: string;
 }
 
-const SIDE_PER_COLUMN = 2;
+const SIDE_PER_COLUMN = 4;
+const SIDE_PER_COLUMN_WITH_IMAGES = 2;
+
+function hasSideImage(article: EnhancedPost): boolean {
+  return Boolean(article.featured_media_obj?.source_url || getMediaPreview(article)?.thumbnail);
+}
 
 export default function ArticlePreviewGrid({ articles, categoryName, className = "" }: ArticlePreviewGridProps) {
   const unique = useMemo(() => Array.from(new Map((articles || []).map(article => [article.id, article])).values()), [articles]);
   const featured = unique[2]?.featured_media_obj?.source_url ? unique[2] : unique.find(article => article.featured_media_obj?.source_url);
   const candidates = unique.filter(article => article.id !== featured?.id);
-  const sidePool = candidates.slice(0, SIDE_PER_COLUMN * 2);
+  const imageSidePool = candidates.slice(0, SIDE_PER_COLUMN * 2);
+  // Image cards are tall — if every side slot would have a picture, keep at most 2 per column.
+  const sidePerColumn =
+    imageSidePool.length > 0 && imageSidePool.every(hasSideImage)
+      ? SIDE_PER_COLUMN_WITH_IMAGES
+      : SIDE_PER_COLUMN;
+  const sidePool = candidates.slice(0, sidePerColumn * 2);
   const { rootRef, layout } = useFeatureFit(sidePool.map(article => article.id), 2, 1024, unique);
   if (!unique.length) return null;
   if (unique.length < 5 || !featured) {
@@ -42,7 +53,7 @@ export default function ArticlePreviewGrid({ articles, categoryName, className =
   const belowBreakpoint = sidePool.length > 0 && layout.columns.every(column => column.length === 0);
   const leftArticles = belowBreakpoint ? [] : sidePool.filter((_, index) => index % 2 === 0);
   const rightArticles = belowBreakpoint ? [] : sidePool.filter((_, index) => index % 2 === 1);
-  const overflowArticles = belowBreakpoint ? candidates : candidates.slice(SIDE_PER_COLUMN * 2);
+  const overflowArticles = belowBreakpoint ? candidates : candidates.slice(sidePerColumn * 2);
   const leftStacked = leftArticles.length > 0;
   const rightStacked = rightArticles.length > 0;
 

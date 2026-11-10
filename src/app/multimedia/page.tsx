@@ -1,19 +1,51 @@
 import React from "react";
-import ArticleSpotlight from "../components/ArticleSpotlight";
-import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
-import ArticleSplitShowcase from "../components/ArticleSplitShowcase";
+import FourArticleGrid from "../components/FourArticleGrid/FourArticleGrid";
 import Hero from "../components/Hero";
 import InfiniteScrollArticleList from "../components/shared/InfiniteScrollArticleList";
 import "../mainStyle.css";
 import { enhancePreviewPosts } from "../lib/enhancePost";
+import { getMediaPreview } from "../lib/mediaPreview";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
 import { PageContentManager } from "../lib/contentManager";
+import type { EnhancedPost } from "../lib/types";
 
 export const revalidate = 1800;
 
 const ARCHIVE_OFFSET = 40;
 const ARCHIVE_PER_PAGE = 10;
+const SUBSECTION_SLUGS = ["bpradio", "data", "media"] as const;
+
+function hasHeroImage(post: EnhancedPost): boolean {
+  return Boolean(
+    post.featured_media_obj?.source_url || getMediaPreview(post)?.thumbnail
+  );
+}
+
+function hasCategory(post: EnhancedPost, slug: string): boolean {
+  return Boolean(post.categories_obj?.some((category) => category.slug === slug));
+}
+
+function scopedToSubsection(
+  posts: EnhancedPost[],
+  slug: (typeof SUBSECTION_SLUGS)[number],
+  { allowShared = false }: { allowShared?: boolean } = {}
+): EnhancedPost[] {
+  const siblings = SUBSECTION_SLUGS.filter((item) => item !== slug);
+  const exclusive = posts.filter(
+    (post) =>
+      hasCategory(post, slug) &&
+      !siblings.some((sibling) => hasCategory(post, sibling))
+  );
+  if (exclusive.length > 0 || !allowShared) return exclusive;
+  return posts.filter((post) => hasCategory(post, slug));
+}
+
+function preferHeroImages(posts: EnhancedPost[]): EnhancedPost[] {
+  return [...posts].sort(
+    (a, b) => Number(hasHeroImage(b)) - Number(hasHeroImage(a))
+  );
+}
 
 export default async function MultimediaPage() {
   const [
@@ -30,9 +62,9 @@ export default async function MultimediaPage() {
       per_page: ARCHIVE_PER_PAGE,
       offset: ARCHIVE_OFFSET,
     }),
-    getPostsByCategorySlug("bpradio", { per_page: 10 }),
-    getPostsByCategorySlug("data", { per_page: 10 }),
-    getPostsByCategorySlug("media", { per_page: 10 }),
+    getPostsByCategorySlug("bpradio", { per_page: 12 }),
+    getPostsByCategorySlug("data", { per_page: 12 }),
+    getPostsByCategorySlug("media", { per_page: 16 }),
   ]);
 
   const [
@@ -51,33 +83,49 @@ export default async function MultimediaPage() {
 
   const multimediaCategory = categories.find((cat) => cat.slug === "multimedia");
   const contentManager = new PageContentManager();
-  const withImage = (post: (typeof multimediaPosts)[number]) =>
-    Boolean(post.featured_media_obj?.source_url);
-
-  const bpradioArticles = contentManager.selectArticles(bpradioPosts, 4, {
-    allowPartial: true,
-  });
-  const bpradioSpotlight = contentManager.selectArticles(bpradioPosts, 5, {
-    allowPartial: true,
-  });
-  const dataAnalysisArticles = contentManager.selectArticles(dataPosts, 5, {
-    allowPartial: true,
-  });
-  const mediaArticles = contentManager.selectArticles(mediaPosts, 4, {
-    allowPartial: true,
-  });
+  const bpradioOnly = scopedToSubsection(bpradioPosts, "bpradio");
+  const bpradioPool = bpradioOnly.length
+    ? bpradioOnly
+    : scopedToSubsection(bpradioPosts, "bpradio", { allowShared: true });
+  const dataOnly = scopedToSubsection(dataPosts, "data");
+  const dataPool = dataOnly.length
+    ? dataOnly
+    : scopedToSubsection(dataPosts, "data", { allowShared: true });
+  const mediaOnly = scopedToSubsection(mediaPosts, "media");
+  const mediaPool = mediaOnly.length
+    ? mediaOnly
+    : scopedToSubsection(mediaPosts, "media", { allowShared: true });
 
   const heroArticles = contentManager.selectArticles(multimediaPosts, 5, {
     allowPartial: true,
-    filter: withImage,
+    filter: hasHeroImage,
   });
-  const spotlightArticles = contentManager.selectArticles(multimediaPosts, 4, {
+  const showcaseFeature = contentManager.selectArticles(
+    preferHeroImages(multimediaPosts),
+    3,
+    { allowPartial: true }
+  );
+  const showcaseBelow = contentManager.selectArticles(multimediaPosts, 2, {
     allowPartial: true,
   });
-  const heroArticles2 = contentManager.selectArticles(multimediaPosts, 5, {
-    allowPartial: true,
-    filter: withImage,
-  });
+
+  const bpradioArticles = contentManager.selectArticles(
+    preferHeroImages(bpradioPool),
+    5,
+    { allowPartial: true }
+  );
+
+  const dataAnalysisArticles = contentManager.selectArticles(
+    preferHeroImages(dataPool),
+    5,
+    { allowPartial: true }
+  );
+
+  const mediaArticles = contentManager.selectArticles(
+    preferHeroImages(mediaPool),
+    9,
+    { allowPartial: true }
+  );
 
   const excludeIds = contentManager.getUsedIds();
   const archivePosts = contentManager.selectArticles(
@@ -90,26 +138,25 @@ export default async function MultimediaPage() {
     <main className="page-container">
       <div className="main-content">
         {heroArticles.length > 0 && (
-          <Hero posts={heroArticles} preferredCategory="multimedia" />
+          <Hero posts={heroArticles} preferredCategory="multimedia" priority />
         )}
-        {spotlightArticles.length > 0 && (
-          <ArticleSpotlight
-            title="Multimedia Showcase"
-            posts={spotlightArticles}
-            maxArticles={4}
+        {showcaseFeature.length > 0 && (
+          <ArticleLayout
+            posts={showcaseFeature}
+            categoryName="Multimedia Showcase"
+          />
+        )}
+        {showcaseBelow.length > 0 && (
+          <FourArticleGrid
+            posts={showcaseBelow}
+            showCategoryTitle={false}
+            columns={2}
+            numberOfRows={1}
+            className="width-constrained"
           />
         )}
         {bpradioArticles.length > 0 && (
-          <ArticleGrid posts={bpradioArticles} categoryName="BPRadio" />
-        )}
-        {bpradioSpotlight.length > 0 && (
-          <ArticleSplitShowcase
-            sectionTitle="BPRadio Features"
-            posts={bpradioSpotlight}
-          />
-        )}
-        {heroArticles2.length > 0 && (
-          <Hero posts={heroArticles2} preferredCategory="multimedia" />
+          <ArticleLayout posts={bpradioArticles} categoryName="BPRadio" />
         )}
         {dataAnalysisArticles.length > 0 && (
           <ArticleLayout
@@ -118,7 +165,7 @@ export default async function MultimediaPage() {
           />
         )}
         {mediaArticles.length > 0 && (
-          <ArticleGrid posts={mediaArticles} categoryName="Media" />
+          <ArticleLayout posts={mediaArticles} categoryName="Media" />
         )}
         {archivePosts.length > 0 && (
           <InfiniteScrollArticleList

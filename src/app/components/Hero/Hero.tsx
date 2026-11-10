@@ -8,6 +8,7 @@ import classNames from "classnames";
 import { EnhancedPost } from "../../lib/types";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
 import { getAuthorName, getArticleLink, formatArchiveDate } from "../../lib/utils";
+import { getMediaPreview } from "../../lib/mediaPreview";
 import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import "./Hero.css";
 
@@ -19,6 +20,14 @@ export interface HeroProps {
   topChrome?: ReactNode;
 }
 
+function heroImageUrl(post: EnhancedPost): string {
+  return (
+    post.featured_media_obj?.source_url ||
+    getMediaPreview(post)?.thumbnail ||
+    ""
+  );
+}
+
 const Hero: React.FC<HeroProps> = ({
   posts,
   className = "",
@@ -26,9 +35,7 @@ const Hero: React.FC<HeroProps> = ({
   priority = false,
   topChrome,
 }) => {
-  const postsWithImages = posts.filter(
-    (post) => post.featured_media_obj?.source_url
-  );
+  const postsWithImages = posts.filter((post) => Boolean(heroImageUrl(post)));
 
   if (postsWithImages.length === 0) {
     if (posts.length === 0) return topChrome ? <>{topChrome}</> : null;
@@ -69,14 +76,10 @@ const Hero: React.FC<HeroProps> = ({
     getAuthorName(selectedPost);
   const formattedDate = formatArchiveDate(selectedPost.date || "");
 
-  // Get featured image
-  const hasImage = !!(
-    selectedPost.featured_media_obj &&
-    selectedPost.featured_media_obj.source_url
-  );
-  const imageUrl = hasImage ? selectedPost.featured_media_obj!.source_url : "";
+  const imageUrl = heroImageUrl(selectedPost);
+  const hasImage = Boolean(imageUrl);
   const imageAlt = hasImage
-    ? selectedPost.featured_media_obj!.alt_text || titleText || "Hero image"
+    ? selectedPost.featured_media_obj?.alt_text || titleText || "Hero image"
     : "";
 
   // Create article link using shared utility

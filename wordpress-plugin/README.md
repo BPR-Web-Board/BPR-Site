@@ -1,3 +1,17 @@
+# WordPress plugins (BPR)
+
+## BPR Login Branding
+
+Makes the WordPress login page lighter and shows the BPR logo.
+
+1. Put `bpr-login-branding.php` in `wp-content/plugins/` on the CMS server (or in its own plugin folder there).
+2. In WordPress Admin → **Plugins**, turn on **BPR Login Branding**.
+3. Refresh https://cms.brownpoliticalreview.org/wp-login.php
+
+The logo defaults to `https://www.brownpoliticalreview.org/logo/logo.svg`.
+
+---
+
 # WordPress Cache Revalidation Plugin
 
 This WordPress plugin automatically clears your Next.js cache when WordPress content is updated.
