@@ -14,6 +14,7 @@ This guide provides a comprehensive overview of the WordPress API functions libr
 - [Authors API](#authors-api)
 - [Media API](#media-api)
 - [Composite Functions](#composite-functions)
+- [Magazine issues, palettes & article tags](#magazine-issues-palettes--article-tags)
 - [Common Use Cases](#common-use-cases)
 - [Error Handling](#error-handling)
 - [Testing](#testing)
@@ -34,15 +35,28 @@ npm install axios
 
 ### Configuration
 
-The API is configured to use a WordPress site URL, which can be set via environment variable or defaults to "https://brownpoliticalreview.org/":
+The Next.js frontend is served from Vercel on `brownpoliticalreview.org`. WordPress (the CMS / REST API) lives on the DigitalOcean droplet and is reached at **`https://cms.brownpoliticalreview.org/`**.
+
+Set `WORDPRESS_URL` to that CMS host — not the public site domain — or local and production fetches will hit Next.js instead of WordPress:
+
+```bash
+# .env.local (local) and Vercel Project → Environment Variables (Preview + Production)
+WORDPRESS_URL=https://cms.brownpoliticalreview.org/
+```
 
 ```typescript
-// Set WordPress URL in .env file
-WORDPRESS_URL=https://your-wordpress-site.com
-
 // Or set it programmatically before importing the API
-process.env.WORDPRESS_URL = "https://your-wordpress-site.com";
+process.env.WORDPRESS_URL = "https://cms.brownpoliticalreview.org/";
 import * as wpApi from "./lib/wordpress";
+```
+
+If `WORDPRESS_URL` is unset, the library falls back to `https://brownpoliticalreview.org/`, which no longer serves `/wp-json` after the Vercel cutover. Always set the CMS URL explicitly.
+
+Quick check that the API is reachable:
+
+```bash
+curl -s https://cms.brownpoliticalreview.org/wp-json/ | head
+# → JSON with "name":"Brown Political Review"
 ```
 
 ## Core WordPress Objects
@@ -484,6 +498,80 @@ try {
   }
 }
 ```
+
+## Magazine issues, palettes & article tags
+
+Magazine editions are **not** a separate WP post type. They are parsed from WordPress content, then linked to posts via **tags**. Theme colors flow into CSS variables used by `globals.css` (see `guides/styles.md`).
+
+### Where issue data comes from
+
+`getIssueArchiveSources()` (`src/app/lib/wordpress.ts`) loads:
+
+1. The page with slug `issues-archive` (and embedded featured media)
+2. Every post in the `issues-archive` category (paginated)
+
+Each source’s HTML/text is parsed by `parseIssueSource` / `parseIssues` in `src/app/lib/issues.ts`.
+
+### CMS fields (per issue block)
+
+Editors put labeled lines in the archive page/post body (first colon splits key/value):
+
+| Field | Purpose |
+|--------|---------|
+| `Title:` | Issue title |
+| `Published:` | `YYYY-MM-DD` |
+| `PDF:` | Link to the flipbook PDF |
+| `Background-Color:` | Hex page surface (e.g. `#3d4660`) |
+| `Text-Color:` | Hex ink (e.g. `#da9985`) |
+| `Cover:` | Optional cover image URL |
+| `Issue-Tag:` | Tag slug **or** numeric tag id that marks articles in this issue |
+
+If `Issue-Tag` is omitted, the code derives a slug from the title, e.g. `BPR Spring 2026 Issue 2` → `bpr-spring2026-issue2` (`issueTagFromTitle`).
+
+Defaults when colors are missing: paper `#fffefa` / ink `#0d0b00` (`DEFAULT_ISSUE_BACKGROUND` / `DEFAULT_ISSUE_COLOR`).
+
+### Issue palette → site styles
+
+`getIssueThemeCss(issue)` builds CSS only when WordPress set **custom** background and text (not the site defaults):
+
+```css
+:root[data-theme="issue"]{
+  --surface:…;
+  --foreground:…;
+  --text-primary:…;
+  --text-secondary:…;
+  --text-muted:…;
+  --surface-muted:color-mix(…);
+  /* hover, skeleton, divider also remapped */
+}
+```
+
+Magazine layouts (`magazine/(home)`, `magazine/issues/[issue]`) add class `issue-edition` and inject that CSS. The client sets `document.documentElement.dataset.theme = "issue"` on those pages so components using `--surface` / `--foreground` pick up the palette. Light/dark/issue cycling is handled in the nav; see `guides/styles.md` → Themes.
+
+### How articles belong to an issue (tags)
+
+1. In WordPress, create a tag whose **slug** matches `Issue-Tag` (e.g. `bpr-spring2026-issue2`), or use a numeric tag id in the issue block.
+2. Assign that tag to every article that appears in the print/online issue.
+3. `getIssuePosts(issueTag)` loads all posts with that tag (paginated) for the issue page.
+4. On a single article, `findIssueForPost` / `getArticleMagazineMeta` (`src/app/lib/articleIssue.ts`) compare the post’s tag IDs to each issue’s `issueTag` (resolve string slugs via `getTagBySlug`) and return `{ slug, heading }` for kickers / “from the issue” UI.
+5. Special features use the fixed tag slug `special-feature` (`SPECIAL_FEATURE_TAG`).
+
+**Checklist for editors**
+
+- Issue block has `Issue-Tag` (or a title that generates the expected `bpr-…` slug)
+- Matching WP tag exists and is applied to each article
+- Optional: `Background-Color` + `Text-Color` for a custom magazine look
+
+### Related API helpers
+
+| Helper | Role |
+|--------|------|
+| `getIssueArchiveSources()` | Raw WP pages/posts for the archive |
+| `parseIssues(sources)` | Structured `Issue[]` (newest first) |
+| `getIssuePosts(tag)` | Posts for one issue tag |
+| `getIssueThemeCss(issue)` | Palette CSS string or `""` |
+| `formatIssueHeading(title)` | Display title like `Spring 2026 · Issue 2` |
+| `getArticleMagazineMeta(post)` | Issue ref + special-feature flag for an article |
 
 ## Testing
 

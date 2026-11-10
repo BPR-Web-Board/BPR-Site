@@ -1,5 +1,5 @@
 import { decode, encode } from "he";
-import { getAuthorName } from "./utils";
+import { getAuthorName, resolveWordPressMediaUrl } from "./utils";
 import { getMediaPreview } from "./mediaPreview";
 import {
   getFeaturedMediaById,
@@ -10,8 +10,15 @@ import {
 } from "./wordpress";
 import { Post, Category, EnhancedPost, Author, FeaturedMedia } from "./types";
 
+function withResolvedMediaUrl(media: FeaturedMedia | null): FeaturedMedia | null {
+  if (!media?.source_url) return media;
+  const source_url = resolveWordPressMediaUrl(media.source_url);
+  if (source_url === media.source_url) return media;
+  return { ...media, source_url, link: media.link ? resolveWordPressMediaUrl(media.link) : source_url };
+}
+
 function resolvePostMedia(post: Post | EnhancedPost, featured: FeaturedMedia | null): FeaturedMedia | null {
-  if (featured?.source_url) return featured;
+  if (featured?.source_url) return withResolvedMediaUrl(featured);
   const base = /^https?:\/\//i.test(post.link) ? post.link : process.env.WORDPRESS_URL || "https://brownpoliticalreview.org/";
   for (const match of (post.content?.rendered || "").matchAll(/<img\b[^>]*>/gi)) {
     const attributes: Record<string, string> = {};
@@ -31,23 +38,23 @@ function resolvePostMedia(post: Post | EnhancedPost, featured: FeaturedMedia | n
       try {
         const url = new URL(candidate.trim(), base);
         if (!["https:", "http:"].includes(url.protocol)) continue;
-        return {
+        return withResolvedMediaUrl({
           id: 0, date: post.date, slug: "", type: "attachment", link: url.href,
           title: { rendered: "" }, author: post.author, caption: { rendered: "" },
           alt_text: attributes.alt || "", media_type: "image", mime_type: "",
           source_url: url.href,
           media_details: { width: width > 2 ? width : 800, height: height > 2 ? height : 600, file: "", sizes: {} },
-        };
+        });
       } catch {}
     }
   }
   const thumbnail = getMediaPreview(post)?.thumbnail;
-  if (thumbnail) return {
+  if (thumbnail) return withResolvedMediaUrl({
     id: 0, date: post.date, slug: "", type: "attachment", link: thumbnail,
     title: { rendered: "" }, author: post.author, caption: { rendered: "" },
     alt_text: "Video thumbnail", media_type: "image", mime_type: "image/jpeg", source_url: thumbnail,
     media_details: { width: 480, height: 360, file: "", sizes: {} },
-  };
+  });
   return null;
 }
 

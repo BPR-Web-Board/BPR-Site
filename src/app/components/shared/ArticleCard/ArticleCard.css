@@ -5,7 +5,7 @@
   position: relative;
   background: var(--surface);
   border-radius: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Image Container */
@@ -67,7 +67,7 @@
 .article-card-title {
   font-family: var(--font-primary-serif);
   font-weight: 600;
-  line-height: 1.25;
+  line-height: var(--line-height-card-title);
   color: var(--text-primary);
   transition: color 0.2s ease;
   overflow: visible;

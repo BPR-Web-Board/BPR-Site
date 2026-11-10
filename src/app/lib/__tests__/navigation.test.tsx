@@ -147,18 +147,18 @@ test("feature height controls side counts and reflows on resize without dropping
   const view = render(<ArticlePreviewGrid articles={posts} />);
   try {
     const ids = (selector: string) => Array.from(view.container.querySelectorAll<HTMLElement>(selector)).map(element => element.dataset.fitId);
-    expect(ids(".apg-left-column [data-fit-id]")).toEqual(["1", "5"]);
-    expect(ids(".apg-right-column [data-fit-id]")).toEqual(["2", "4"]);
+    expect(ids(".apg-left-column [data-fit-id]")).toEqual(["1", "4"]);
+    expect(ids(".apg-right-column [data-fit-id]")).toEqual(["2", "5"]);
     expect(ids(".apg-overflow [data-fit-id]")).toEqual(["6", "7", "8", "9"]);
     expect(view.container.querySelector(".article-preview-grid")).toHaveStyle({ "--feature-height": "400px" });
     expect(view.container.querySelectorAll("[data-side-column] .feature-side-card--stacked")).toHaveLength(4);
     featureHeight = 1600;
     fireEvent.resize(window);
-    await waitFor(() => expect(view.container.querySelector(".apg-overflow")).not.toBeInTheDocument());
-    expect(new Set(ids("[data-fit-id]")).size).toBe(8);
-    expect(view.container.querySelector(".article-preview-grid")).toHaveStyle({ "--feature-height": "1600px" });
-    expect(view.container.querySelectorAll(".apg-left-column .feature-side-card--stacked")).toHaveLength(0);
-    expect(view.container.querySelectorAll(".apg-right-column .feature-side-card--stacked")).toHaveLength(3);
+    await waitFor(() => expect(view.container.querySelector(".article-preview-grid")).toHaveStyle({ "--feature-height": "1600px" }));
+    expect(ids(".apg-left-column [data-fit-id]")).toEqual(["1", "4"]);
+    expect(ids(".apg-right-column [data-fit-id]")).toEqual(["2", "5"]);
+    expect(view.container.querySelectorAll(".apg-left-column .feature-side-card--stacked")).toHaveLength(2);
+    expect(view.container.querySelectorAll(".apg-right-column .feature-side-card--stacked")).toHaveLength(2);
   } finally {
     view.unmount();
     rectangle.mockRestore();
@@ -174,9 +174,28 @@ test("media cards show format placeholders and video thumbnails degrade to a lab
   } as EnhancedPost;
   const card = render(<ArticleCard article={post} />);
   expect(screen.getByRole("img", { name: "Audio preview unavailable" })).toBeInTheDocument();
+  expect(card.container.querySelector(".article-media-badge")).toHaveTextContent("Audio");
   expect(screen.getByRole("link")).toHaveAttribute("href", "/world/article/radio-episode");
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
   card.unmount();
+
+  const photos = render(<ArticleMedia article={{
+    ...post,
+    title: { rendered: "Photo essay" },
+    media_preview: { type: "gallery" },
+    featured_media_obj: {
+      id: 1, date: "", slug: "", type: "attachment", link: "", title: { rendered: "" }, author: 0,
+      caption: { rendered: "" }, alt_text: "", media_type: "image", mime_type: "image/jpeg",
+      source_url: "https://brownpoliticalreview.org/cover.jpg", media_details: { width: 800, height: 600, file: "", sizes: {} },
+    },
+  } as EnhancedPost} />);
+  const photo = screen.getByRole("img", { name: "Photo essay" });
+  fireEvent.error(photo);
+  expect(screen.getByRole("img", { name: "Photos preview unavailable" })).toBeInTheDocument();
+  expect(photos.container.querySelectorAll(".article-media-badge")).toHaveLength(1);
+  expect(photos.container.querySelector(".article-media-placeholder span")).not.toBeInTheDocument();
+  photos.unmount();
+
   render(<ArticleMedia article={{ ...post, title: { rendered: "Video episode" }, media_preview: { type: "video", thumbnail: "https://i.ytimg.com/vi/RCC7PZfoUTs/hqdefault.jpg" } }} />);
   const thumbnail = screen.getByRole("img", { name: "Video episode" });
   expect(decodeURIComponent(thumbnail.getAttribute("src") || "")).toContain("https://i.ytimg.com/vi/RCC7PZfoUTs/hqdefault.jpg");

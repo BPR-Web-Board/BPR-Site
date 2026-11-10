@@ -111,7 +111,37 @@ export function getArticleExcerpt(post: Post | EnhancedPost): string {
  * Gets the featured image URL from a post object
  */
 export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
-  return (post as EnhancedPost).featured_media_obj?.source_url || "";
+  return resolveWordPressMediaUrl((post as EnhancedPost).featured_media_obj?.source_url || "");
+}
+
+/**
+ * Point WordPress upload URLs at the live media host.
+ * Apex/www now front the Next app, so /wp-content/* there 403s; cms still serves files.
+ */
+export function resolveWordPressMediaUrl(url: string): string {
+  if (!url) return url;
+  try {
+    const media = new URL(url);
+    if (!["http:", "https:"].includes(media.protocol)) return url;
+    const host = media.hostname.toLowerCase();
+    if (host !== "brownpoliticalreview.org" && host !== "www.brownpoliticalreview.org") return url;
+    let target = new URL(
+      process.env.WORDPRESS_MEDIA_URL ||
+        process.env.WORDPRESS_URL ||
+        process.env.NEXT_PUBLIC_WORDPRESS_URL ||
+        "https://cms.brownpoliticalreview.org/"
+    );
+    const targetHost = target.hostname.toLowerCase();
+    if (!targetHost || targetHost === "brownpoliticalreview.org" || targetHost === "www.brownpoliticalreview.org") {
+      target = new URL("https://cms.brownpoliticalreview.org/");
+    }
+    if (target.hostname === host) return url;
+    media.protocol = target.protocol;
+    media.hostname = target.hostname;
+    return media.href;
+  } catch {
+    return url;
+  }
 }
 
 const CATEGORY_SECTION: Record<string, string> = {

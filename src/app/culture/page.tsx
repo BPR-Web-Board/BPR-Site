@@ -4,9 +4,9 @@ import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
 import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
 import ArticleSplitShowcase from "../components/ArticleSplitShowcase";
-import FourArticleGrid from "../components/FourArticleGrid";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
+import InfiniteScrollArticleList from "../components/shared/InfiniteScrollArticleList";
 import "../mainStyle.css";
 import { enhancePreviewPosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
@@ -14,11 +14,14 @@ import { PageContentManager } from "../lib/contentManager";
 
 export const revalidate = 1800;
 
+const ARCHIVE_OFFSET = 40;
+const ARCHIVE_PER_PAGE = 10;
+
 export default async function CulturePage() {
-  // Fetch all data in parallel for optimal performance
   const [
     categories,
     culturePostsRaw,
+    cultureArchiveRaw,
     artsPostsRaw,
     genderPostsRaw,
     healthCulturePostsRaw,
@@ -29,20 +32,24 @@ export default async function CulturePage() {
     technologyPostsRaw,
   ] = await Promise.all([
     getAllCategories(),
-    getPostsByCategorySlug("culture", { per_page: 24 }),
+    getPostsByCategorySlug("culture", { per_page: ARCHIVE_OFFSET }),
+    getPostsByCategorySlug("culture", {
+      per_page: ARCHIVE_PER_PAGE,
+      offset: ARCHIVE_OFFSET,
+    }),
     getPostsByCategorySlug("arts", { per_page: 8 }),
     getPostsByCategorySlug("gender", { per_page: 8 }),
     getPostsByCategorySlug("health-culture", { per_page: 8 }),
-    getPostsByCategorySlug("lgbtq", { per_page: 8 }),
+    getPostsByCategorySlug("lgbtq", { per_page: 10 }),
     getPostsByCategorySlug("race", { per_page: 8 }),
     getPostsByCategorySlug("religion", { per_page: 8 }),
     getPostsByCategorySlug("science", { per_page: 8 }),
     getPostsByCategorySlug("technology", { per_page: 8 }),
   ]);
 
-  // Enhance all posts in parallel
   const [
     culturePosts,
+    cultureArchivePosts,
     artsPosts,
     genderPosts,
     healthCulturePosts,
@@ -53,6 +60,7 @@ export default async function CulturePage() {
     technologyPosts,
   ] = await Promise.all([
     enhancePreviewPosts(culturePostsRaw, categories),
+    enhancePreviewPosts(cultureArchiveRaw, categories),
     enhancePreviewPosts(artsPostsRaw, categories),
     enhancePreviewPosts(genderPostsRaw, categories),
     enhancePreviewPosts(healthCulturePostsRaw, categories),
@@ -64,128 +72,69 @@ export default async function CulturePage() {
   ]);
 
   const cultureCategory = categories.find((cat) => cat.slug === "culture");
-
-  // Create content manager to prevent duplicate articles across all page components
   const contentManager = new PageContentManager();
+  const withImage = (post: (typeof culturePosts)[number]) =>
+    Boolean(post.featured_media_obj?.source_url);
 
-  // Select articles for each section in order of appearance on the page
-  // This ensures no article appears twice on the culture page
+  const artsSpotlight = contentManager.selectArticles(artsPosts, 5, {
+    allowPartial: true,
+  });
+  const genderRaceCount = Math.min(
+    4,
+    contentManager.getAvailable(genderPosts).length,
+    contentManager.getAvailable(racePosts).length
+  );
+  const genderColumn = contentManager.selectArticles(genderPosts, genderRaceCount, {
+    allowPartial: true,
+  });
+  const raceColumn = contentManager.selectArticles(racePosts, genderRaceCount, {
+    allowPartial: true,
+  });
+  const religionArticles = contentManager.selectArticles(religionPosts, 5, {
+    allowPartial: true,
+  });
+  const scienceTechCount = Math.min(
+    4,
+    contentManager.getAvailable(sciencePosts).length,
+    contentManager.getAvailable(technologyPosts).length
+  );
+  const scienceColumn = contentManager.selectArticles(
+    sciencePosts,
+    scienceTechCount,
+    { allowPartial: true }
+  );
+  const technologyColumn = contentManager.selectArticles(
+    technologyPosts,
+    scienceTechCount,
+    { allowPartial: true }
+  );
+  const healthCultureArticles = contentManager.selectArticles(
+    healthCulturePosts,
+    4,
+    { allowPartial: true }
+  );
+  const lgbtqArticles = contentManager.selectArticles(lgbtqPosts, 9, {
+    allowPartial: true,
+  });
+
   const heroArticles = contentManager.selectArticles(culturePosts, 5, {
     allowPartial: true,
+    filter: withImage,
   });
   const spotlightArticles = contentManager.selectArticles(culturePosts, 4, {
     allowPartial: true,
   });
-
-  // Arts & Expression section
-  const artsPool = contentManager.ensureContent(artsPosts, culturePosts);
-  const artsSpotlight = contentManager.selectArticles(artsPool, 7, {
-    allowPartial: true,
-  });
-
-  // Create a global fallback pool for filling gaps
-  const globalFallbackPool = contentManager.combineUniquePosts(
-    culturePosts,
-    artsPosts,
-    genderPosts,
-    healthCulturePosts,
-    lgbtqPosts,
-    racePosts,
-    religionPosts,
-    sciencePosts,
-    technologyPosts
-  );
-
-  // LGBTQ+ Politics section - ensure exactly 4 articles
-  const lgbtqPool = contentManager.ensureContent(lgbtqPosts, culturePosts);
-  const lgbtqArticles = contentManager.fillToCount(
-    lgbtqPool,
-    4,
-    globalFallbackPool
-  );
-
-  // Preview Grid
-  const previewArticles = contentManager.selectArticles(culturePosts, 10, {
-    allowPartial: true,
-  });
-
-  // Two Column Layout - Gender and Race
-  const genderPool = contentManager.ensureContent(genderPosts, culturePosts);
-  const genderColumn = contentManager.selectArticles(genderPool, 5, {
-    allowPartial: true,
-  });
-  const racePool = contentManager.ensureContent(racePosts, culturePosts);
-  const raceColumn = contentManager.selectArticles(racePool, 5, {
-    allowPartial: true,
-  });
-
-  // Second Hero
   const heroArticles2 = contentManager.selectArticles(culturePosts, 5, {
     allowPartial: true,
+    filter: withImage,
   });
 
-  // Religion section
-  const religionPool = contentManager.ensureContent(religionPosts, culturePosts);
-  const religionArticles = contentManager.selectArticles(religionPool, 5, {
-    allowPartial: true,
-  });
-
-  // Science section - ensure exactly 4 articles
-  const sciencePool = contentManager.ensureContent(sciencePosts, culturePosts);
-  const scienceArticles = contentManager.fillToCount(
-    sciencePool,
-    4,
-    globalFallbackPool
+  const excludeIds = contentManager.getUsedIds();
+  const archivePosts = contentManager.selectArticles(
+    cultureArchivePosts,
+    ARCHIVE_PER_PAGE,
+    { allowPartial: true }
   );
-
-  // Technology section - ensure exactly 4 articles
-  const technologyPool = contentManager.ensureContent(
-    technologyPosts,
-    culturePosts
-  );
-  const technologyArticles = contentManager.fillToCount(
-    technologyPool,
-    4,
-    globalFallbackPool
-  );
-
-  // Health & Culture section - ensure exactly 4 articles
-  const healthCulturePool = contentManager.ensureContent(
-    healthCulturePosts,
-    culturePosts
-  );
-  const healthCultureArticles = contentManager.fillToCount(
-    healthCulturePool,
-    4,
-    globalFallbackPool
-  );
-
-  // Culture Pool - combines all subsections for the grid
-  const culturePool = contentManager.combineUniquePosts(
-    artsPosts,
-    genderPosts,
-    healthCulturePosts,
-    lgbtqPosts,
-    racePosts,
-    religionPosts,
-    sciencePosts,
-    technologyPosts,
-    culturePosts
-  );
-  const culturePoolArticles = contentManager.selectArticles(culturePool, 4, {
-    allowPartial: true,
-  });
-
-  // Culture highlights
-  const cultureHighlights = contentManager.selectArticles(culturePosts, 5, {
-    allowPartial: true,
-  });
-
-  // Third Hero
-  const heroArticles3 = contentManager.selectArticles(culturePosts, 5, {
-    allowPartial: true,
-  });
-
 
   return (
     <main className="page-container">
@@ -206,52 +155,54 @@ export default async function CulturePage() {
             posts={artsSpotlight}
           />
         )}
-        <ArticleGrid posts={lgbtqArticles} categoryName="LGBTQ+ Politics" />
-        {previewArticles.length > 0 && (
-          <ArticlePreviewGrid articles={previewArticles} />
-        )}
-        {(genderColumn.length > 0 ||
-          raceColumn.length > 0 ||
-          culturePosts.length > 0) && (
+        {(genderColumn.length > 0 || raceColumn.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Gender"
               leftColumnArticles={genderColumn}
               rightColumnTitle="Race"
               rightColumnArticles={raceColumn}
-              fallbackArticles={culturePosts}
             />
           </div>
-        )}
-        {heroArticles2.length > 0 && (
-          <Hero posts={heroArticles2} preferredCategory="culture" />
         )}
         {religionArticles.length > 0 && (
           <ArticleLayout posts={religionArticles} categoryName="Religion" />
         )}
-        <ArticleGrid posts={scienceArticles} categoryName="Science" />
-        <ArticleGrid posts={technologyArticles} categoryName="Technology" />
-        <ArticleGrid
-          posts={healthCultureArticles}
-          categoryName="Health & Culture"
-        />
-        {culturePoolArticles.length > 0 && (
-          <FourArticleGrid
-            posts={culturePoolArticles}
-            categoryName="Cultural Perspectives"
-            showCategoryTitle={true}
-            numberOfRows={1}
-            className="width-constrained"
+        {heroArticles2.length > 0 && (
+          <Hero posts={heroArticles2} preferredCategory="culture" />
+        )}
+        {(scienceColumn.length > 0 || technologyColumn.length > 0) && (
+          <div className="two-column-layout-wrapper">
+            <TwoColumnArticleLayout
+              leftColumnTitle="Science"
+              leftColumnArticles={scienceColumn}
+              rightColumnTitle="Technology"
+              rightColumnArticles={technologyColumn}
+            />
+          </div>
+        )}
+        {healthCultureArticles.length > 0 && (
+          <ArticleGrid
+            posts={healthCultureArticles}
+            categoryName="Health & Culture"
+            maxArticles={4}
           />
         )}
-        {cultureHighlights.length > 0 && (
-          <ArticleLayout
-            posts={cultureHighlights}
-            categoryName={`${cultureCategory?.name ?? "Culture"} Highlights`}
+        {lgbtqArticles.length > 0 && (
+          <ArticlePreviewGrid
+            articles={lgbtqArticles}
+            categoryName="LGBTQ+ Politics"
           />
         )}
-        {heroArticles3.length > 0 && (
-          <Hero posts={heroArticles3} preferredCategory="culture" />
+        {archivePosts.length > 0 && (
+          <InfiniteScrollArticleList
+            subsection="culture"
+            initialPosts={archivePosts}
+            initialPage={ARCHIVE_OFFSET / ARCHIVE_PER_PAGE}
+            perPage={ARCHIVE_PER_PAGE}
+            title={`${cultureCategory?.name ?? "Culture"} Archive`}
+            excludeIds={excludeIds}
+          />
         )}
       </div>
     </main>

@@ -23,7 +23,14 @@ const libreFranklin = Libre_Franklin({
 export const metadata: Metadata = {
   title: "Brown Political Review",
   description:
-    "The Brown Political Review is a nonpartisan political publication that seeks to promote ideological diversity.",
+    "Brown Political Review is Brown's entirely student-run political publication. Across our ten boards, undergraduates explore the most pressing political issues of our day.",
+  openGraph: {
+    title: "Brown Political Review",
+    description:
+      "Brown Political Review is Brown's entirely student-run political publication. Across our ten boards, undergraduates explore the most pressing political issues of our day.",
+    siteName: "Brown Political Review",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

@@ -1,11 +1,10 @@
 import React from "react";
-import ArticleSpotlight from "../components/ArticleSpotlight";
 import ArticleGrid from "../components/ArticleGrid";
 import ArticleLayout from "../components/ArticleLayout";
-import ArticlePreviewGrid from "../components/ArticlePreviewGrid";
 import ArticleSplitShowcase from "../components/ArticleSplitShowcase";
 import Hero from "../components/Hero";
 import TwoColumnArticleLayout from "../components/TwoColumnArticleLayout";
+import InfiniteScrollArticleList from "../components/shared/InfiniteScrollArticleList";
 import "../mainStyle.css";
 import { enhancePreviewPosts } from "../lib/enhancePost";
 import { getAllCategories, getPostsByCategorySlug } from "../lib/wordpress";
@@ -13,11 +12,14 @@ import { PageContentManager } from "../lib/contentManager";
 
 export const revalidate = 1800;
 
+const ARCHIVE_OFFSET = 40;
+const ARCHIVE_PER_PAGE = 10;
+
 export default async function InterviewsPage() {
-  // Fetch all data in parallel for optimal performance
   const [
     categories,
     interviewsPostsRaw,
+    interviewsArchiveRaw,
     professorPodcastsPostsRaw,
     rhodeIslandPostsRaw,
     usInterviewsPostsRaw,
@@ -25,7 +27,11 @@ export default async function InterviewsPage() {
     worldInterviewsPostsRaw,
   ] = await Promise.all([
     getAllCategories(),
-    getPostsByCategorySlug("interviews", { per_page: 24 }),
+    getPostsByCategorySlug("interviews", { per_page: ARCHIVE_OFFSET }),
+    getPostsByCategorySlug("interviews", {
+      per_page: ARCHIVE_PER_PAGE,
+      offset: ARCHIVE_OFFSET,
+    }),
     getPostsByCategorySlug("professor-podcasts", { per_page: 8 }),
     getPostsByCategorySlug("ri-interviews", { per_page: 8 }),
     getPostsByCategorySlug("us-interviews", { per_page: 8 }),
@@ -33,9 +39,9 @@ export default async function InterviewsPage() {
     getPostsByCategorySlug("world-interviews", { per_page: 8 }),
   ]);
 
-  // Enhance all posts in parallel
   const [
     interviewsPosts,
+    interviewsArchivePosts,
     professorPodcastsPosts,
     rhodeIslandPosts,
     usInterviewsPosts,
@@ -43,6 +49,7 @@ export default async function InterviewsPage() {
     worldInterviewsPosts,
   ] = await Promise.all([
     enhancePreviewPosts(interviewsPostsRaw, categories),
+    enhancePreviewPosts(interviewsArchiveRaw, categories),
     enhancePreviewPosts(professorPodcastsPostsRaw, categories),
     enhancePreviewPosts(rhodeIslandPostsRaw, categories),
     enhancePreviewPosts(usInterviewsPostsRaw, categories),
@@ -51,110 +58,69 @@ export default async function InterviewsPage() {
   ]);
 
   const interviewsCategory = categories.find((cat) => cat.slug === "interviews");
-
-  // Create content manager to prevent duplicate articles across all page components
   const contentManager = new PageContentManager();
+  const withImage = (post: (typeof interviewsPosts)[number]) =>
+    Boolean(post.featured_media_obj?.source_url);
 
-  // Create a global fallback pool for filling gaps
-  const globalFallbackPool = contentManager.combineUniquePosts(
-    interviewsPosts,
-    professorPodcastsPosts,
-    rhodeIslandPosts,
-    usInterviewsPosts,
-    congressPosts,
-    worldInterviewsPosts
-  );
-
-  const popularArticles = contentManager.selectArticles(interviewsPosts, 4, {
+  const congressArticles = contentManager.selectArticles(congressPosts, 4, {
     allowPartial: true,
   });
-
-  const latestArticles = contentManager.selectArticles(interviewsPosts, 5, {
-    allowPartial: true,
-  });
-
-  const heroArticles = contentManager.selectArticles(interviewsPosts, 5, {
-    allowPartial: true,
-  });
-
-  const congressPool = contentManager.ensureContent(
-    congressPosts,
-    interviewsPosts
-  );
-  const congressArticles = contentManager.fillToCount(
-    congressPool,
-    4,
-    globalFallbackPool
-  );
-
-  const previewArticles = contentManager.selectArticles(interviewsPosts, 10, {
-    allowPartial: true,
-  });
-
-  const worldInterviewsPool = contentManager.ensureContent(
-    worldInterviewsPosts,
-    interviewsPosts
-  );
   const worldInterviewsArticles = contentManager.selectArticles(
-    worldInterviewsPool,
+    worldInterviewsPosts,
+    5,
+    { allowPartial: true }
+  );
+  const pairCount = Math.min(
+    4,
+    contentManager.getAvailable(rhodeIslandPosts).length,
+    contentManager.getAvailable(usInterviewsPosts).length
+  );
+  const rhodeIslandColumn = contentManager.selectArticles(
+    rhodeIslandPosts,
+    pairCount,
+    { allowPartial: true }
+  );
+  const usInterviewsColumn = contentManager.selectArticles(
+    usInterviewsPosts,
+    pairCount,
+    { allowPartial: true }
+  );
+  const academicPerspectives = contentManager.selectArticles(
+    professorPodcastsPosts,
     5,
     { allowPartial: true }
   );
 
-  const rhodeIslandPool = contentManager.ensureContent(
-    rhodeIslandPosts,
-    interviewsPosts
-  );
-  const rhodeIslandColumn = contentManager.selectArticles(rhodeIslandPool, 5, {
+  const heroArticles = contentManager.selectArticles(interviewsPosts, 5, {
+    allowPartial: true,
+    filter: withImage,
+  });
+  const latestArticles = contentManager.selectArticles(interviewsPosts, 9, {
     allowPartial: true,
   });
-  const usInterviewsPool = contentManager.ensureContent(
-    usInterviewsPosts,
-    interviewsPosts
-  );
-  const usInterviewsColumn = contentManager.selectArticles(usInterviewsPool, 5, {
-    allowPartial: true,
-  });
-
   const heroArticles2 = contentManager.selectArticles(interviewsPosts, 5, {
     allowPartial: true,
+    filter: withImage,
   });
 
-  const academicPool = contentManager.ensureContent(
-    professorPodcastsPosts,
-    interviewsPosts
+  const excludeIds = contentManager.getUsedIds();
+  const archivePosts = contentManager.selectArticles(
+    interviewsArchivePosts,
+    ARCHIVE_PER_PAGE,
+    { allowPartial: true }
   );
-  const academicPerspectives = contentManager.selectArticles(academicPool, 7, {
-    allowPartial: true,
-  });
-
-  const interviewHighlights = contentManager.selectArticles(interviewsPosts, 5, {
-    allowPartial: true,
-  });
-
-  const heroArticles3 = contentManager.selectArticles(interviewsPosts, 5, {
-    allowPartial: true,
-  });
 
   return (
     <main className="page-container">
       <div className="main-content">
-        {popularArticles.length > 0 && (
-          <ArticleSpotlight
-            title="Most Popular"
-            posts={popularArticles}
-            maxArticles={4}
-          />
+        {heroArticles.length > 0 && (
+          <Hero posts={heroArticles} preferredCategory="interviews" />
         )}
         {latestArticles.length > 0 && (
           <ArticleLayout posts={latestArticles} categoryName="Latest" />
         )}
-        {heroArticles.length > 0 && (
-          <Hero posts={heroArticles} preferredCategory="interviews" />
-        )}
-        <ArticleGrid posts={congressArticles} categoryName="Congress" />
-        {previewArticles.length > 0 && (
-          <ArticlePreviewGrid articles={previewArticles} />
+        {congressArticles.length > 0 && (
+          <ArticleGrid posts={congressArticles} categoryName="Congress" />
         )}
         {worldInterviewsArticles.length > 0 && (
           <ArticleLayout
@@ -162,16 +128,13 @@ export default async function InterviewsPage() {
             categoryName="World Interviews"
           />
         )}
-        {(rhodeIslandColumn.length > 0 ||
-          usInterviewsColumn.length > 0 ||
-          interviewsPosts.length > 0) && (
+        {(rhodeIslandColumn.length > 0 || usInterviewsColumn.length > 0) && (
           <div className="two-column-layout-wrapper">
             <TwoColumnArticleLayout
               leftColumnTitle="Rhode Island"
               leftColumnArticles={rhodeIslandColumn}
               rightColumnTitle="U.S. Interviews"
               rightColumnArticles={usInterviewsColumn}
-              fallbackArticles={interviewsPosts}
             />
           </div>
         )}
@@ -184,16 +147,15 @@ export default async function InterviewsPage() {
             posts={academicPerspectives}
           />
         )}
-        {interviewHighlights.length > 0 && (
-          <ArticleLayout
-            posts={interviewHighlights}
-            categoryName={`${
-              interviewsCategory?.name ?? "Interviews"
-            } Highlights`}
+        {archivePosts.length > 0 && (
+          <InfiniteScrollArticleList
+            subsection="interviews"
+            initialPosts={archivePosts}
+            initialPage={ARCHIVE_OFFSET / ARCHIVE_PER_PAGE}
+            perPage={ARCHIVE_PER_PAGE}
+            title={`${interviewsCategory?.name ?? "Interviews"} Archive`}
+            excludeIds={excludeIds}
           />
-        )}
-        {heroArticles3.length > 0 && (
-          <Hero posts={heroArticles3} preferredCategory="interviews" />
         )}
       </div>
     </main>

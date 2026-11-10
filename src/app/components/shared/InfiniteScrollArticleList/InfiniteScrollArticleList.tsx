@@ -14,6 +14,7 @@ export interface InfiniteScrollArticleListProps {
   perPage?: number;
   title?: string;
   description?: string;
+  excludeIds?: number[];
 }
 
 const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
@@ -23,6 +24,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   perPage = 10,
   title = "Archive",
   description = "Explore more articles from our collection",
+  excludeIds = [],
 }) => {
   const [posts, setPosts] = useState<EnhancedPost[]>(() => uniqueArticles(initialPosts));
   const [page, setPage] = useState(initialPage);
@@ -31,6 +33,7 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
   const [error, setError] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
   const requestPending = useRef(false);
+  const excluded = useRef(new Set(excludeIds));
 
   const loadMore = useCallback(async () => {
     if (requestPending.current || loading || !hasMore) return;
@@ -40,23 +43,47 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
     setError(null);
 
     try {
-      const response = await fetch(
-        `/api/subsection-posts?subsection=${encodeURIComponent(
-          subsection
-        )}&page=${page + 1}&per_page=${perPage}`
-      );
+      const collected: EnhancedPost[] = [];
+      let nextPage = page;
+      let apiHasMore = true;
+      let pagesFetched = 0;
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch posts");
+      while (collected.length < perPage && apiHasMore && pagesFetched < 5) {
+        nextPage += 1;
+        pagesFetched += 1;
+
+        const response = await fetch(
+          `/api/subsection-posts?subsection=${encodeURIComponent(
+            subsection
+          )}&page=${nextPage}&per_page=${perPage}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+
+        const data = await response.json();
+        apiHasMore = Boolean(data.hasMore);
+
+        if (!data.posts?.length) {
+          apiHasMore = false;
+          break;
+        }
+
+        for (const post of data.posts as EnhancedPost[]) {
+          if (excluded.current.has(post.id)) continue;
+          if (collected.some((item) => item.id === post.id)) continue;
+          collected.push(post);
+          if (collected.length >= perPage) break;
+        }
       }
 
-      const data = await response.json();
-
-      if (data.posts && data.posts.length > 0) {
-        setPosts((prev) => uniqueArticles(prev, data.posts));
-        setPage((prev) => prev + 1);
-        setHasMore(data.hasMore);
+      if (collected.length > 0) {
+        setPosts((prev) => uniqueArticles(prev, collected));
+        setPage(nextPage);
+        setHasMore(apiHasMore);
       } else {
+        setPage(nextPage);
         setHasMore(false);
       }
     } catch (err) {
@@ -100,7 +127,6 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
 
   return (
     <div className="infinite-scroll-container" aria-busy={loading}>
-      {/* Header */}
       <div className="infinite-scroll-header section-heading-rule">
         <h2 className="infinite-scroll-title">{stripHtml(title)}</h2>
         <p className="infinite-scroll-description">{description}</p>
@@ -125,7 +151,6 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
 
       {loading && <LoadingStatus />}
 
-      {/* Error state */}
       {error && (
         <div className="site-state site-state-error" role="alert">
           <p>Failed to load more articles: {error}</p>
@@ -135,7 +160,6 @@ const InfiniteScrollArticleList: React.FC<InfiniteScrollArticleListProps> = ({
         </div>
       )}
 
-      {/* Intersection observer target */}
       <div ref={observerTarget} className="article-feed-trigger" aria-hidden="true" hidden={!hasMore} />
     </div>
   );

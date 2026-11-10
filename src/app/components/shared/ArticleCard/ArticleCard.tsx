@@ -24,6 +24,7 @@ export interface ArticleCardProps {
   excerptLength?: number;
   showImage?: boolean;
   imagePosition?: "left" | "right" | "top";
+  imageSizes?: string;
   className?: string;
 }
 
@@ -34,6 +35,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   excerptLength = 200,
   showImage = true,
   imagePosition = "top",
+  imageSizes = "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw",
   className = "",
 }) => {
   const articleLink = getArticleLink(article);
@@ -46,7 +48,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
   const imageContent = showImage && (!!article.featured_media_obj?.source_url || !!getMediaPreview(article)) && (
     <div className={`article-card-image-container image-${imagePosition}`}>
-      <ArticleMedia article={article} className="article-card-image" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" />
+      <ArticleMedia article={article} className="article-card-image" sizes={imageSizes} />
     </div>
   );
 

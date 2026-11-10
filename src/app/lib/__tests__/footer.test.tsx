@@ -82,24 +82,10 @@ test("newsletter remains dismissible if browser storage is unavailable", () => {
   expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
 });
 
-test("newsletter yields to the footer and synchronizes dismissal across tabs", () => {
-  const previousObserver = global.IntersectionObserver;
-  let notify: IntersectionObserverCallback = () => {};
-  global.IntersectionObserver = jest.fn().mockImplementation((callback: IntersectionObserverCallback) => {
-    notify = callback;
-    return { observe: jest.fn(), disconnect: jest.fn() };
-  });
-  try {
-    render(<><Footer /><NewsletterSignup /></>);
-    act(() => jest.advanceTimersByTime(5000));
-    expect(screen.getByRole("complementary")).toBeInTheDocument();
-    act(() => notify([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
-    act(() => notify([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver));
-    expect(screen.getByRole("complementary")).toBeInTheDocument();
-    fireEvent(window, new StorageEvent("storage", { key: "bpr-newsletter-dismissed", newValue: "true" }));
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
-  } finally {
-    global.IntersectionObserver = previousObserver;
-  }
+test("newsletter stays visible over the footer and synchronizes dismissal across tabs", () => {
+  render(<><Footer /><NewsletterSignup /></>);
+  act(() => jest.advanceTimersByTime(5000));
+  expect(screen.getByRole("complementary")).toBeInTheDocument();
+  fireEvent(window, new StorageEvent("storage", { key: "bpr-newsletter-dismissed", newValue: "true" }));
+  expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
 });

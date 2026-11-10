@@ -47,12 +47,23 @@ test("valid dates and PDF URLs preserve their full values", () => {
   for (const value of ["javascript:alert(1)", "ftp://files.test/issue.pdf", "https://files.test/article", "https://user:pass@files.test/issue.pdf", "not a URL"]) expect(validIssuePdf(value)).toBeUndefined();
 });
 
+test("apex WordPress PDF and cover links rewrite to the CMS media host", () => {
+  const [issue] = parseIssueSource(source(
+    "Title: Spring 2026 · Issue 2\nPublished: 2026-06-21\nPDF: https://brownpoliticalreview.org/wp-content/uploads/2026/11/issue.pdf\nCover: https://www.brownpoliticalreview.org/wp-content/uploads/2026/11/cover.jpg"
+  ));
+  expect(issue.pdf).toBe("https://cms.brownpoliticalreview.org/wp-content/uploads/2026/11/issue.pdf");
+  expect(issue.cover?.url).toBe("https://cms.brownpoliticalreview.org/wp-content/uploads/2026/11/cover.jpg");
+  expect(validIssuePdf("https://brownpoliticalreview.org/wp-content/uploads/x.pdf")).toBe(
+    "https://cms.brownpoliticalreview.org/wp-content/uploads/x.pdf"
+  );
+});
+
 test("multiple issues retain their own covers, sort newest first, and deduplicate PDF links", () => {
   const html = '<figure><img src="/old.jpg" alt="Old cover"></figure><p>Title: Old<br>Published: 2012-10-28<br>PDF: https://files.test/old.pdf</p><figure><img data-src="/new.jpg" src="data:image/gif;base64,abc" alt="New cover"></figure><p>Title: New<br>Published: 2026-11-05<br>PDF: https://files.test/new.pdf</p>';
   const issues = parseIssues([source(html), source('Title: Duplicate\nPublished: 2012-10-28\nPDF: https://files.test/old.pdf#page=2', 2)]);
   expect(issues.map(issue => issue.title)).toEqual(["New", "Old"]);
-  expect(issues[0].cover?.url).toBe("https://brownpoliticalreview.org/new.jpg");
-  expect(issues[1].cover?.url).toBe("https://brownpoliticalreview.org/old.jpg");
+  expect(issues[0].cover?.url).toBe("https://cms.brownpoliticalreview.org/new.jpg");
+  expect(issues[1].cover?.url).toBe("https://cms.brownpoliticalreview.org/old.jpg");
   const featured = parseIssueSource({ ...source('PDF: https://files.test/feature.pdf'), _embedded: { "wp:featuredmedia": [{ source_url: "https://files.test/cover.jpg", alt_text: "Cover" }] } });
   expect(featured[0].cover).toEqual({ url: "https://files.test/cover.jpg", alt: "Cover" });
   expect(parseIssueSource(source('PDF: https://files.test/issue.pdf\nCover: https://files.test/explicit-cover.jpg'))[0].cover?.url).toBe("https://files.test/explicit-cover.jpg");

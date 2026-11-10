@@ -40,7 +40,7 @@ test("each page render reevaluates its data loaders", async () => {
   const before = jest.mocked(getPostsByCategorySlug).mock.calls.length;
   await WorldPage();
   await WorldPage();
-  expect(jest.mocked(getPostsByCategorySlug).mock.calls.length - before).toBe(14);
+  expect(jest.mocked(getPostsByCategorySlug).mock.calls.length - before).toBe(16);
 });
 
 test("layouts adapt to sparse and uneven post counts without duplicate cards or empty rows", () => {
@@ -83,10 +83,15 @@ test("layouts adapt to sparse and uneven post counts without duplicate cards or 
   expect(spotlight.match(/class="article-card-excerpt"/g)).toHaveLength(4);
   const solo = check(React.createElement(FourArticleGrid, { posts: posts.slice(0, 1) }), 1);
   expect(solo).toContain("image-position-left");
-  expect(solo).toContain('class="article-card-excerpt"');
+  expect(solo).toContain("four-article-grid-horizontal");
+  expect(solo).toContain("article-card-excerpt");
+  expect(solo).toContain("count-1-horizontal");
+  expect(solo).not.toContain("four-article-grid-solo");
+  expect(solo).not.toContain("large-article-preview");
   check(React.createElement(ArticleLayout, { posts: posts.slice(0, 5) }), 5);
   const fullSidebar = check(React.createElement(ArticleLayout, { posts: posts.slice(0, 6) }), 6);
-  expect(fullSidebar.match(/data-fit-id=/g)).toHaveLength(5);
+  expect(fullSidebar.match(/data-fit-id=/g)).toHaveLength(2);
+  expect(fullSidebar).toContain("articles-grid count-");
   const previewPosts = posts.map((post, index) => index === 2 ? { ...post, featured_media_obj: {
     id: 1, date: "", slug: "", type: "attachment", link: "", title: { rendered: "" }, author: 0,
     caption: { rendered: "" }, alt_text: "Cover", media_type: "image", mime_type: "image/jpeg",
@@ -95,7 +100,8 @@ test("layouts adapt to sparse and uneven post counts without duplicate cards or 
   const previewSidebar = check(React.createElement(ArticlePreviewGrid, { articles: previewPosts }), 8);
   expect(previewSidebar.match(/data-fit-id=/g)).toHaveLength(7);
   const measured = [180, 120, 170, 100, 200, 400].map((height, index) => ({ id: index + 1, height }));
-  expect(fitArticlesToHeight(measured, 400, 16, 2)).toEqual({ columns: [[1, 4], [2, 3]], overflow: [5, 6] });
+  // Taller (image) cards claim column space first, then reading order is restored.
+  expect(fitArticlesToHeight(measured, 400, 16, 2)).toEqual({ columns: [[6], [1, 5]], overflow: [2, 3, 4] });
   const taller = fitArticlesToHeight(measured, 800, 16, 2);
   expect(taller.overflow).toEqual([]);
   for (const column of taller.columns) {
@@ -141,12 +147,13 @@ test("sparse side columns fit vertical images without clipping text or losing ar
   const compact = { columns: [[1, 2, 3], [4, 5, 6, 7]], overflow: [8] };
   const stacked = [210, 180, 140, 300, 300, 300, 300, 120].map((height, index) => ({ id: index + 1, height }));
   const fitted = fitStackedSideColumns(compact, stacked, 600, 16);
-  expect(fitted).toEqual({ columns: [[1, 2], [4, 5, 6, 7]], overflow: [3, 8] });
-  const rowHeight = (600 - 16) / 2;
-  expect(stacked[0].height).toBeLessThanOrEqual(rowHeight);
-  expect(stacked[1].height).toBeLessThanOrEqual(rowHeight);
+  // Natural stacked heights (210+16+180+16+140) fit in 600, so all three stay.
+  expect(fitted).toEqual({ columns: [[1, 2, 3], [4, 5, 6, 7]], overflow: [8] });
   expect(new Set([...fitted.columns.flat(), ...fitted.overflow]).size).toBe(8);
   expect(fitStackedSideColumns(compact, stacked, 1000, 16)).toEqual(compact);
+  const tight = fitStackedSideColumns(compact, stacked, 400, 16);
+  expect(tight.columns[0]).toEqual([1, 3]);
+  expect(tight.overflow).toEqual(expect.arrayContaining([2, 8]));
 });
 
 test("Latest Articles uses the newest issue's WordPress theme colors", async () => {

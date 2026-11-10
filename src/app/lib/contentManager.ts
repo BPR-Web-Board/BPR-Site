@@ -168,6 +168,10 @@ export class PageContentManager {
     return this.usedArticleIds.size;
   }
 
+  getUsedIds(): number[] {
+    return Array.from(this.usedArticleIds);
+  }
+
   /**
    * Manually mark articles as used without selecting them.
    * Useful for articles that are rendered through other means.

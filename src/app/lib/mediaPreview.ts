@@ -1,5 +1,6 @@
 import { decode } from "he";
 import type { EnhancedPost, MediaPreview } from "./types";
+import { resolveWordPressMediaUrl } from "./utils";
 
 type MediaPost = Pick<EnhancedPost, "title" | "format" | "content" | "meta" | "categories_obj" | "media_preview">;
 

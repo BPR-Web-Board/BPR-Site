@@ -47,11 +47,11 @@ test("preview payload excludes body and private metadata but preserves podcast p
   expect(post.content.rendered).toBe(body);
   const article = { ...post, meta: {}, author: 0, content: { rendered: '<img src="/pixel.gif" width="1" height="1"><img class="emoji" src="/emoji.png"><img src="data:image/gif;base64,placeholder" data-src="/wp-content/uploads/chart.png?x=1&amp;y=2" width="1200" height="700" alt="Polling chart">', protected: false } };
   const fallback = toArticlePreview(article);
-  expect(fallback.featured_media_obj?.source_url).toBe("https://brownpoliticalreview.org/wp-content/uploads/chart.png?x=1&y=2");
+  expect(fallback.featured_media_obj?.source_url).toBe("https://cms.brownpoliticalreview.org/wp-content/uploads/chart.png?x=1&y=2");
   expect(fallback.featured_media_obj?.alt_text).toBe("Polling chart");
   expect(fallback.featured_media_obj?.media_details.width).toBe(1200);
   expect(fallback.content.rendered).toBe("");
-  expect(toArticlePreview({ ...article, featured_media_obj: { ...fallback.featured_media_obj!, source_url: "https://brownpoliticalreview.org/cover.jpg" } }).featured_media_obj?.source_url).toBe("https://brownpoliticalreview.org/cover.jpg");
+  expect(toArticlePreview({ ...article, featured_media_obj: { ...fallback.featured_media_obj!, source_url: "https://brownpoliticalreview.org/cover.jpg" } }).featured_media_obj?.source_url).toBe("https://cms.brownpoliticalreview.org/cover.jpg");
   expect((await enhancePosts([article]))[0].featured_media_obj?.source_url).toBe(fallback.featured_media_obj?.source_url);
   expect((await enhancePost(article)).featured_media_obj?.source_url).toBe(fallback.featured_media_obj?.source_url);
   expect(toArticlePreview({ ...article, content: { rendered: '<img src="javascript:alert(1)">', protected: false } }).featured_media_obj).toBeNull();
@@ -83,14 +83,14 @@ test("media previews detect standard-format video embeds and retain thumbnails a
   expect(preview.featured_media_obj?.source_url).toBe(expected.thumbnail);
   expect((await enhancePosts([post]))[0].featured_media_obj?.source_url).toBe(expected.thumbnail);
   expect((await enhancePost(post)).featured_media_obj?.source_url).toBe(expected.thumbnail);
-  expect(toArticlePreview({ ...post, featured_media_obj: { ...preview.featured_media_obj!, source_url: "https://brownpoliticalreview.org/cover.jpg" } }).featured_media_obj?.source_url).toBe("https://brownpoliticalreview.org/cover.jpg");
+  expect(toArticlePreview({ ...post, featured_media_obj: { ...preview.featured_media_obj!, source_url: "https://brownpoliticalreview.org/cover.jpg" } }).featured_media_obj?.source_url).toBe("https://cms.brownpoliticalreview.org/cover.jpg");
   for (const url of ["https://youtu.be/RCC7PZfoUTs", "https://www.youtube-nocookie.com/embed/RCC7PZfoUTs", "https://youtube.com/shorts/RCC7PZfoUTs", "https://youtube.com/watch?v=RCC7PZfoUTs"]) {
     expect(getMediaPreview({ ...post, content: { rendered: `<iframe src="${url}"></iframe>`, protected: false } })).toEqual(expected);
   }
   expect(getMediaPreview({ ...post, content: { rendered: '<iframe src="https://youtube.com.evil.test/embed/RCC7PZfoUTs"></iframe>', protected: false } })).toBeNull();
   expect(getMediaPreview({ ...post, content: { rendered: '<a href="https://youtube.com/watch?v=RCC7PZfoUTs">Source</a>', protected: false } })).toBeNull();
   expect(getMediaPreview({ ...post, content: { ...post.content, protected: true } })).toBeNull();
-  expect(getMediaPreview({ ...post, content: { rendered: '<video poster="/wp-content/uploads/video-cover.jpg"></video>', protected: false } })).toEqual({ type: "video", thumbnail: "https://brownpoliticalreview.org/wp-content/uploads/video-cover.jpg" });
+  expect(getMediaPreview({ ...post, content: { rendered: '<video poster="/wp-content/uploads/video-cover.jpg"></video>', protected: false } })).toEqual({ type: "video", thumbnail: "https://cms.brownpoliticalreview.org/wp-content/uploads/video-cover.jpg" });
   expect(getMediaPreview({ ...post, content: { rendered: '<iframe src="https://player.vimeo.com/video/12345"></iframe>', protected: false } })).toEqual({ type: "video" });
   expect(getMediaPreview({ ...post, content: { rendered: '<audio src="/interview.mp3"></audio>', protected: false } })).toEqual({ type: "audio" });
   expect(getMediaPreview({ ...post, content: { rendered: '<iframe src="https://open.spotify.com/embed/episode/abc123"></iframe>', protected: false } })).toEqual({ type: "audio" });

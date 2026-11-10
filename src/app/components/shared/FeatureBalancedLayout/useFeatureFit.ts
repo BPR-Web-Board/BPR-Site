@@ -30,6 +30,7 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
       if (!media.matches) {
         root.style.removeProperty("--feature-height");
         root.style.removeProperty("--feature-min-height");
+        root.style.removeProperty("--feature-image-height");
         apply({ columns: Array.from({ length: columnCount }, () => []), overflow: key ? key.split(",").map(Number) : [] });
         return;
       }
@@ -37,6 +38,9 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
       const sideColumns = Array.from(root.querySelectorAll<HTMLElement>("[data-side-column]"));
       const width = Math.min(...sideColumns.map(column => column.getBoundingClientRect().width));
       if (!feature || !width || !Number.isFinite(width)) return;
+      const featureImage = feature.querySelector<HTMLElement>(
+        ".featured-article-image-container, .large-article-preview-image-container, [class*='image-container']"
+      );
       const slots = Array.from(root.querySelectorAll<HTMLElement>("[data-fit-id]"));
       const host = document.createElement("div");
       host.inert = true;
@@ -76,6 +80,14 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
       if (Math.abs(parseFloat(root.style.getPropertyValue("--feature-height")) - height) > .5 || !root.style.getPropertyValue("--feature-height")) {
         root.style.setProperty("--feature-height", `${height}px`);
       }
+      const imageHeight = featureImage?.getBoundingClientRect().height || 0;
+      if (imageHeight > 0) {
+        if (Math.abs(parseFloat(root.style.getPropertyValue("--feature-image-height")) - imageHeight) > .5 || !root.style.getPropertyValue("--feature-image-height")) {
+          root.style.setProperty("--feature-image-height", `${imageHeight}px`);
+        }
+      } else {
+        root.style.removeProperty("--feature-image-height");
+      }
       const stacked = measured.map(article => ({ id: article.id, height: stackedHeights.get(article.id) || article.height }));
       apply(fitStackedSideColumns(compact, stacked, height, gap));
     };
@@ -84,6 +96,10 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
     observer.observe(root);
     const feature = root.querySelector<HTMLElement>(".feature-height-source");
     if (feature) observer.observe(feature);
+    const featureImage = feature?.querySelector<HTMLElement>(
+      ".featured-article-image-container, .large-article-preview-image-container, [class*='image-container']"
+    );
+    if (featureImage) observer.observe(featureImage);
     window.addEventListener("resize", schedule);
     media.addEventListener("change", schedule);
     document.fonts?.addEventListener("loadingdone", schedule);

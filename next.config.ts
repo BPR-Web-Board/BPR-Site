@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "www.brownpoliticalreview.org",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cms.brownpoliticalreview.org",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "api.builder.io",
         pathname: "/**",
       },

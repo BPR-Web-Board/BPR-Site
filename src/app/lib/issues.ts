@@ -1,4 +1,5 @@
 import { decode } from "he";
+import { resolveWordPressMediaUrl } from "./utils";
 
 export type IssueSource = {
   id: number;
@@ -29,7 +30,7 @@ function httpUrl(value: string, base?: string): string | undefined {
   try {
     const url = base ? new URL(value, base) : new URL(value);
     if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) return;
-    return url.href;
+    return resolveWordPressMediaUrl(url.href);
   } catch { return; }
 }
 

@@ -1,5 +1,5 @@
 "use client";
-import { getAuthorName, formatArchiveDate, withExternalLinkTargets } from "../../lib/utils";
+import { getAuthorName, formatArchiveDate, withExternalLinkTargets, resolveWordPressMediaUrl } from "../../lib/utils";
 import type { ArticleIssueRef } from "../../lib/articleIssue";
 import {
   getArticleVideoEmbed,
@@ -504,7 +504,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   }, [rawContent, videoEmbed]);
 
   const featuredImage = post.featured_media_obj;
-  const hasImage = !videoEmbed && !!(featuredImage && featuredImage.source_url);
+  const featuredImageUrl = featuredImage?.source_url
+    ? resolveWordPressMediaUrl(featuredImage.source_url)
+    : "";
+  const hasImage = !videoEmbed && !!featuredImageUrl;
   const hasMedia = hasImage || !!videoEmbed;
   const imageAlt = featuredImage?.alt_text || titleText;
   const authorName = getAuthorName(post);
@@ -649,7 +652,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             onClick={(event) => event.stopPropagation()}
           >
             <Image
-              src={featuredImage.source_url}
+              src={featuredImageUrl}
               alt={imageAlt}
               width={featuredImage.media_details?.width || 1600}
               height={featuredImage.media_details?.height || 900}
@@ -755,7 +758,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
         ) : hasImage ? (
           <div className="article-featured-image">
             <Image
-              src={featuredImage.source_url}
+              src={featuredImageUrl}
               alt={imageAlt}
               fill
               sizes="(max-width: 1024px) 100vw, 62vw"

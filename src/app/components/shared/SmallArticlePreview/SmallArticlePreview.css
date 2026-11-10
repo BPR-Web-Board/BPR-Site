@@ -71,7 +71,7 @@
   font-family: var(--font-primary-serif);
   font-size: var(--font-size-card-title);
   font-weight: 600;
-  line-height: 1.25;
+  line-height: var(--line-height-card-title);
   color: var(--text-primary);
   transition: color 0.2s ease;
   text-transform: capitalize;

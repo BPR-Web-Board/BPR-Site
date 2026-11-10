@@ -70,6 +70,7 @@
   --line-height-sm: 120%;
   --line-height-md: 130%;
   --line-height-lg: 140%;
+  --line-height-card-title: 1.2;
 
   /* Breakpoints - mobile first */
   --breakpoint-sm: 768px; /* Tablet */
@@ -506,6 +507,33 @@ body { color: var(--foreground); }
   position: relative;
 }
 
+.highlights-block {
+  width: 100%;
+  margin-top: var(--section-with-heading-gap);
+}
+
+.highlights-block-header {
+  width: var(--content-width);
+  max-width: none;
+  margin-inline: auto;
+  margin-bottom: var(--section-heading-gap);
+}
+
+.highlights-block-title {
+  margin: 0;
+  font-family: var(--font-primary-serif);
+  font-size: var(--font-size-section-title);
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.highlights-block .hero-section {
+  width: 100%;
+  margin-top: 0;
+}
+
 .section-heading-rule::before {
   content: "";
   position: absolute;
@@ -619,7 +647,29 @@ body { color: var(--foreground); }
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     overflow: hidden;
+    max-height: calc(3 * 1lh);
   }
+}
+
+/* Hard-cap clamped lines so the next line's glyph tops don't peek through */
+.four-article-grid .article-card-title,
+.four-article-grid .large-article-preview-title,
+.feature-side-card .small-article-title,
+.feature-side-overflow .small-article-title,
+.feature-side-overflow .large-article-preview-title {
+  max-height: calc(2 * 1lh);
+}
+
+.four-article-grid .article-card-excerpt,
+.four-article-grid .large-article-preview-excerpt,
+.apg-featured-article .featured-article-excerpt,
+.article-layout-featured .featured-article-excerpt {
+  max-height: calc(3 * 1lh);
+}
+
+.feature-side-overflow .small-article-excerpt,
+.feature-side-overflow .large-article-preview-excerpt {
+  max-height: calc(2 * 1lh);
 }
 
 

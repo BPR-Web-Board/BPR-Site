@@ -7,6 +7,10 @@
   margin-bottom: 0;
 }
 
+.article-layout.article-layout--no-title {
+  margin-top: var(--article-card-gap);
+}
+
 .article-layout .section-header {
   margin: 0 0 var(--section-heading-gap);
   padding-block: 0;
@@ -24,13 +28,32 @@
 
 .article-layout .articles-container {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: start;
   gap: var(--article-card-gap);
 }
 
 .article-layout .featured-article-wrapper {
+  grid-column: 1 / span 3;
   min-width: 0;
+}
+
+.article-layout .article-layout-sidebar {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+.article-layout-featured .featured-article-content.article-card-content-stack {
+  flex: 0 0 auto;
+}
+
+.article-layout-featured .featured-article-excerpt {
+  flex: 0 0 auto;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  max-height: calc(3 * 1lh);
 }
 
 .article-layout .featured-article.article-layout-featured.image-top .featured-article-image-container {
@@ -42,13 +65,29 @@
   font-size: var(--font-size-featured-title);
 }
 
-.article-layout-overflow {
-  margin-top: var(--article-card-gap);
+.article-layout-overflow.four-article-grid {
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .article-layout .articles-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .article-layout .featured-article-wrapper,
+  .article-layout .article-layout-sidebar {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 767px) {
   .article-layout .articles-container {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .article-layout .featured-article-wrapper,
+  .article-layout .article-layout-sidebar {
+    grid-column: auto;
   }
 
   .article-layout .feature-side-column {
@@ -60,12 +99,9 @@
   }
 }
 
-@media (min-width: 768px) {
-  .article-layout.feature-on-right .articles-container {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
-  }
+@media (min-width: 1024px) {
   .article-layout.feature-on-right .featured-article-wrapper {
-    grid-column: 2;
+    grid-column: 2 / span 3;
     grid-row: 1;
   }
   .article-layout.feature-on-right .article-layout-sidebar {

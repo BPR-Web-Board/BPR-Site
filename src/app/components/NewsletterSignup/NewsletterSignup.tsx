@@ -8,7 +8,6 @@ const storageKey = "bpr-newsletter-dismissed";
 
 export default function NewsletterSignup() {
   const [visible, setVisible] = useState(false);
-  const [footerVisible, setFooterVisible] = useState(false);
 
   useEffect(() => {
     try {
@@ -28,16 +27,6 @@ export default function NewsletterSignup() {
     };
   }, []);
 
-  useEffect(() => {
-    const footer = document.querySelector("footer");
-    if (!footer || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting), {
-      rootMargin: "0px 0px 16px 0px",
-    });
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
   const dismiss = () => {
     setVisible(false);
     try {
@@ -45,7 +34,7 @@ export default function NewsletterSignup() {
     } catch {}
   };
 
-  if (!visible || footerVisible) return null;
+  if (!visible) return null;
 
   return <aside className="newsletter-signup" aria-labelledby="newsletter-title" aria-describedby="newsletter-description"
     onKeyDown={event => { if (event.key === "Escape") dismiss(); }}>
