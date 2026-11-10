@@ -57,6 +57,12 @@
   outline-offset: var(--space-1);
 }
 
+@media (max-width: 639px) {
+  .newsletter-signup .site-action {
+    padding-inline: calc(var(--space-3) + 1px);
+  }
+}
+
 @media (max-height: 480px) {
   .newsletter-signup {
     display: none;

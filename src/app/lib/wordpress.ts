@@ -19,7 +19,7 @@ export const api = axios.create({
   timeout: 25000,
 });
 
-const WP_CIRCUIT_COOLDOWN_MS = 30_000;
+const WP_CIRCUIT_COOLDOWN_MS = 5_000;
 let wpCircuitOpenUntil = 0;
 
 const isProductionBuild =

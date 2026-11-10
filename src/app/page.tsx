@@ -8,37 +8,34 @@ import { getAllCategories } from "./lib/wordpress";
 import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
 import { PageContentManager } from "./lib/contentManager";
-// import Footer from "./components/Footer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180;
 
 export default async function HomePage() {
-  // Fetch all data in parallel for optimal performance
-  const [posts, categories, usaPosts, worldPosts, culturePosts] =
+  const [posts, categories, usaPosts, worldPosts, culturePosts, lawPosts] =
     await Promise.all([
       getAllPosts({ per_page: 25 }),
       getAllCategories(),
       getPostsByCategorySlug("usa", { per_page: 16 }),
       getPostsByCategorySlug("world", { per_page: 14 }),
       getPostsByCategorySlug("culture", { per_page: 12 }),
-      // getPostsByCategorySlug("law", { per_page: 10 }), // Law/Justice for policy content - reserved for future use
+      getPostsByCategorySlug("law", { per_page: 10 }),
     ]);
 
-  // Enhance all posts in parallel for optimal performance
   const [
     enhancedPosts,
     enhancedUsaPosts,
     enhancedWorldPosts,
     enhancedCulturePosts,
+    enhancedLawPosts,
   ] = await Promise.all([
     enhancePreviewPosts(posts.slice(0, 25), categories),
     enhancePreviewPosts(usaPosts, categories),
     enhancePreviewPosts(worldPosts, categories),
     enhancePreviewPosts(culturePosts, categories),
-    // enhancePreviewPosts(policyPosts, categories), // Reserved for future use
+    enhancePreviewPosts(lawPosts, categories),
   ]);
 
-  // Create content manager to prevent duplicate articles across all page components
   const contentManager = new PageContentManager();
 
   const heroPool = contentManager.combineUniquePosts(
@@ -53,53 +50,57 @@ export default async function HomePage() {
   });
   const previewArticles = contentManager.selectArticles(
     contentManager.combineUniquePosts(enhancedPosts, enhancedUsaPosts),
-    10,
-    {
-      allowPartial: true,
-    }
+    8,
+    { allowPartial: true }
   );
 
-  // USA Section - combine all USA posts and select unique articles
-  const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
-  const usaFeaturedGrid = contentManager.selectArticles(usaPool, 8, {
+  const worldHeroArticles = contentManager.selectArticles(
+    contentManager.combineUniquePosts(
+      enhancedWorldPosts.filter((post) => post.featured_media_obj?.source_url),
+      enhancedWorldPosts
+    ),
+    5,
+    { allowPartial: true }
+  );
+  const worldLayoutArticles = contentManager.selectArticles(
+    enhancedWorldPosts,
+    5,
+    { allowPartial: true }
+  );
+  const worldGrid = contentManager.selectArticles(enhancedWorldPosts, 4, {
     allowPartial: true,
   });
+
+  const cultureArticles = contentManager.selectArticles(
+    enhancedCulturePosts,
+    8,
+    { allowPartial: true }
+  );
+
+  const lawArticles = contentManager.selectArticles(enhancedLawPosts, 5, {
+    allowPartial: true,
+  });
+
+  const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
   const usaNewsArticles = contentManager.selectArticles(usaPool, 8, {
     allowPartial: true,
   });
-  const usaBottomGrid = contentManager.selectArticles(usaPool, 4, {
-    allowPartial: true,
-  });
 
-  // World Section
-  const worldPool = contentManager.ensureContent(
-    enhancedWorldPosts,
-    enhancedPosts
-  );
-  const worldHeroArticles = contentManager.selectArticles(worldPool, 5, {
-    allowPartial: true,
-  });
-  const worldLayoutArticles = contentManager.selectArticles(worldPool, 5, {
-    allowPartial: true,
-  });
-  const worldGrid = contentManager.selectArticles(worldPool, 4, {
-    allowPartial: true,
-  });
+  const hasContent =
+    heroArticles.length > 0 ||
+    previewArticles.length > 0 ||
+    usaNewsArticles.length > 0 ||
+    worldLayoutArticles.length > 0 ||
+    cultureArticles.length > 0 ||
+    lawArticles.length > 0;
 
-  // Culture Section
-  const culturePool = contentManager.ensureContent(
-    enhancedCulturePosts,
-    enhancedPosts
-  );
-  const cultureArticles = contentManager.selectArticles(culturePool, 8, {
-    allowPartial: true,
-  });
-
+  if (!hasContent) {
+    throw new Error("Homepage content unavailable from WordPress");
+  }
 
   return (
     <div className="page-container">
       <div className="featured-content">
-        {/* Main hero - shows the most recent featured post with priority loading */}
         {heroArticles.length > 0 && (
           <Hero posts={heroArticles} priority={true} />
         )}
@@ -107,46 +108,22 @@ export default async function HomePage() {
           {previewArticles.length > 0 && (
             <ArticlePreviewGrid articles={previewArticles} />
           )}
-          {/* USA Section - 2 rows of 4 articles each */}
-          {usaFeaturedGrid.length > 0 && (
-            <FourArticleGrid
-              posts={usaFeaturedGrid}
-              categoryName="USA"
-              showCategoryTitle={false}
-              numberOfRows={2}
-              className="width-constrained"
-            />
-          )}
         </div>
       </div>
       <div className="main-content">
-        {/* Section 1: United States */}
-        {(usaNewsArticles.length > 0 || usaBottomGrid.length > 0) && (
+        {usaNewsArticles.length > 0 && (
           <div className="two-column-layout-wrapper">
-            {usaNewsArticles.length > 0 && (
-              <FourArticleGrid
-                posts={usaNewsArticles}
-                categoryName="United States"
-                numberOfRows={Math.ceil(usaNewsArticles.length / 4)}
-                className="width-constrained"
-              />
-            )}
-            {usaBottomGrid.length > 0 && (
-              <FourArticleGrid
-                posts={usaBottomGrid}
-                categoryName="USA"
-                showCategoryTitle={false}
-                numberOfRows={1}
-                className="width-constrained"
-              />
-            )}
+            <FourArticleGrid
+              posts={usaNewsArticles}
+              categoryName="United States"
+              numberOfRows={Math.ceil(usaNewsArticles.length / 4)}
+              className="width-constrained"
+            />
           </div>
         )}
 
-        {/* Hero for World section - loads lazily as user scrolls */}
         {worldHeroArticles.length > 0 && <Hero posts={worldHeroArticles} />}
 
-        {/* Section 2: World News */}
         {(worldLayoutArticles.length > 0 || worldGrid.length > 0) && (
           <div className="two-column-layout-wrapper">
             {worldLayoutArticles.length > 0 && (
@@ -164,7 +141,6 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* Section 3: Culture */}
         {cultureArticles.length > 0 && (
           <div className="two-column-layout-wrapper">
             <FourArticleGrid
@@ -174,6 +150,10 @@ export default async function HomePage() {
               className="width-constrained"
             />
           </div>
+        )}
+
+        {lawArticles.length > 0 && (
+          <ArticleLayout posts={lawArticles} categoryName="Law & Justice" />
         )}
       </div>
     </div>

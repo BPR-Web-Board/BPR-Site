@@ -412,10 +412,12 @@ export function withCache<T extends unknown[], R>(
     // Execute the function and cache the result
     try {
       const result = await fn(...args);
-      await cache.set(functionName, cacheKey, result, ttl);
+      const isEmptyArray = Array.isArray(result) && result.length === 0;
+      if (!isEmptyArray) {
+        await cache.set(functionName, cacheKey, result, ttl);
+      }
       return result;
     } catch (error) {
-      // Don't cache errors
       throw error;
     }
   };

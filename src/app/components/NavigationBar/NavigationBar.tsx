@@ -142,7 +142,6 @@ export default function NavigationBar({ className = "" }: { className?: string }
     if (!isMobileMenuOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    mobileRef.current?.querySelector<HTMLInputElement>("input[type='search']")?.focus();
     return () => { document.body.style.overflow = previousOverflow; };
   }, [isMobileMenuOpen]);
   const keepOpen = () => { if (closeTimer.current) clearTimeout(closeTimer.current); };

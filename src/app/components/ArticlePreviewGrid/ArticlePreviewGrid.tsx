@@ -30,7 +30,6 @@ export default function ArticlePreviewGrid({ articles, categoryName, className =
   const featured = unique[2]?.featured_media_obj?.source_url ? unique[2] : unique.find(article => article.featured_media_obj?.source_url);
   const candidates = unique.filter(article => article.id !== featured?.id);
   const imageSidePool = candidates.slice(0, SIDE_PER_COLUMN * 2);
-  // Image cards are tall — if every side slot would have a picture, keep at most 2 per column.
   const sidePerColumn =
     imageSidePool.length > 0 && imageSidePool.every(hasSideImage)
       ? SIDE_PER_COLUMN_WITH_IMAGES
