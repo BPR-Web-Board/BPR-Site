@@ -58,15 +58,44 @@ function parseVideoCandidate(candidate: string): ArticleVideoEmbed | null {
   return null;
 }
 
+function iframeEmbedCandidates(html: string): string[] {
+  const candidates: string[] = [];
+  for (const match of html.matchAll(/<(?:iframe|embed)\b([^>]*)>/gi)) {
+    const attrs = match[1] || "";
+    const values = Array.from(
+      attrs.matchAll(/\b(?:data-src|src)\s*=\s*["']([^"']+)["']/gi),
+      (item) => decode(item[1])
+    );
+    values.sort((a, b) => Number(/^https?:/i.test(b)) - Number(/^https?:/i.test(a)));
+    candidates.push(...values);
+  }
+  return candidates;
+}
+
+export function hydrateLazyEmbeds(html: string): string {
+  return html.replace(/<(iframe|embed)\b([^>]*)>/gi, (tag, name: string, attrs: string) => {
+    const dataSrc = attrs.match(/\bdata-src\s*=\s*["']([^"']+)["']/i)?.[1];
+    if (!dataSrc) return tag;
+    const real = decode(dataSrc);
+    if (!/^https?:\/\//i.test(real)) return tag;
+    let nextAttrs = attrs.replace(/\bsrc\s*=\s*["'][^"']*["']/i, `src="${real}"`);
+    if (!/\bsrc\s*=/i.test(nextAttrs)) nextAttrs += ` src="${real}"`;
+    nextAttrs = nextAttrs.replace(/\sclass=(["'])([^"']*)\1/i, (_, quote: string, className: string) => {
+      const cleaned = className
+        .split(/\s+/)
+        .filter((item) => item && item !== "lazyload")
+        .join(" ");
+      return cleaned ? ` class=${quote}${cleaned}${quote}` : "";
+    });
+    return `<${name}${nextAttrs}>`;
+  });
+}
+
 export function getArticleVideoEmbed(post: MediaPost): ArticleVideoEmbed | null {
   const content = post.content?.protected ? "" : post.content?.rendered || "";
   if (!content) return null;
 
-  const embeds = Array.from(
-    content.matchAll(/<(?:iframe|embed)\b[^>]*\b(?:src|data-src)\s*=\s*["']([^"']+)["'][^>]*>/gi),
-    (match) => decode(match[1])
-  );
-  for (const candidate of embeds) {
+  for (const candidate of iframeEmbedCandidates(content)) {
     const embed = parseVideoCandidate(candidate);
     if (embed) return embed;
   }
@@ -132,7 +161,7 @@ export function getMediaPreview(post: MediaPost): MediaPreview | null {
   const content = post.content?.protected ? "" : post.content?.rendered || "";
   const title = decode(typeof post.title === "string" ? post.title : post.title?.rendered || "");
   const categories = post.categories_obj?.map(category => category.slug) || [];
-  const embeds = Array.from(content.matchAll(/<(?:iframe|embed)\b[^>]*\b(?:src|data-src)\s*=\s*["']([^"']+)["'][^>]*>/gi), match => decode(match[1]));
+  const embeds = iframeEmbedCandidates(content);
   const hasVideoTag = /<video\b/i.test(content);
   const isVideo = post.format === "video" || /\[video\]/i.test(title) || hasVideoTag;
   const candidates = [

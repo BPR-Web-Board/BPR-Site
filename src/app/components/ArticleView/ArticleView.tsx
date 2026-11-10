@@ -3,6 +3,7 @@ import { getAuthorName, formatArchiveDate, withExternalLinkTargets, resolveWordP
 import type { ArticleIssueRef } from "../../lib/articleIssue";
 import {
   getArticleVideoEmbed,
+  hydrateLazyEmbeds,
   stripArticleVideoEmbed,
 } from "../../lib/mediaPreview";
 import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
@@ -497,9 +498,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
 
   // Memoize contentBlocks to prevent infinite loop in useEffect
   const contentBlocks = useMemo(() => {
+    const hydrated = hydrateLazyEmbeds(rawContent);
     const html = videoEmbed
-      ? stripArticleVideoEmbed(rawContent, videoEmbed)
-      : rawContent;
+      ? stripArticleVideoEmbed(hydrated, videoEmbed)
+      : hydrated;
     return extractContentBlocks(withExternalLinkTargets(html));
   }, [rawContent, videoEmbed]);
 
