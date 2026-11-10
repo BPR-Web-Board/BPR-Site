@@ -35,9 +35,6 @@ function ArticleArchivePage() {
     setError(null);
 
     try {
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
       const params = new URLSearchParams({
         page: String(pageToLoad),
         per_page: "12",
@@ -54,12 +51,8 @@ function ArticleArchivePage() {
       if (key !== activeKey.current) return;
 
       const posts: EnhancedPost[] = data.posts || [];
-      const isFiltered = Boolean(nextQuery || nextIssue || nextCategory);
-      const nextArticles = isFiltered
-        ? posts
-        : posts.filter((post) => new Date(post.date) < sixMonthsAgo);
 
-      setArticles((prev) => uniqueArticles(replace ? [] : prev, nextArticles));
+      setArticles((prev) => uniqueArticles(replace ? [] : prev, posts));
       const nextPage = pageToLoad + 1;
       pageRef.current = nextPage;
       setPage(nextPage);

@@ -9,7 +9,7 @@ import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
 import { PageContentManager } from "./lib/contentManager";
 
-export const revalidate = 180;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [posts, categories, usaPosts, worldPosts, culturePosts, lawPosts] =
@@ -54,6 +54,11 @@ export default async function HomePage() {
     { allowPartial: true }
   );
 
+  const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
+  const usaNewsArticles = contentManager.selectArticles(usaPool, 8, {
+    allowPartial: true,
+  });
+
   const worldHeroArticles = contentManager.selectArticles(
     contentManager.combineUniquePosts(
       enhancedWorldPosts.filter((post) => post.featured_media_obj?.source_url),
@@ -81,20 +86,16 @@ export default async function HomePage() {
     allowPartial: true,
   });
 
-  const usaPool = contentManager.ensureContent(enhancedUsaPosts, enhancedPosts);
-  const usaNewsArticles = contentManager.selectArticles(usaPool, 8, {
-    allowPartial: true,
-  });
-
-  const hasContent =
-    heroArticles.length > 0 ||
-    previewArticles.length > 0 ||
-    usaNewsArticles.length > 0 ||
-    worldLayoutArticles.length > 0 ||
-    cultureArticles.length > 0 ||
-    lawArticles.length > 0;
-
-  if (!hasContent) {
+  if (
+    !heroArticles.length &&
+    !previewArticles.length &&
+    !usaNewsArticles.length &&
+    !worldLayoutArticles.length &&
+    !worldGrid.length &&
+    !worldHeroArticles.length &&
+    !cultureArticles.length &&
+    !lawArticles.length
+  ) {
     throw new Error("Homepage content unavailable from WordPress");
   }
 

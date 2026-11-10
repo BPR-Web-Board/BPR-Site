@@ -59,8 +59,6 @@ export default async function InterviewsPage() {
 
   const interviewsCategory = categories.find((cat) => cat.slug === "interviews");
   const contentManager = new PageContentManager();
-  const withImage = (post: (typeof interviewsPosts)[number]) =>
-    Boolean(post.featured_media_obj?.source_url);
 
   const congressArticles = contentManager.selectArticles(congressPosts, 4, {
     allowPartial: true,
@@ -93,14 +91,12 @@ export default async function InterviewsPage() {
 
   const heroArticles = contentManager.selectArticles(interviewsPosts, 5, {
     allowPartial: true,
-    filter: withImage,
   });
   const latestArticles = contentManager.selectArticles(interviewsPosts, 9, {
     allowPartial: true,
   });
   const heroArticles2 = contentManager.selectArticles(interviewsPosts, 5, {
     allowPartial: true,
-    filter: withImage,
   });
 
   const excludeIds = contentManager.getUsedIds();
