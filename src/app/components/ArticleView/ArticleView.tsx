@@ -654,8 +654,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             <Image
               src={featuredImageUrl}
               alt={imageAlt}
-              width={featuredImage.media_details?.width || 1600}
-              height={featuredImage.media_details?.height || 900}
+              width={featuredImage?.media_details?.width || 1600}
+              height={featuredImage?.media_details?.height || 900}
               className="article-lightbox-image"
               sizes="100vw"
               priority

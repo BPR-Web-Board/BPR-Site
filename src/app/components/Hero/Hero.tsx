@@ -7,7 +7,7 @@ import Link from "next/link";
 import classNames from "classnames";
 import { EnhancedPost } from "../../lib/types";
 import OptimizedImage from "../shared/OptimizedImage/OptimizedImage";
-import { getAuthorName, getArticleLink, formatArchiveDate, resolveWordPressMediaUrl } from "../../lib/utils";
+import { getAuthorName, getArticleLink, formatArchiveDate } from "../../lib/utils";
 import FourArticleGrid from "../FourArticleGrid/FourArticleGrid";
 import "./Hero.css";
 

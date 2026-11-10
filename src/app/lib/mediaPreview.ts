@@ -88,7 +88,11 @@ export function getArticleVideoEmbed(post: MediaPost): ArticleVideoEmbed | null 
               if (["http:", "https:"].includes(parsed.protocol)) posterUrl = parsed.href;
             } catch {}
           }
-          return { provider: "file", src: url.href, poster: posterUrl };
+          return {
+            provider: "file",
+            src: resolveWordPressMediaUrl(url.href),
+            poster: posterUrl ? resolveWordPressMediaUrl(posterUrl) : undefined,
+          };
         }
       } catch {}
     }
@@ -148,7 +152,9 @@ export function getMediaPreview(post: MediaPost): MediaPreview | null {
     if (poster) {
       try {
         const url = new URL(decode(poster), "https://brownpoliticalreview.org");
-        if (["http:", "https:"].includes(url.protocol)) return { type: "video", thumbnail: url.href };
+        if (["http:", "https:"].includes(url.protocol)) {
+          return { type: "video", thumbnail: resolveWordPressMediaUrl(url.href) };
+        }
       } catch {}
     }
     return { type: "video" };
