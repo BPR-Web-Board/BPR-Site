@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { Instagram, Linkedin, Mail } from "lucide-react";
+import { Instagram, Linkedin, Mail, Youtube } from "lucide-react";
 import "./Footer.css";
 
 interface FooterProps extends React.HTMLAttributes<HTMLElement> {
@@ -36,6 +36,11 @@ const Footer: React.FC<FooterProps> = ({ className, ...props }) => (
                 <li>
                   <a href="https://www.linkedin.com/company/brown-political-review/posts/?feedView=all" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
                     <Linkedin size={16} aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.youtube.com/@BrownBPR" className="footer-link footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube">
+                    <Youtube size={16} aria-hidden="true" />
                   </a>
                 </li>
                 <li>

@@ -114,6 +114,8 @@ test("issue identifiers remain stable when WordPress blocks are reordered and ho
   expect(parseIssueSource(source('Title: BPR Fall 2026 Issue 2\nPDF: https://files.test/fall.pdf'))[0].issueTag).toBe("bpr-fall2026-issue2");
   expect(parseIssueSource(source('Title: BPR Winter 2014 Issue\nPDF: https://files.test/winter.pdf'))[0].issueTag).toBe("bpr-winter2014-issue");
   expect(parseIssueSource(source(block + '\nIssue-Tag: bpr-fall2026-issue2'))[0].slug).toBe("bpr-fall2026-issue2");
+  expect(parseIssueSource(source(block + '\nTag: bpr-fall2018-issue2'))[0].slug).toBe("bpr-fall2018-issue2");
+  expect(parseIssueSource(source(block + '\nTheme: The Revolution Issue'))[0].theme).toBe("The Revolution Issue");
   expect(parseIssueSource(source(block + '\nIssue-Tag: 42'))[0].issueTag).toBe(42);
   const issue = parseIssueSource(source(block + '\nBackground-Color: #123456\nText-Color: #fff'))[0];
   expect(getIssueThemeCss(issue)).toContain(':root[data-theme="issue"]{');

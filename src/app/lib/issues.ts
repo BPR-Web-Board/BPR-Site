@@ -15,6 +15,7 @@ export type Issue = {
   title: string;
   slug: string;
   issueTag: string | number;
+  theme?: string;
   published: string | null;
   timestamp: number;
   pdf: string | null;
@@ -24,7 +25,21 @@ export type Issue = {
 };
 
 type ContentImage = { offset: number; url: string; alt: string };
-const fields = new Set(["title", "published", "pdf", "background-color", "text-color", "cover", "issue-tag"]);
+const fields = new Set([
+  "title",
+  "published",
+  "pdf",
+  "background-color",
+  "text-color",
+  "cover",
+  "issue-tag",
+  "tag",
+  "theme",
+]);
+
+function normalizeIssueFieldKey(key: string): string {
+  return key === "tag" ? "issue-tag" : key;
+}
 
 function httpUrl(value: string, base?: string): string | undefined {
   try {
@@ -132,8 +147,9 @@ export function parseIssueSource(source: IssueSource): Issue[] {
   let offset = 0;
   for (const line of text.split("\n")) {
     const colon = line.indexOf(":");
-    const key = line.slice(0, colon).trim().toLowerCase();
-    if (colon >= 0 && fields.has(key)) {
+    const rawKey = line.slice(0, colon).trim().toLowerCase();
+    const key = normalizeIssueFieldKey(rawKey);
+    if (colon >= 0 && fields.has(rawKey)) {
       if (Object.prototype.hasOwnProperty.call(current.values, key) || (key === "title" && Object.keys(current.values).length)) {
         blocks.push(current);
         current = { values: {}, start: offset, end: offset };
@@ -168,8 +184,9 @@ export function parseIssueSource(source: IssueSource): Issue[] {
     const after = index === blocks.length - 1 ? images.find(image => image.offset >= block.end) : undefined;
     const explicitCover = httpUrl(block.values.cover || "");
     const cover = explicitCover ? { url: explicitCover, alt: "" } : preceding[preceding.length - 1] || within || after;
+    const theme = (block.values.theme || "").trim() || undefined;
     return [{
-      id: `${source.id}-${index}`, title, slug, issueTag,
+      id: `${source.id}-${index}`, title, slug, issueTag, theme,
       published: date?.published || null, timestamp: date?.timestamp || 0, pdf,
       background: assignedBackground || DEFAULT_ISSUE_BACKGROUND,
       color: assignedColor || DEFAULT_ISSUE_COLOR,

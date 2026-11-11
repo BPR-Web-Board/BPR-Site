@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import IssuePdfPreview from "../../../components/IssuePdfPreview/IssuePdfPreview";
+import IssuePdfMeta from "../../../components/IssuePdfPreview/IssuePdfMeta";
 import MagazineArticles from "../../../components/MagazineArticles/MagazineArticles";
 import { getAllCategories, getIssueArchiveSources, getIssuePosts, getTagBySlug } from "../../../lib/wordpress";
 import { enhancePreviewPosts } from "../../../lib/enhancePost";
@@ -45,6 +46,7 @@ export default async function IssueArticlesPage({ params }: { params: Promise<{ 
     {previewPdf ? (
       <section className="issue-pdf-stage" aria-label={`${heading} PDF preview`}>
         <IssuePdfPreview url={previewPdf} title={heading} cover={issue.cover?.url} />
+        <IssuePdfMeta theme={issue.theme} />
       </section>
     ) : null}
   </>;

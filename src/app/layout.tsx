@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Libre_Franklin } from "next/font/google";
 import "./globals.css";
+import "./not-found.css";
 import NavigationBar from "./components/NavigationBar";
 import NavigationProgress from "./components/NavigationProgress/NavigationProgress";
 import Footer from "./components/Footer";

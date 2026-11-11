@@ -10,7 +10,8 @@
 
 .issue-pdf-stage {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: var(--content-width);
   max-width: 100%;
   margin: 0 auto var(--space-3);

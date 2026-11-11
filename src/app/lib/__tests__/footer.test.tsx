@@ -21,7 +21,8 @@ afterEach(() => {
 test("footer contains local pages, Donate, Instagram, Spotify, and email in one navigation", () => {
   render(<Footer />);
   const links = screen.getAllByRole("link");
-  expect(links).toHaveLength(9);
+  expect(links).toHaveLength(10);
+  expect(screen.getByRole("link", { name: "YouTube" })).toHaveAttribute("href", "https://www.youtube.com/@BrownBPR");
   expect(screen.getByRole("link", { name: "Newsletter" })).toHaveAttribute("href", "http://eepurl.com/hJoTFX");
   expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/company/brown-political-review/posts/?feedView=all");
   expect(screen.getByRole("link", { name: "Donate" })).toHaveAttribute("href", "/donate");

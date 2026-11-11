@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import MagazineArticles from "../../components/MagazineArticles/MagazineArticles";
 import IssuePdfPreview from "../../components/IssuePdfPreview/IssuePdfPreview";
+import IssuePdfMeta from "../../components/IssuePdfPreview/IssuePdfMeta";
 import { enhancePreviewPosts } from "../../lib/enhancePost";
 import { formatIssueHeading, getIssueThemeCss, parseIssues } from "../../lib/issues";
 import { getAllCategories, getIssueArchiveSources, getPostsByCategorySlug } from "../../lib/wordpress";
@@ -38,6 +39,7 @@ export default async function MagazinePage() {
   const pdfStage = previewPdf ? (
     <section className="issue-pdf-stage" aria-label={`${heading} PDF preview`}>
       <IssuePdfPreview url={previewPdf} title={heading} cover={latestIssue?.cover?.url} />
+      <IssuePdfMeta theme={latestIssue?.theme} />
     </section>
   ) : null;
 

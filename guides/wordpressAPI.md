@@ -519,14 +519,15 @@ Editors put labeled lines in the archive page/post body (first colon splits key/
 | Field | Purpose |
 |--------|---------|
 | `Title:` | Issue title |
+| `Tag:` / `Issue-Tag:` | Tag slug **or** numeric tag id that marks articles in this issue (`Tag:` preferred alias) |
+| `Theme:` | Optional issue theme/subtitle (shown under the PDF) |
 | `Published:` | `YYYY-MM-DD` |
 | `PDF:` | Link to the flipbook PDF |
-| `Background-Color:` | Hex page surface (e.g. `#3d4660`) |
-| `Text-Color:` | Hex ink (e.g. `#da9985`) |
 | `Cover:` | Optional cover image URL |
-| `Issue-Tag:` | Tag slug **or** numeric tag id that marks articles in this issue |
+| `Background-Color:` | Hex page surface (e.g. `#d45b46`) |
+| `Text-Color:` | Hex ink (e.g. `#ffffff`) |
 
-If `Issue-Tag` is omitted, the code derives a slug from the title, e.g. `BPR Spring 2026 Issue 2` → `bpr-spring2026-issue2` (`issueTagFromTitle`).
+If `Tag` / `Issue-Tag` is omitted, the code derives a slug from the title, e.g. `BPR Spring 2026 Issue 2` → `bpr-spring2026-issue2` (`issueTagFromTitle`).
 
 Defaults when colors are missing: paper `#fffefa` / ink `#0d0b00` (`DEFAULT_ISSUE_BACKGROUND` / `DEFAULT_ISSUE_COLOR`).
 

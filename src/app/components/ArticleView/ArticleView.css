@@ -8,6 +8,7 @@
 }
 
 .article-header {
+  --article-header-max-height: calc(100svh - var(--nav-height) - var(--section-gap));
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
@@ -114,7 +115,7 @@
 
 .article-title-view {
   font-family: var(--font-primary-serif);
-  font-size: var(--font-size-article-title);
+  font-size: var(--article-title-fit-size, var(--font-size-article-title));
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: 2.4px;
@@ -131,6 +132,7 @@
   align-self: stretch;
   overflow: hidden;
   background: var(--surface-muted);
+  max-height: var(--article-header-max-height);
 }
 
 .article-featured-image::before {
@@ -692,6 +694,7 @@
 
   .article-featured-image {
     align-self: auto;
+    max-height: min(56.25vw, calc(var(--article-header-max-height) * 0.55));
   }
 
   .article-body {

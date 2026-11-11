@@ -8,7 +8,7 @@ import {
 } from "../../lib/mediaPreview";
 import ArticleTitle from "../shared/ArticleTitle/ArticleTitle";
 import CategoryPills from "../shared/CategoryPills/CategoryPills";
-import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from "react";
+import React, { useRef, useEffect, useLayoutEffect, useState, useMemo, useCallback, memo } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -457,6 +457,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
 
   const scrollToTop = () => {
@@ -472,6 +474,90 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [pathname, post.id]);
+
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    const title = titleRef.current;
+    if (!header || !title) return;
+
+    let frame = 0;
+    let disposed = false;
+    let lastKey = "";
+    const minTitlePx = 20;
+
+    const resolveMaxHeight = () => {
+      const raw = getComputedStyle(header)
+        .getPropertyValue("--article-header-max-height")
+        .trim();
+      if (!raw) {
+        return window.innerHeight - 92;
+      }
+      const probe = document.createElement("div");
+      probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;height:${raw}`;
+      document.body.appendChild(probe);
+      const height = probe.getBoundingClientRect().height;
+      probe.remove();
+      return height > 0 ? height : window.innerHeight - 92;
+    };
+
+    const fit = () => {
+      frame = 0;
+      if (disposed || !header.isConnected || !title.isConnected) return;
+
+      const maxHeight = resolveMaxHeight();
+      const width = Math.round(header.getBoundingClientRect().width);
+      const key = `${width}:${Math.round(maxHeight)}`;
+      if (key === lastKey) return;
+
+      title.style.removeProperty("--article-title-fit-size");
+      if (maxHeight <= 0 || header.scrollHeight <= maxHeight + 1) {
+        lastKey = key;
+        return;
+      }
+
+      const startSize = parseFloat(getComputedStyle(title).fontSize);
+      if (!Number.isFinite(startSize) || startSize <= minTitlePx) {
+        lastKey = key;
+        return;
+      }
+
+      let low = minTitlePx;
+      let high = startSize;
+      for (let i = 0; i < 18; i += 1) {
+        const mid = (low + high) / 2;
+        title.style.setProperty("--article-title-fit-size", `${mid}px`);
+        if (header.scrollHeight <= maxHeight + 1) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      title.style.setProperty("--article-title-fit-size", `${low}px`);
+      lastKey = key;
+    };
+
+    const schedule = (force = false) => {
+      if (force) lastKey = "";
+      if (!disposed && !frame) frame = requestAnimationFrame(fit);
+    };
+    const scheduleForced = () => schedule(true);
+
+    const observer = new ResizeObserver(() => schedule());
+    observer.observe(header);
+    window.addEventListener("resize", scheduleForced);
+    document.fonts?.addEventListener("loadingdone", scheduleForced);
+    document.fonts?.ready.then(scheduleForced);
+    fit();
+
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleForced);
+      document.fonts?.removeEventListener("loadingdone", scheduleForced);
+      title.style.removeProperty("--article-title-fit-size");
+    };
+  }, [titleText, post.id]);
 
   // Fetch related posts if not provided
   useEffect(() => {
@@ -670,7 +756,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({
 
   return (
     <article className="article-view" ref={articleRef}>
-      <header className={`article-header${hasMedia ? " article-header--with-image" : ""}`}>
+      <header
+        ref={headerRef}
+        className={`article-header${hasMedia ? " article-header--with-image" : ""}`}
+      >
         <div className="article-header-copy">
           <nav className="article-back-nav" aria-label="Article navigation">
             <Link
@@ -714,7 +803,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
                 </p>
               )
             ) : null}
-            <h1 className="article-title-view">
+            <h1 ref={titleRef} className="article-title-view">
               <ArticleTitle html={titleText} />
             </h1>
           </div>
