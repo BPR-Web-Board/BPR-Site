@@ -99,16 +99,19 @@ function rewriteSrcset(value: string): string {
 }
 
 export function hydrateLazyEmbeds(html: string): string {
-  let next = html.replace(
+  const next = html.replace(
     /<(iframe|embed|audio|video|source|img)\b([^>]*)>/gi,
     (tag, name: string, attrs: string) => {
       let nextAttrs = attrs;
-      const dataSrc = attrs.match(/\bdata-src\s*=\s*["']([^"']+)["']/i)?.[1];
+      const dataSrc = attrs.match(/(?<![\w-])data-src\s*=\s*["']([^"']+)["']/i)?.[1];
       if (dataSrc) {
         const real = resolveContentMediaUrl(dataSrc);
         if (/^https?:\/\//i.test(decode(real))) {
-          nextAttrs = nextAttrs.replace(/\bsrc\s*=\s*["'][^"']*["']/i, `src="${real}"`);
-          if (!/\bsrc\s*=/i.test(nextAttrs)) nextAttrs += ` src="${real}"`;
+          if (/(?<![\w-])src\s*=/i.test(nextAttrs)) {
+            nextAttrs = nextAttrs.replace(/(?<![\w-])src\s*=\s*["'][^"']*["']/i, `src="${real}"`);
+          } else {
+            nextAttrs += ` src="${real}"`;
+          }
           nextAttrs = nextAttrs.replace(/\sclass=(["'])([^"']*)\1/i, (_, quote: string, className: string) => {
             const cleaned = className
               .split(/\s+/)
@@ -120,14 +123,14 @@ export function hydrateLazyEmbeds(html: string): string {
       }
 
       nextAttrs = nextAttrs.replace(
-        /\b(src|poster)\s*=\s*(["'])([^"']*)\2/gi,
+        /(?<![\w-])(src|poster)\s*=\s*(["'])([^"']*)\2/gi,
         (match, attr: string, quote: string, value: string) => {
           const resolved = resolveContentMediaUrl(value);
           return resolved === value ? match : `${attr}=${quote}${resolved}${quote}`;
         }
       );
       nextAttrs = nextAttrs.replace(
-        /\b(srcset|data-srcset)\s*=\s*(["'])([^"']*)\2/gi,
+        /(?<![\w-])(srcset|data-srcset)\s*=\s*(["'])([^"']*)\2/gi,
         (match, attr: string, quote: string, value: string) => {
           const resolved = rewriteSrcset(value);
           return resolved === value ? match : `${attr}=${quote}${resolved}${quote}`;
