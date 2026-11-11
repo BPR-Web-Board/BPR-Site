@@ -1,12 +1,18 @@
 .not-found-page {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding-inline: var(--site-gutter);
   background: var(--surface);
   color: var(--text-primary);
 }
 
 .not-found-content {
-  width: var(--content-width);
-  margin: var(--space-5) auto var(--space-6);
-  max-width: 40rem;
+  width: min(var(--content-width), 40rem);
+  margin: 0;
+  text-align: left;
 }
 
 .not-found-content h1 {
@@ -16,6 +22,7 @@
   font-size: var(--font-size-article-title);
   font-weight: 600;
   line-height: 1.15;
+  text-align: left;
 }
 
 .not-found-content > p {
@@ -24,34 +31,23 @@
   font-family: var(--font-body);
   font-size: var(--font-size-preview);
   line-height: 1.5;
+  text-align: left;
 }
 
 .not-found-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-start;
   gap: var(--space-2);
 }
 
-.error-page {
-  box-sizing: border-box;
-  flex: 1 1 auto;
-  min-height: calc(100dvh - var(--nav-height, 4.5rem));
-  display: grid;
-  place-items: center;
-  padding-inline: var(--site-gutter);
+body:has(.not-found-page) {
+  padding-top: 0;
 }
 
-.error-page .not-found-content {
-  width: min(var(--content-width), 40rem);
-  margin: 0;
-  text-align: center;
-}
-
-.error-page .not-found-actions {
-  justify-content: center;
-}
-
-body:has(.error-page) > .footer,
-body:has(.error-page) > .newsletter-signup {
+body:has(.not-found-page) > .navigation-bar,
+body:has(.not-found-page) > .navigation-progress,
+body:has(.not-found-page) > .footer,
+body:has(.not-found-page) > .newsletter-signup {
   display: none;
 }

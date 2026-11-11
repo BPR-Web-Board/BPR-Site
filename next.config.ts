@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/wp-content/:path*",
+        destination: "https://cms.brownpoliticalreview.org/wp-content/:path*",
+        permanent: true,
+      },
+      {
         source: "/wp-admin",
         destination: "https://cms.brownpoliticalreview.org/wp-admin/",
         permanent: false,
@@ -21,8 +26,6 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    // Vercel Image Optimization is billed; 402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED
-    // when the quota/billing is blocked. Serve source URLs directly instead.
     unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },

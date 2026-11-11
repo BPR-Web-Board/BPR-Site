@@ -123,7 +123,7 @@ export function hydrateLazyEmbeds(html: string): string {
       }
 
       nextAttrs = nextAttrs.replace(
-        /(?<![\w-])(src|poster)\s*=\s*(["'])([^"']*)\2/gi,
+        /(?<![\w-])(src|poster|data-src)\s*=\s*(["'])([^"']*)\2/gi,
         (match, attr: string, quote: string, value: string) => {
           const resolved = resolveContentMediaUrl(value);
           return resolved === value ? match : `${attr}=${quote}${resolved}${quote}`;

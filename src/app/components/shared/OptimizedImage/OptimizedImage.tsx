@@ -14,17 +14,10 @@ export interface OptimizedImageProps extends Omit<ImageProps, "onError" | "onLoa
   loading?: "lazy" | "eager";
 }
 
-/**
- * OptimizedImage component with error handling, loading states, and lazy loading
- * Handles timeout errors gracefully by showing fallback or placeholder
- * Always renders an image - either the actual image, loading state, or error state
- * Default behavior is lazy loading for better performance
- */
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
   src,
   alt,
   fallbackSrc,
-  showPlaceholder = true,
   errorFallback,
   className = "",
   loading,
@@ -34,49 +27,31 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   const handleError = () => {
-    // Only log errors in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.warn(`Image failed to load: ${src}`);
     }
     setImageError(true);
     setIsLoading(false);
   };
 
-  const handleLoad = () => {
-    setIsLoading(false);
-  };
+  if (imageError && errorFallback) return <>{errorFallback}</>;
 
-  // Determine which image source to use
-  let imageSrc = src;
-
-  if (imageError) {
-    // Use fallback if provided, otherwise use error placeholder
-    imageSrc = fallbackSrc || DEFAULT_ERROR_PLACEHOLDER;
-  } else if (isLoading && showPlaceholder) {
-    // While loading, show the image but it will fade in
-    // The browser will handle the loading state naturally
-  }
-
-  // Build image props - only include loading if priority is not set and loading is provided
   const imageProps: ImageProps = {
-    src: imageSrc,
+    ...props,
+    src: imageError ? fallbackSrc || DEFAULT_ERROR_PLACEHOLDER : src,
     alt: alt || "",
     className: `${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`,
     onError: handleError,
-    onLoad: handleLoad,
-    placeholder: "blur" as const,
+    onLoad: () => setIsLoading(false),
+    placeholder: "blur",
     blurDataURL: DEFAULT_PLACEHOLDER,
-    unoptimized: imageError,
-    ...props,
+    unoptimized: true,
   };
 
-  // Only add loading prop if priority is not set (Next.js doesn't allow both)
   if (!props.priority && loading) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (imageProps as any).loading = loading;
   }
-
-  if (imageError && errorFallback) return <>{errorFallback}</>;
 
   return <Image {...imageProps} alt={alt || ""} />;
 };

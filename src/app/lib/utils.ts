@@ -114,28 +114,41 @@ export function getFeaturedImageUrl(post: Post | EnhancedPost): string {
   return resolveWordPressMediaUrl((post as EnhancedPost).featured_media_obj?.source_url || "");
 }
 
-/**
- * Point WordPress upload URLs at the live media host.
- * Apex/www now front the Next app, so /wp-content/* there 403s; cms still serves files.
- */
+const CMS_MEDIA_ORIGIN = "https://cms.brownpoliticalreview.org/";
+const PUBLIC_SITE_HOSTS = new Set(["brownpoliticalreview.org", "www.brownpoliticalreview.org"]);
+
+function wordpressMediaOrigin(): URL {
+  let target = new URL(
+    process.env.WORDPRESS_MEDIA_URL ||
+      process.env.WORDPRESS_URL ||
+      process.env.NEXT_PUBLIC_WORDPRESS_URL ||
+      CMS_MEDIA_ORIGIN
+  );
+  if (PUBLIC_SITE_HOSTS.has(target.hostname.toLowerCase())) {
+    target = new URL(CMS_MEDIA_ORIGIN);
+  }
+  return target;
+}
+
+/** Rewrite apex/www (and relative /wp-content) media URLs to the CMS host. */
 export function resolveWordPressMediaUrl(url: string): string {
   if (!url) return url;
   try {
-    const media = new URL(url);
-    if (!["http:", "https:"].includes(media.protocol)) return url;
-    const host = media.hostname.toLowerCase();
-    if (host !== "brownpoliticalreview.org" && host !== "www.brownpoliticalreview.org") return url;
-    let target = new URL(
-      process.env.WORDPRESS_MEDIA_URL ||
-        process.env.WORDPRESS_URL ||
-        process.env.NEXT_PUBLIC_WORDPRESS_URL ||
-        "https://cms.brownpoliticalreview.org/"
-    );
-    const targetHost = target.hostname.toLowerCase();
-    if (!targetHost || targetHost === "brownpoliticalreview.org" || targetHost === "www.brownpoliticalreview.org") {
-      target = new URL("https://cms.brownpoliticalreview.org/");
+    const trimmed = url.trim();
+    const target = wordpressMediaOrigin();
+    let media: URL;
+    if (/^https?:\/\//i.test(trimmed)) {
+      media = new URL(trimmed);
+    } else if (trimmed.startsWith("//")) {
+      media = new URL(`https:${trimmed}`);
+    } else if (trimmed.startsWith("/") && /\/wp-content\//i.test(trimmed)) {
+      media = new URL(trimmed, target);
+    } else {
+      return url;
     }
-    if (target.hostname === host) return url;
+
+    if (!["http:", "https:"].includes(media.protocol)) return url;
+    if (!PUBLIC_SITE_HOSTS.has(media.hostname.toLowerCase())) return media.href;
     media.protocol = target.protocol;
     media.hostname = target.hostname;
     return media.href;

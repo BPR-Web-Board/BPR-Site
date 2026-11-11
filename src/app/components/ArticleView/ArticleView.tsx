@@ -169,78 +169,45 @@ function extractContentBlocks(htmlContent: string): ContentBlock[] {
     },
   ];
 
-  // Define image patterns
+  const extractFigureImage = (content: string) => {
+    const imgMatch = content.match(/<img[^>]*>/);
+    if (!imgMatch) return null;
+
+    const img = imgMatch[0];
+    const srcMatch = img.match(/src="([^"]+)"/);
+    if (!srcMatch) return null;
+
+    const altMatch = img.match(/alt="([^"]*)"/);
+    const widthMatch = img.match(/width="(\d+)"/);
+    const heightMatch = img.match(/height="(\d+)"/);
+    const linkMatch = content.match(/<a[^>]*href="([^"]+)"[^>]*>/);
+    const captionMatch = content.match(/<figcaption[^>]*>(.*?)<\/figcaption>/s);
+    const link = linkMatch ? he.decode(linkMatch[1]) : undefined;
+
+    return {
+      src: resolveWordPressMediaUrl(he.decode(srcMatch[1])),
+      alt: altMatch ? he.decode(altMatch[1]) : "",
+      width: widthMatch ? parseInt(widthMatch[1]) : 800,
+      height: heightMatch ? parseInt(heightMatch[1]) : 600,
+      caption: captionMatch
+        ? he.decode(captionMatch[1].replace(/<[^>]*>/g, "")).trim()
+        : undefined,
+      link: link && /wp-content\//i.test(link)
+        ? resolveWordPressMediaUrl(link)
+        : link,
+    };
+  };
+
   const imagePatterns = [
-    // WordPress block images
     {
       regex:
         /<figure[^>]*class="[^"]*wp-block-image[^"]*"[^>]*>(.*?)<\/figure>/gs,
-      extract: (content: string) => {
-        const imgMatch = content.match(/<img[^>]*>/);
-        if (!imgMatch) return null;
-
-        const img = imgMatch[0];
-        const srcMatch = img.match(/src="([^"]+)"/);
-        const altMatch = img.match(/alt="([^"]*)"/);
-        const widthMatch = img.match(/width="(\d+)"/);
-        const heightMatch = img.match(/height="(\d+)"/);
-
-        // Check for link wrapper
-        const linkMatch = content.match(/<a[^>]*href="([^"]+)"[^>]*>/);
-
-        // Check for caption (figcaption)
-        const captionMatch = content.match(
-          /<figcaption[^>]*>(.*?)<\/figcaption>/s
-        );
-
-        if (srcMatch) {
-          return {
-            src: he.decode(srcMatch[1]),
-            alt: altMatch ? he.decode(altMatch[1]) : "",
-            width: widthMatch ? parseInt(widthMatch[1]) : 800,
-            height: heightMatch ? parseInt(heightMatch[1]) : 600,
-            caption: captionMatch
-              ? he.decode(captionMatch[1].replace(/<[^>]*>/g, "")).trim()
-              : undefined,
-            link: linkMatch ? he.decode(linkMatch[1]) : undefined,
-          };
-        }
-        return null;
-      },
+      extract: extractFigureImage,
     },
-    // Regular img tags with figure wrapper
     {
       regex:
         /<figure[^>]*>((?:(?!<\/figure>).)*<img[^>]*>(?:(?!<\/figure>).)*)<\/figure>/gs,
-      extract: (content: string) => {
-        const imgMatch = content.match(/<img[^>]*>/);
-        if (!imgMatch) return null;
-
-        const img = imgMatch[0];
-        const srcMatch = img.match(/src="([^"]+)"/);
-        const altMatch = img.match(/alt="([^"]*)"/);
-        const widthMatch = img.match(/width="(\d+)"/);
-        const heightMatch = img.match(/height="(\d+)"/);
-
-        const linkMatch = content.match(/<a[^>]*href="([^"]+)"[^>]*>/);
-        const captionMatch = content.match(
-          /<figcaption[^>]*>(.*?)<\/figcaption>/s
-        );
-
-        if (srcMatch) {
-          return {
-            src: he.decode(srcMatch[1]),
-            alt: altMatch ? he.decode(altMatch[1]) : "",
-            width: widthMatch ? parseInt(widthMatch[1]) : 800,
-            height: heightMatch ? parseInt(heightMatch[1]) : 600,
-            caption: captionMatch
-              ? he.decode(captionMatch[1].replace(/<[^>]*>/g, "")).trim()
-              : undefined,
-            link: linkMatch ? he.decode(linkMatch[1]) : undefined,
-          };
-        }
-        return null;
-      },
+      extract: extractFigureImage,
     },
   ];
 

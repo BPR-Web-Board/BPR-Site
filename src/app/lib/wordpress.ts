@@ -11,7 +11,7 @@ import { withCache } from "./cache";
 // WordPress Config
 
 const baseUrl =
-  process.env.WORDPRESS_URL || "https://brownpoliticalreview.org/";
+  process.env.WORDPRESS_URL || "https://cms.brownpoliticalreview.org/";
 
 // Create axios instance with default config
 export const api = axios.create({

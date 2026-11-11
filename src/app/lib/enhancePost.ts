@@ -19,7 +19,7 @@ function withResolvedMediaUrl(media: FeaturedMedia | null): FeaturedMedia | null
 
 function resolvePostMedia(post: Post | EnhancedPost, featured: FeaturedMedia | null): FeaturedMedia | null {
   if (featured?.source_url) return withResolvedMediaUrl(featured);
-  const base = /^https?:\/\//i.test(post.link) ? post.link : process.env.WORDPRESS_URL || "https://brownpoliticalreview.org/";
+  const base = /^https?:\/\//i.test(post.link) ? post.link : process.env.WORDPRESS_URL || "https://cms.brownpoliticalreview.org/";
   for (const match of (post.content?.rendered || "").matchAll(/<img\b[^>]*>/gi)) {
     const attributes: Record<string, string> = {};
     for (const attribute of match[0].matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) {

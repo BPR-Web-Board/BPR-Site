@@ -1,62 +1,73 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const RESERVED_ROOT_SEGMENTS = new Set([
+  "about",
+  "apple-icon.png",
+  "culture",
+  "donate",
+  "icon.svg",
+  "interviews",
+  "legacy-article",
+  "magazine",
+  "multimedia",
+  "puzzles",
+  "puzzles-archives",
+  "search",
+  "united-states",
+  "world",
+]);
+
+const MULTIMEDIA_SUBSECTIONS = [
+  "bpradio",
+  "bpr-prodcast",
+  "data",
+  "media",
+] as const;
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Handle multimedia subsection redirects
-  // These subsections should be under /multimedia/[subsection]/
-  const multimediaSubsections = [
-    "bpradio",
-    "bpr-prodcast", // Legacy/alternate name for bpradio
-    "data",
-    "media",
-  ];
-
-  // Check if the path matches a multimedia subsection pattern
-  for (const subsection of multimediaSubsections) {
-    // Pattern: /subsection/article/[slug]
+  for (const subsection of MULTIMEDIA_SUBSECTIONS) {
     if (pathname.startsWith(`/${subsection}/article/`)) {
       const slug = pathname.replace(`/${subsection}/article/`, "");
-
-      // Map bpr-prodcast to bpradio
       const normalizedSubsection =
         subsection === "bpr-prodcast" ? "bpradio" : subsection;
-
-      // Redirect to /multimedia/subsection/article/slug
-      const newUrl = new URL(
-        `/multimedia/${normalizedSubsection}/article/${slug}`,
-        request.url
+      return NextResponse.redirect(
+        new URL(`/multimedia/${normalizedSubsection}/article/${slug}`, request.url),
+        308
       );
-      return NextResponse.redirect(newUrl, 308); // 308 = Permanent Redirect, preserves method
     }
 
-    // Pattern: /subsection (root subsection page)
     if (pathname === `/${subsection}` || pathname === `/${subsection}/`) {
       const normalizedSubsection =
         subsection === "bpr-prodcast" ? "bpradio" : subsection;
-      const newUrl = new URL(
-        `/multimedia/${normalizedSubsection}`,
-        request.url
+      return NextResponse.redirect(
+        new URL(`/multimedia/${normalizedSubsection}`, request.url),
+        308
       );
-      return NextResponse.redirect(newUrl, 308);
     }
+  }
+
+  const legacyMatch = pathname.match(/^\/([^/]+)\/?$/);
+  const legacySlug = legacyMatch?.[1];
+  if (
+    legacySlug &&
+    !RESERVED_ROOT_SEGMENTS.has(legacySlug) &&
+    !MULTIMEDIA_SUBSECTIONS.includes(
+      legacySlug as (typeof MULTIMEDIA_SUBSECTIONS)[number]
+    )
+  ) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = `/legacy-article/${legacySlug}`;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   return NextResponse.next();
 }
 
-// Configure which paths should run the middleware
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (images, etc.)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

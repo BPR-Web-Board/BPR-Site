@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { getArticleLink, stripHtml } from "../../lib/utils";
+import { getArticleLink, resolveWordPressMediaUrl, stripHtml } from "../../lib/utils";
 
 interface SubMenuItem {
   label: string;
@@ -83,7 +83,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   };
 
   const getFeaturedImageUrl = (article: Article): string => {
-    return article.featured_media_obj?.source_url || "";
+    const source = article.featured_media_obj?.source_url || "";
+    return source ? resolveWordPressMediaUrl(source) : "";
   };
 
 

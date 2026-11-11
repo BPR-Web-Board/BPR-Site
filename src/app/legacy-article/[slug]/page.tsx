@@ -1,6 +1,6 @@
 import { notFound, permanentRedirect } from "next/navigation";
-import { getAllCategories, getPostBySlug } from "../lib/wordpress";
-import { getArticleLink } from "../lib/utils";
+import { getAllCategories, getPostBySlug } from "../../lib/wordpress";
+import { getArticleLink } from "../../lib/utils";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -16,11 +16,15 @@ export default async function LegacyArticleSlugPage({ params }: PageProps) {
     post.categories?.includes(category.id)
   );
 
-  permanentRedirect(
-    getArticleLink({
-      id: post.id,
-      slug: post.slug,
-      categories_obj,
-    })
-  );
+  const destination = getArticleLink({
+    id: post.id,
+    slug: post.slug,
+    categories_obj,
+  });
+
+  if (!destination || destination === "#" || destination === `/${slug}`) {
+    notFound();
+  }
+
+  permanentRedirect(destination);
 }

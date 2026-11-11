@@ -4,14 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PageFlipOpen } from "pageflipopen";
 import "pageflipopen/pageflipopen.css";
-
-function resolveSource(url: string) {
-  if (url.startsWith("/")) return url;
-  try {
-    if (new URL(url).origin === window.location.origin) return url;
-  } catch {}
-  return `/api/issue-pdf?url=${encodeURIComponent(url)}`;
-}
+import { resolveWordPressMediaUrl } from "../../lib/utils";
 
 function CoverFallback({ cover, title }: { cover?: string; title: string }) {
   return (
@@ -69,7 +62,7 @@ export default function IssuePdfFlipbook({ url, title, cover }: { url: string; t
           .trim() || "#fffefa";
         const startPage = singlePage ? 1 : 2;
         flipbook = new PageFlipOpen(host, {
-          source: resolveSource(url),
+          source: resolveWordPressMediaUrl(url),
           startPage,
           singlePageMode: singlePage,
           autoLayout: !singlePage,

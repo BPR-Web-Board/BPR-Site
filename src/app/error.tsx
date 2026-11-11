@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="page-container not-found-page error-page">
+    <main className="page-container not-found-page">
       <div className="not-found-content">
         <h1>Something went wrong</h1>
         <p>This page failed to load. Try again, or head back to the homepage.</p>
