@@ -34,7 +34,7 @@ WORDPRESS_URL=https://cms.brownpoliticalreview.org/
 - Login: https://cms.brownpoliticalreview.org/wp-login.php  
 - Dashboard: https://cms.brownpoliticalreview.org/wp-admin/
 
-To change files on the server, SSH in first (host and user can live in `.env.local` for your own notes — keep passwords out of git and off Vercel). WordPress lives at `/var/www/html` on the CMS droplet.
+To change files on the server, SSH in first. WordPress lives at `/var/www/html` on the CMS droplet.
 
 ## Scripts
 
