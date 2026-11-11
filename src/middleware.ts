@@ -51,8 +51,10 @@ export function middleware(request: NextRequest) {
 
   const legacyMatch = pathname.match(/^\/([^/]+)\/?$/);
   const legacySlug = legacyMatch?.[1];
+  // Skip static public files (e.g. pageflipopen.worker.mjs) — dots mean not an article slug.
   if (
     legacySlug &&
+    !legacySlug.includes(".") &&
     !RESERVED_ROOT_SEGMENTS.has(legacySlug) &&
     !MULTIMEDIA_SUBSECTIONS.includes(
       legacySlug as (typeof MULTIMEDIA_SUBSECTIONS)[number]
@@ -68,6 +70,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mjs|js|css|map|txt|xml|woff2?)$).*)",
   ],
 };
