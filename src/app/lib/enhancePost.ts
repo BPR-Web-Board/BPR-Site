@@ -276,7 +276,13 @@ export function toArticlePreview(post: EnhancedPost): EnhancedPost {
     rendered: encode(bodyText.length > 500 ? `${bodyText.slice(0, 500).replace(/\s+\S*$/, "")}…` : bodyText),
     protected: post.excerpt?.protected || false,
   };
-  const spotify = post.content.rendered.match(/https?:\/\/(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/i)?.[0];
+  const spotify =
+    post.content.rendered.match(
+      /<(?:iframe|embed)\b[^>]*\b(?:data-src|src)=["']([^"']*spotify\.com[^"']*)["']/i
+    )?.[1]?.replace(/&amp;/g, "&") ||
+    post.content.rendered.match(
+      /https?:\/\/(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/i
+    )?.[0];
   return {
     id: post.id, slug: post.slug, date: post.date, date_gmt: post.date_gmt,
     modified: post.modified, modified_gmt: post.modified_gmt,

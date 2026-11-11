@@ -72,22 +72,79 @@ function iframeEmbedCandidates(html: string): string[] {
   return candidates;
 }
 
+function resolveContentMediaUrl(value: string): string {
+  const decoded = decode(value).trim();
+  if (!decoded || decoded.startsWith("data:") || /^about:/i.test(decoded)) return value;
+  try {
+    const absolute = new URL(decoded, "https://brownpoliticalreview.org").href;
+    if (!["http:", "https:"].includes(new URL(absolute).protocol)) return value;
+    return resolveWordPressMediaUrl(absolute);
+  } catch {
+    return value;
+  }
+}
+
+function rewriteSrcset(value: string): string {
+  return value
+    .split(",")
+    .map((part) => {
+      const trimmed = part.trim();
+      if (!trimmed) return part;
+      const match = trimmed.match(/^(\S+)(\s+.*)?$/);
+      if (!match) return part;
+      const resolved = resolveContentMediaUrl(match[1]);
+      return `${resolved}${match[2] || ""}`;
+    })
+    .join(", ");
+}
+
 export function hydrateLazyEmbeds(html: string): string {
-  return html.replace(/<(iframe|embed)\b([^>]*)>/gi, (tag, name: string, attrs: string) => {
-    const dataSrc = attrs.match(/\bdata-src\s*=\s*["']([^"']+)["']/i)?.[1];
-    if (!dataSrc) return tag;
-    const real = decode(dataSrc);
-    if (!/^https?:\/\//i.test(real)) return tag;
-    let nextAttrs = attrs.replace(/\bsrc\s*=\s*["'][^"']*["']/i, `src="${real}"`);
-    if (!/\bsrc\s*=/i.test(nextAttrs)) nextAttrs += ` src="${real}"`;
-    nextAttrs = nextAttrs.replace(/\sclass=(["'])([^"']*)\1/i, (_, quote: string, className: string) => {
-      const cleaned = className
-        .split(/\s+/)
-        .filter((item) => item && item !== "lazyload")
-        .join(" ");
-      return cleaned ? ` class=${quote}${cleaned}${quote}` : "";
+  let next = html.replace(
+    /<(iframe|embed|audio|video|source|img)\b([^>]*)>/gi,
+    (tag, name: string, attrs: string) => {
+      let nextAttrs = attrs;
+      const dataSrc = attrs.match(/\bdata-src\s*=\s*["']([^"']+)["']/i)?.[1];
+      if (dataSrc) {
+        const real = resolveContentMediaUrl(dataSrc);
+        if (/^https?:\/\//i.test(decode(real))) {
+          nextAttrs = nextAttrs.replace(/\bsrc\s*=\s*["'][^"']*["']/i, `src="${real}"`);
+          if (!/\bsrc\s*=/i.test(nextAttrs)) nextAttrs += ` src="${real}"`;
+          nextAttrs = nextAttrs.replace(/\sclass=(["'])([^"']*)\1/i, (_, quote: string, className: string) => {
+            const cleaned = className
+              .split(/\s+/)
+              .filter((item) => item && item !== "lazyload")
+              .join(" ");
+            return cleaned ? ` class=${quote}${cleaned}${quote}` : "";
+          });
+        }
+      }
+
+      nextAttrs = nextAttrs.replace(
+        /\b(src|poster)\s*=\s*(["'])([^"']*)\2/gi,
+        (match, attr: string, quote: string, value: string) => {
+          const resolved = resolveContentMediaUrl(value);
+          return resolved === value ? match : `${attr}=${quote}${resolved}${quote}`;
+        }
+      );
+      nextAttrs = nextAttrs.replace(
+        /\b(srcset|data-srcset)\s*=\s*(["'])([^"']*)\2/gi,
+        (match, attr: string, quote: string, value: string) => {
+          const resolved = rewriteSrcset(value);
+          return resolved === value ? match : `${attr}=${quote}${resolved}${quote}`;
+        }
+      );
+
+      return nextAttrs === attrs ? tag : `<${name}${nextAttrs}>`;
+    }
+  );
+
+  return next.replace(/<a\b([^>]*)>/gi, (tag, attrs: string) => {
+    const nextAttrs = attrs.replace(/\bhref\s*=\s*(["'])([^"']*)\1/gi, (match: string, quote: string, value: string) => {
+      if (!/wp-content\//i.test(value)) return match;
+      const resolved = resolveContentMediaUrl(value);
+      return resolved === value ? match : `href=${quote}${resolved}${quote}`;
     });
-    return `<${name}${nextAttrs}>`;
+    return nextAttrs === attrs ? tag : `<a${nextAttrs}>`;
   });
 }
 

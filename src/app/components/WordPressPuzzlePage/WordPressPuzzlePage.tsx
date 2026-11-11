@@ -3,12 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getPageBySlug } from "../../lib/wordpress";
 import { stripHtml } from "../../lib/utils";
+import { hydrateLazyEmbeds } from "../../lib/mediaPreview";
 import "./content-pages.css";
 
 export default async function WordPressPuzzlePage({ slug }: { slug: string }) {
   const page = await getPageBySlug(slug);
   if (!page) notFound();
-  const content = page.content.rendered
+  const content = hydrateLazyEmbeds(
+    page.content.rendered
     .replace(/<div\b([^>]*class="pm-embed-div"[^>]*)>\s*<\/div>/gi, (_, attributes: string) => {
       const attribute = (name: string) => attributes.match(new RegExp(`${name}="([^"]*)"`, "i"))?.[1];
       const id = attribute("data-id");
@@ -17,7 +19,8 @@ export default async function WordPressPuzzlePage({ slug }: { slug: string }) {
       const query = new URLSearchParams({ id, set, embed: "wp" });
       return `<iframe class="puzzle-frame" title="BPR crossword puzzle" src="https://puzzleme.amuselabs.com/pmm/crossword?${query.toString().replace(/&/g, "&amp;")}" loading="lazy" allow="fullscreen"></iframe>`;
     })
-    .replace(/https?:\/\/brownpoliticalreview\.org\/(puzzles(?:-archives)?)\//g, "/$1");
+    .replace(/https?:\/\/brownpoliticalreview\.org\/(puzzles(?:-archives)?)\//g, "/$1")
+  );
   const headerLink = slug === "puzzles"
     ? {
         href: "/puzzles-archives",

@@ -175,21 +175,18 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   );
 };
 
-// Helper function to extract Spotify URL from post content
 function extractSpotifyUrl(content: string): string | undefined {
-  // Check for Spotify iframes first (most common in WordPress)
   const iframeRegex =
-    /<iframe[^>]*src=["']([^"']*spotify\.com[^"']*)["'][^>]*>/i;
+    /<iframe[^>]*\b(?:data-src|src)=["']([^"']*spotify\.com[^"']*)["'][^>]*>/i;
   const iframeMatch = content.match(iframeRegex);
-  if (iframeMatch && iframeMatch[1]) {
-    return iframeMatch[1];
+  if (iframeMatch?.[1]) {
+    return iframeMatch[1].replace(/&amp;/g, "&");
   }
 
-  // Check for direct Spotify URLs (including open.spotify.com/embed/)
   const spotifyRegex =
     /(?:https?:\/\/)?(?:open\.)?spotify\.com\/(?:embed\/)?(?:episode|show|track)\/[a-zA-Z0-9]+(?:\?[^\s"<>)]*)?/gi;
   const matches = content.match(spotifyRegex);
-  if (matches && matches.length > 0) {
+  if (matches?.length) {
     const url = matches[0];
     return url.startsWith("http") ? url : `https://${url}`;
   }
