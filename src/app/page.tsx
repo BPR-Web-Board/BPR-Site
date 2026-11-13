@@ -9,7 +9,8 @@ import ArticlePreviewGrid from "./components/ArticlePreviewGrid";
 import FourArticleGrid from "./components/FourArticleGrid";
 import { PageContentManager } from "./lib/contentManager";
 
-export const dynamic = "force-dynamic";
+// Cache the rendered homepage; the publishing webhook also revalidates this path.
+export const revalidate = 300;
 
 export default async function HomePage() {
   const [posts, categories, usaPosts, worldPosts, culturePosts, lawPosts] =

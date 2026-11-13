@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { publicArticleJson } from "@/app/lib/publicArticleResponse";
 import { getPostsByCategory, getAllCategories } from "@/app/lib/wordpress";
 import { enhancePreviewPosts } from "@/app/lib/enhancePost";
 
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     if (!posts || posts.length === 0) {
-      return NextResponse.json({ posts: [] });
+      return publicArticleJson({ posts: [] });
     }
 
     // Filter out the current post
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
     // Enhance posts
     const enhancedPosts = await enhancePreviewPosts(limitedPosts, categories);
 
-    return NextResponse.json({ posts: enhancedPosts });
+    return publicArticleJson({ posts: enhancedPosts });
   } catch (error) {
     console.error("Error fetching related posts:", error);
     return NextResponse.json(

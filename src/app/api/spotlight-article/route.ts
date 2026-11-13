@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { publicArticleJson } from "@/app/lib/publicArticleResponse";
 import { getPostsByCategorySlug, getAllCategories } from "@/app/lib/wordpress";
 import { enhancePreviewPosts } from "@/app/lib/enhancePost";
 import { cache } from "@/app/lib/cache";
@@ -45,9 +46,9 @@ export async function GET(request: NextRequest) {
     if (cached) {
       // Return format based on requested count
       if (perPage > 1) {
-        return NextResponse.json({ articles: cached });
+        return publicArticleJson({ articles: cached });
       }
-      return NextResponse.json({ article: cached });
+      return publicArticleJson({ article: cached });
     }
 
     // If not cached, fetch fresh articles (most recent)
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     if (!posts || posts.length === 0) {
-      return NextResponse.json({ article: null, articles: [] });
+      return publicArticleJson({ article: null, articles: [] });
     }
 
     // Enhance posts (they come sorted by date DESC from WordPress)
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
       // Cache for 1 week
       await cache.set(cacheKey, {}, article, ONE_WEEK_TTL);
 
-      return NextResponse.json({ article });
+      return publicArticleJson({ article });
     } else {
       // Get the most recent N articles
       const articles = enhancedPosts.slice(0, perPage);
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
       // Cache for 1 week
       await cache.set(cacheKey, {}, articles, ONE_WEEK_TTL);
 
-      return NextResponse.json({ articles });
+      return publicArticleJson({ articles });
     }
   } catch (error) {
     console.error("Error fetching spotlight article:", error);

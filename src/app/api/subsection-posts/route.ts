@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { publicArticleJson } from "@/app/lib/publicArticleResponse";
 import { getPostsByCategorySlug, getAllCategories } from "@/app/lib/wordpress";
 import { enhancePreviewPosts } from "@/app/lib/enhancePost";
 
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
     // Enhance posts with author, media, and category data
     const enhancedPosts = await enhancePreviewPosts(posts, categories);
 
-    return NextResponse.json({
+    return publicArticleJson({
       posts: enhancedPosts,
       page,
       perPage,

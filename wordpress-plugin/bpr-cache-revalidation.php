@@ -67,7 +67,7 @@ function bpr_revalidate_on_post_update($post_id, $post, $update) {
     }
     
     // Trigger revalidation
-    bpr_revalidate_cache('posts');
+    bpr_revalidate_cache($post->post_type === 'page' ? 'pages' : 'posts');
 }
 add_action('save_post', 'bpr_revalidate_on_post_update', 10, 3);
 
@@ -80,7 +80,7 @@ function bpr_revalidate_on_post_delete($post_id) {
         return;
     }
     
-    bpr_revalidate_cache('posts');
+    bpr_revalidate_cache(get_post_type($post_id) === 'page' ? 'pages' : 'posts');
 }
 add_action('delete_post', 'bpr_revalidate_on_post_delete');
 
@@ -168,6 +168,7 @@ function bpr_settings_page() {
                         <select name="cache_type">
                             <option value="all">All</option>
                             <option value="posts">Posts</option>
+                            <option value="pages">Pages</option>
                             <option value="categories">Categories</option>
                             <option value="tags">Tags</option>
                             <option value="media">Media</option>

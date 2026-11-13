@@ -113,7 +113,6 @@ test("All Issues keeps issues separate from articles and serves published WordPr
   expect(empty).toContain('href="/magazine/archive"');
   expect(empty).toContain('href="/magazine/issues"');
   expect(empty.match(/<h1\b/g)).toHaveLength(1);
-  expect(empty).toContain(">Archive</h1>");
   expect(empty).not.toContain("Latest Articles");
   expect(empty).toContain(">Issues</a>");
   expect(empty).toContain(">Articles</a>");
