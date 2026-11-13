@@ -1,23 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const RESERVED_ROOT_SEGMENTS = new Set([
-  "about",
-  "apple-icon.png",
-  "culture",
-  "donate",
-  "icon.svg",
-  "interviews",
-  "legacy-article",
-  "magazine",
-  "multimedia",
-  "puzzles",
-  "puzzles-archives",
-  "search",
-  "united-states",
-  "world",
-]);
-
 const MULTIMEDIA_SUBSECTIONS = [
   "bpradio",
   "bpr-prodcast",
@@ -25,25 +8,51 @@ const MULTIMEDIA_SUBSECTIONS = [
   "media",
 ] as const;
 
+/** Common single-segment probes that should never hit WordPress. */
+const BLOCKED_LEGACY_SLUGS = new Set([
+  "admin",
+  "login",
+  "wp-admin",
+  "wp-login",
+  "wp-content",
+  "wp-includes",
+  "xmlrpc",
+  "wordpress",
+  "phpmyadmin",
+  "cgi-bin",
+  "vendor",
+  "node_modules",
+  "robots",
+  "sitemap",
+  "feed",
+  "rss",
+  "cdn-cgi",
+]);
+
+const ARTICLE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+
+function normalizeMultimedia(subsection: (typeof MULTIMEDIA_SUBSECTIONS)[number]) {
+  return subsection === "bpr-prodcast" ? "bpradio" : subsection;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   for (const subsection of MULTIMEDIA_SUBSECTIONS) {
     if (pathname.startsWith(`/${subsection}/article/`)) {
-      const slug = pathname.replace(`/${subsection}/article/`, "");
-      const normalizedSubsection =
-        subsection === "bpr-prodcast" ? "bpradio" : subsection;
+      const slug = pathname.slice(`/${subsection}/article/`.length).replace(/\/$/, "");
+      if (!slug || !ARTICLE_SLUG.test(slug)) {
+        return NextResponse.next();
+      }
       return NextResponse.redirect(
-        new URL(`/multimedia/${normalizedSubsection}/article/${slug}`, request.url),
+        new URL(`/multimedia/${normalizeMultimedia(subsection)}/article/${slug}`, request.url),
         308
       );
     }
 
     if (pathname === `/${subsection}` || pathname === `/${subsection}/`) {
-      const normalizedSubsection =
-        subsection === "bpr-prodcast" ? "bpradio" : subsection;
       return NextResponse.redirect(
-        new URL(`/multimedia/${normalizedSubsection}`, request.url),
+        new URL(`/multimedia/${normalizeMultimedia(subsection)}`, request.url),
         308
       );
     }
@@ -51,11 +60,10 @@ export function middleware(request: NextRequest) {
 
   const legacyMatch = pathname.match(/^\/([^/]+)\/?$/);
   const legacySlug = legacyMatch?.[1];
-  // Skip static public files (e.g. pageflipopen.worker.mjs) — dots mean not an article slug.
   if (
     legacySlug &&
-    !legacySlug.includes(".") &&
-    !RESERVED_ROOT_SEGMENTS.has(legacySlug) &&
+    ARTICLE_SLUG.test(legacySlug) &&
+    !BLOCKED_LEGACY_SLUGS.has(legacySlug.toLowerCase()) &&
     !MULTIMEDIA_SUBSECTIONS.includes(
       legacySlug as (typeof MULTIMEDIA_SUBSECTIONS)[number]
     )
@@ -70,6 +78,14 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mjs|js|css|map|txt|xml|woff2?)$).*)",
+    "/bpradio",
+    "/bpradio/:path*",
+    "/bpr-prodcast",
+    "/bpr-prodcast/:path*",
+    "/data",
+    "/data/:path*",
+    "/media",
+    "/media/:path*",
+    "/((?!api|_next|about|culture|donate|interviews|legacy-article|magazine|multimedia|puzzles|puzzles-archives|search|united-states|world)[^/.]+)",
   ],
 };

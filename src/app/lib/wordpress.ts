@@ -8,15 +8,35 @@ import type { IssueSource } from "./issues";
 import { Post, Category, Tag, Page, Author, FeaturedMedia } from "./types";
 import { withCache } from "./cache";
 
-// WordPress Config
+const CMS_BASE = "https://cms.brownpoliticalreview.org/";
+const PUBLIC_HOSTS = new Set(["brownpoliticalreview.org", "www.brownpoliticalreview.org"]);
 
-const baseUrl =
-  process.env.WORDPRESS_URL || "https://cms.brownpoliticalreview.org/";
+function resolveWordPressBaseUrl(): string {
+  const hostname = process.env.WORDPRESS_HOSTNAME?.trim();
+  const raw =
+    process.env.WORDPRESS_URL?.trim() ||
+    (hostname
+      ? `https://${hostname.replace(/^https?:\/\//i, "").replace(/\/$/, "")}/`
+      : "") ||
+    CMS_BASE;
+  try {
+    const url = new URL(raw);
+    if (!["http:", "https:"].includes(url.protocol)) return CMS_BASE;
+    if (PUBLIC_HOSTS.has(url.hostname.toLowerCase())) return CMS_BASE;
+    if (!url.pathname.endsWith("/")) url.pathname += "/";
+    return url.href;
+  } catch {
+    return CMS_BASE;
+  }
+}
 
-// Create axios instance with default config
 export const api = axios.create({
-  baseURL: baseUrl,
+  baseURL: resolveWordPressBaseUrl(),
   timeout: 25000,
+  headers: {
+    Accept: "application/json",
+    "User-Agent": "BPR-Site/1.0 (+https://brownpoliticalreview.org)",
+  },
 });
 
 const WP_CIRCUIT_COOLDOWN_MS = 5_000;

@@ -39,7 +39,7 @@ export default async function ArchiveLayout({ children }: { children: ReactNode 
     <main className="page-container">
       <div className="archive-content">
         <header className="archive-header">
-          <h1 className="archive-title">Archive</h1>
+          <h1 className="archive-title">Magazine archive</h1>
         </header>
         <div className="archive-toolbar">
           <MagazineNavigation />
