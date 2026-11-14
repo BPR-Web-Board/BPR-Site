@@ -189,6 +189,27 @@
   outline-offset: 2px;
 }
 
+.article-image-caption {
+  position: absolute;
+  right: var(--article-card-gap);
+  bottom: var(--article-card-gap);
+  z-index: 2;
+  box-sizing: border-box;
+  max-width: calc(100% - 3 * var(--article-card-gap) - 36px);
+  max-height: calc(100% - 2 * var(--article-card-gap));
+  overflow: auto;
+  padding: 7px 10px;
+  border: var(--divider-border);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
 .article-lightbox {
   position: fixed;
   inset: 0;

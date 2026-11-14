@@ -92,6 +92,20 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
       apply(fitStackedSideColumns(compact, stacked, height, gap));
     };
     const schedule = () => { if (!disposed && !frame) frame = requestAnimationFrame(measure); };
+    const onBreakpointChange = () => {
+      if (media.matches) {
+        root.style.removeProperty("--feature-height");
+        root.style.removeProperty("--feature-min-height");
+        root.style.removeProperty("--feature-image-height");
+        apply({
+          columns: Array.from({ length: columnCount }, (_, index) =>
+            (key ? key.split(",").map(Number) : []).filter((_, position) => position % columnCount === index)
+          ),
+          overflow: [],
+        });
+      }
+      schedule();
+    };
     const observer = new ResizeObserver(schedule);
     observer.observe(root);
     const feature = root.querySelector<HTMLElement>(".feature-height-source");
@@ -101,7 +115,7 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
     );
     if (featureImage) observer.observe(featureImage);
     window.addEventListener("resize", schedule);
-    media.addEventListener("change", schedule);
+    media.addEventListener("change", onBreakpointChange);
     document.fonts?.addEventListener("loadingdone", schedule);
     document.fonts?.ready.then(schedule);
     measure();
@@ -110,7 +124,7 @@ export default function useFeatureFit(ids: number[], columnCount: number, breakp
       cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener("resize", schedule);
-      media.removeEventListener("change", schedule);
+      media.removeEventListener("change", onBreakpointChange);
       document.fonts?.removeEventListener("loadingdone", schedule);
     };
   }, [key, columnCount, breakpoint, revision]);

@@ -73,18 +73,6 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-.feature-side-overflow .four-article-grid-horizontal .article-card-image-container.image-left,
-.feature-side-overflow .four-article-grid-horizontal .article-card-image-container.image-right {
-  width: var(--fag-image-width);
-  flex: 0 0 var(--fag-image-width);
-  max-width: var(--fag-image-width);
-  height: var(--fag-image-height);
-  min-height: var(--fag-image-height);
-  max-height: var(--fag-image-height);
-  aspect-ratio: auto;
-  align-self: center;
-}
-
 @media (min-width: 1024px) {
   .feature-side-overflow:has(> :nth-child(2):last-child) {
     grid-template-columns: repeat(2, minmax(0, 1fr));

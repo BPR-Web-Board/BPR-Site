@@ -52,6 +52,7 @@ export type Post = {
     "wp:featuredmedia"?: Array<{
       id: number;
       source_url?: string;
+      caption?: { rendered: string };
       alt_text?: string;
       media_type?: string;
       mime_type?: string;

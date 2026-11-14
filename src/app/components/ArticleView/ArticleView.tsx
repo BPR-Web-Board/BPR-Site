@@ -565,6 +565,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const hasImage = !videoEmbed && !!featuredImageUrl;
   const hasMedia = hasImage || !!videoEmbed;
   const imageAlt = featuredImage?.alt_text || titleText;
+  const imageCaption = he.decode(
+    (featuredImage?.caption?.rendered || "").replace(/<[^>]*>/g, "")
+  ).trim();
   const authorName = getAuthorName(post);
   const formattedDate = formatArchiveDate(post.date || "");
 
@@ -831,6 +834,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({
             >
               <Expand size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
+            {imageCaption ? (
+              <div className="article-image-caption">{imageCaption}</div>
+            ) : null}
           </div>
         ) : null}
       </header>

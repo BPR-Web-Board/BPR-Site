@@ -18,6 +18,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   src,
   alt,
   fallbackSrc,
+  showPlaceholder = true,
   errorFallback,
   className = "",
   loading,
@@ -43,8 +44,8 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     className: `${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-300`,
     onError: handleError,
     onLoad: () => setIsLoading(false),
-    placeholder: "blur",
-    blurDataURL: DEFAULT_PLACEHOLDER,
+    placeholder: showPlaceholder ? "blur" : "empty",
+    blurDataURL: showPlaceholder ? DEFAULT_PLACEHOLDER : undefined,
     unoptimized: true,
   };
 
