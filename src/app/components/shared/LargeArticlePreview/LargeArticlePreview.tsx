@@ -69,6 +69,7 @@ const LargeArticlePreview: React.FC<LargeArticlePreviewProps> = ({
     >
       <Link
         href={articleLink}
+        prefetch={false}
         className="article-card-stretch-link"
         aria-label={title}
       />

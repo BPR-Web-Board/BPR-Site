@@ -75,6 +75,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
     >
       <Link
         href={articleLink}
+        prefetch={false}
         className="article-card-stretch-link"
         aria-label={titleText}
       />

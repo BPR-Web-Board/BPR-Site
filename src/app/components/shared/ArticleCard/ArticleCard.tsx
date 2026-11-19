@@ -84,6 +84,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     >
       <Link
         href={articleLink}
+        prefetch={false}
         className="article-card-stretch-link"
         aria-label={stripHtml(title)}
       />
