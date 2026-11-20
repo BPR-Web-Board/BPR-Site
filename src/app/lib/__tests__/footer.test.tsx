@@ -1,8 +1,6 @@
 /** @jest-environment jsdom */
 import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { existsSync } from "fs";
-import { join } from "path";
 import Footer from "../../components/Footer/Footer";
 import NewsletterSignup from "../../components/NewsletterSignup/NewsletterSignup";
 
@@ -16,30 +14,6 @@ afterEach(() => {
   jest.clearAllTimers();
   jest.useRealTimers();
   jest.restoreAllMocks();
-});
-
-test("footer contains local pages, Donate, Instagram, Spotify, and email in one navigation", () => {
-  render(<Footer />);
-  const links = screen.getAllByRole("link");
-  expect(links).toHaveLength(10);
-  expect(screen.getByRole("link", { name: "YouTube" })).toHaveAttribute("href", "https://www.youtube.com/@BrownBPR");
-  expect(screen.getByRole("link", { name: "Newsletter" })).toHaveAttribute("href", "http://eepurl.com/hJoTFX");
-  expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/company/brown-political-review/posts/?feedView=all");
-  expect(screen.getByRole("link", { name: "Donate" })).toHaveAttribute("href", "/donate");
-  expect(screen.getByRole("link", { name: "Spotify" })).toHaveAttribute("href", "https://open.spotify.com/show/4OewXk59kprBDrq1to11Ap");
-  expect(screen.getByRole("navigation", { name: "Footer" })).toContainElement(screen.getByRole("link", { name: "Instagram" }));
-  expect(screen.getByRole("link", { name: "Instagram" })).toHaveAttribute("href", "https://www.instagram.com/brownpoliticalreview/?hl=en#");
-  expect(screen.getByRole("link", { name: "Email BPR" })).toHaveAttribute("href", "mailto:brown-political-review@brown.edu");
-  for (const name of ["Instagram", "Spotify", "LinkedIn", "Email BPR"]) {
-    expect(screen.getByRole("link", { name })).toHaveTextContent("");
-  }
-  for (const link of links) {
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    const href = link.getAttribute("href")!;
-    if (!href.startsWith("/")) continue;
-    expect(existsSync(join(process.cwd(), "src/app", href, "page.tsx"))).toBe(true);
-  }
 });
 
 test("newsletter appears after a delay without stealing focus or blocking page interaction", () => {

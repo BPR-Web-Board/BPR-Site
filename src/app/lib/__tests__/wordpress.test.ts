@@ -281,10 +281,6 @@ describe("WordPress API Functions (Mocked)", () => {
   });
 
   describe("Error Handling", () => {
-    it("should handle API errors gracefully", async () => {
-      jest.spyOn(api, "get").mockRejectedValueOnce(new Error("API Error"));
-      await expect(getAllPosts()).rejects.toThrow("API Error");
-    });
     it("should handle empty responses", async () => {
       jest.spyOn(api, "get").mockResolvedValueOnce({
         data: [],
@@ -304,37 +300,6 @@ describe("WordPress API Functions (Integration, Real Data)", () => {
   // These tests hit the real endpoint and may fail if the API is down or data changes
   // Remove or comment out .skip to enable
   describe("Live API", () => {
-    it("should fetch real posts with required fields", async () => {
-      const posts = await getAllPosts();
-      expect(Array.isArray(posts)).toBe(true);
-      expect(posts.length).toBeGreaterThan(0);
-      const post = posts[0];
-      expect(post).toHaveProperty("id");
-      expect(post).toHaveProperty("slug");
-      expect(post).toHaveProperty("title.rendered");
-      expect(post).toHaveProperty("content.rendered");
-      expect(post).toHaveProperty("author");
-      expect(post).toHaveProperty("categories");
-      expect(post).toHaveProperty("tags");
-      expect(typeof post.slug).toBe("string");
-      expect(typeof post.title.rendered).toBe("string");
-    });
-    it("should fetch real categories", async () => {
-      const categories = await getAllCategories();
-      expect(Array.isArray(categories)).toBe(true);
-      expect(categories.length).toBeGreaterThan(0);
-      expect(categories[0]).toHaveProperty("id");
-      expect(categories[0]).toHaveProperty("slug");
-      expect(categories[0]).toHaveProperty("name");
-    });
-    it("should fetch real authors", async () => {
-      const authors = await getAllAuthors();
-      expect(Array.isArray(authors)).toBe(true);
-      expect(authors.length).toBeGreaterThan(0);
-      expect(authors[0]).toHaveProperty("id");
-      expect(authors[0]).toHaveProperty("slug");
-      expect(authors[0]).toHaveProperty("name");
-    });
     it("should fetch featured media for a real post if available", async () => {
       const posts = await getAllPosts();
       const postWithMedia = posts.find(

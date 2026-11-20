@@ -1,5 +1,5 @@
 "use client";
-import { getAuthorName, formatArchiveDate, withExternalLinkTargets, resolveWordPressMediaUrl } from "../../lib/utils";
+import { getArticleByline, formatArchiveDate, withExternalLinkTargets, resolveWordPressMediaUrl } from "../../lib/utils";
 import type { ArticleIssueRef } from "../../lib/articleIssue";
 import {
   getArticleVideoEmbed,
@@ -568,7 +568,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({
   const imageCaption = he.decode(
     (featuredImage?.caption?.rendered || "").replace(/<[^>]*>/g, "")
   ).trim();
-  const authorName = getAuthorName(post);
+  const authorName = getArticleByline(post);
   const formattedDate = formatArchiveDate(post.date || "");
 
   useEffect(() => {

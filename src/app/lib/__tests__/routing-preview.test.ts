@@ -1,4 +1,4 @@
-import { getArticleLink, getAuthorName, getCategoryLink } from "../utils";
+import { getArticleByline, getArticleLink, getAuthorName, getCategoryLink } from "../utils";
 import { enhancePost, enhancePosts, toArticlePreview } from "../enhancePost";
 import { getMediaPreview } from "../mediaPreview";
 import type { EnhancedPost, Post } from "../types";
@@ -64,6 +64,18 @@ test("unknown author names use Anonymous while valid attribution is retained", (
   }
   expect(getAuthorName({ author_name: "LASTNAME", author_obj: { name: "Henry Knight" } })).toBe("Henry Knight");
   expect(getAuthorName({ author_name: " Henry Knight " })).toBe("Henry Knight");
+});
+
+test("article bylines retain both CMS authors in order and support older posts", async () => {
+  const post = {
+    author: 1,
+    _embedded: { author: [{ id: 1, name: "Second Writer" }] },
+    content: { rendered: "<p>Article body</p>", protected: false },
+    bpr_author_names: ["First O&#8217;Brien", "Second Writer"],
+  } as Post;
+  const [enhanced] = await enhancePosts([post]);
+  expect(getArticleByline(enhanced)).toBe("First O’Brien and Second Writer");
+  expect(getArticleByline({ ...enhanced, bpr_author_names: [] })).toBe("Second Writer");
 });
 
 test("media previews detect standard-format video embeds and retain thumbnails after pruning the body", async () => {

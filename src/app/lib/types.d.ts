@@ -29,6 +29,7 @@ export type Post = {
     protected: boolean;
   };
   author: number;
+  bpr_author_names?: string[];
   featured_media: number;
   format:
     | "standard"

@@ -12,6 +12,17 @@ export function getAuthorName(post: { author_name?: string; author_obj?: { name:
   return "Anonymous";
 }
 
+export function getArticleByline(post: EnhancedPost): string {
+  const cmsNames = post.bpr_author_names?.length
+    ? post.bpr_author_names
+    : post._embedded?.author?.map(({ name }) => name);
+  const names = cmsNames
+    ?.map((author_name) => getAuthorName({ author_name }))
+    .filter((name) => name !== "Anonymous");
+
+  return names?.length ? names.join(" and ") : getAuthorName(post);
+}
+
 /**
  * Formats a date string to a readable format
  */
